@@ -28,6 +28,18 @@ DEBUG = os.getenv("DEBUG", "false").lower() == "true"
 
 app = FastAPI()
 
+# Setup file logging
+def log_to_file(msg):
+    with open("debug.log", "a", encoding="utf-8") as f:
+        f.write(f"[{datetime.now().isoformat()}] {msg}\n")
+
+# Override print to also log to file (simple hack for debugging)
+original_print = print
+def print(*args, **kwargs):
+    msg = " ".join(map(str, args))
+    log_to_file(msg)
+    original_print(*args, **kwargs)
+
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"],
@@ -151,9 +163,11 @@ async def get_supabase_client(token: str):
         }
     )
 
-async def upload_to_supabase_storage(user_id: str, recording_id: str, audio_bytes: bytes, token: str) -> str:
-    """Upload audio file to Supabase Storage"""
-    filename = f"{user_id}/{recording_id}.wav"
+async def upload_to_supabase_storage(user_id: str, recording_id: str, audio_bytes: bytes, token: str, content_type: str = "audio/wav") -> str:
+    """Upload audio file to Supabase Storage and return the storage path"""
+    # Determine extension based on content_type
+    ext = "webm" if "webm" in content_type else "wav"
+    filename = f"{user_id}/{recording_id}.{ext}"
     
     async with httpx.AsyncClient() as client:
         response = await client.post(
@@ -161,15 +175,51 @@ async def upload_to_supabase_storage(user_id: str, recording_id: str, audio_byte
             headers={
                 "Authorization": f"Bearer {token}",
                 "apikey": SUPABASE_KEY,
+                "x-upsert": "true" # Allow overwriting existing files
             },
-            files={"file": ("recording.wav", audio_bytes, "audio/wav")}
+            files={"file": (f"recording.{ext}", audio_bytes, content_type)}
         )
         
         if response.status_code not in [200, 201]:
             raise HTTPException(status_code=500, detail=f"Storage upload failed: {response.text}")
         
-        # Return public URL
-        return f"{SUPABASE_URL}/storage/v1/object/public/recordings/{filename}"
+        # Return internal storage path, NOT public URL
+        return filename
+
+async def create_signed_url(filename: str, token: str, expires_in: int = 3600) -> str:
+    """Create a signed URL for a file in storage"""
+    async with httpx.AsyncClient() as client:
+        response = await client.post(
+            f"{SUPABASE_URL}/storage/v1/object/sign/recordings/{filename}",
+            headers={
+                "Authorization": f"Bearer {token}",
+                "apikey": SUPABASE_KEY,
+                "Content-Type": "application/json"
+            },
+            json={"expiresIn": expires_in}
+        )
+        
+        if response.status_code != 200:
+            print(f"Failed to sign URL for {filename}: {response.text}")
+            return None
+            
+        data = response.json()
+        # The signedURL returned is relative to the Supabase URL
+        return f"{SUPABASE_URL}/storage/v1{data['signedURL']}"
+
+async def delete_from_supabase_storage(filename: str, token: str) -> None:
+    """Delete a file from Supabase Storage (ignore missing)"""
+    async with httpx.AsyncClient() as client:
+        response = await client.delete(
+            f"{SUPABASE_URL}/storage/v1/object/recordings/{filename}",
+            headers={
+                "Authorization": f"Bearer {token}",
+                "apikey": SUPABASE_KEY,
+            }
+        )
+        if response.status_code not in [200, 204]:
+            # Log but don't fail the entire request
+            print(f"Storage delete warning for {filename}: {response.status_code} {response.text}")
 
 # Active recording buffers (keyed by client_id)
 active_buffers: Dict[str, AudioBuffer] = {}
@@ -222,10 +272,11 @@ async def init_recording(
             
             response = await supabase_client.post(
                 "/rest/v1/recordings",
-                json=recording_data
+                json=recording_data,
+                headers={"Prefer": "resolution=merge-duplicates"}
             )
             
-            if response.status_code not in [200, 201]:
+            if response.status_code not in [200, 201, 204]:
                 raise HTTPException(status_code=500, detail=f"Database error: {response.text}")
                 
         return {"id": recording_id}
@@ -264,9 +315,15 @@ async def create_recording(
         # Use provided ID or generate new one
         recording_id = id if id else str(uuid.uuid4())
         
+        print(f"DEBUG: create_recording called. ID={recording_id}, Title={title}, Duration={duration_seconds}")
+
         # Upload audio to Storage
         audio_bytes = await audio_file.read()
-        audio_url = await upload_to_supabase_storage(user_id, recording_id, audio_bytes, token)
+        print(f"DEBUG: Audio file size: {len(audio_bytes)} bytes")
+        
+        content_type = audio_file.content_type or "audio/webm"
+        audio_url = await upload_to_supabase_storage(user_id, recording_id, audio_bytes, token, content_type)
+        print(f"DEBUG: Audio uploaded to: {audio_url}")
         
         # Parse transcripts
         transcripts_list = json.loads(transcripts)
@@ -280,15 +337,49 @@ async def create_recording(
                 "duration_seconds": duration_seconds
             }
             
-            # Upsert (Insert or Update)
-            recording_response = await supabase_client.post(
-                "/rest/v1/recordings",
-                json=recording_data,
-                headers={"Prefer": "resolution=merge-duplicates"}
-            )
+            print(f"Saving recording {recording_id}: {title}, {duration_seconds}s (Audio Path: {audio_url})")
             
-            if recording_response.status_code not in [200, 201, 204]:
-                raise HTTPException(status_code=500, detail=f"Database error: {recording_response.text}")
+            # Verify duration is valid
+            if duration_seconds == 0:
+                print(f"⚠️ WARNING: Saving recording with 0 duration! ID: {recording_id}")
+            
+            # If ID is provided, try to UPDATE first
+            if id:
+                # Try PATCH
+                # Explicitly update title and other fields
+                print(f"DEBUG: Attempting PATCH for ID {recording_id}")
+                update_response = await supabase_client.patch(
+                    f"/rest/v1/recordings?id=eq.{recording_id}",
+                    json={
+                        "title": title,
+                        "duration_seconds": duration_seconds,
+                        "audio_url": audio_url,
+                        "updated_at": datetime.now(timezone.utc).isoformat()
+                    }
+                )
+                if update_response.status_code == 204:
+                    print(f"Updated existing recording {recording_id}")
+                else:
+                    # If update fails (e.g. not found), fall back to upsert
+                    print(f"Update failed ({update_response.status_code}), falling back to upsert. Response: {update_response.text}")
+                    recording_response = await supabase_client.post(
+                        "/rest/v1/recordings",
+                        json=recording_data,
+                        headers={"Prefer": "resolution=merge-duplicates"}
+                    )
+                    if recording_response.status_code not in [200, 201, 204]:
+                        print(f"DEBUG: Upsert failed: {recording_response.text}")
+                        raise HTTPException(status_code=500, detail=f"Database error: {recording_response.text}")
+            else:
+                # New recording, just insert
+                print(f"DEBUG: Inserting new recording {recording_id}")
+                recording_response = await supabase_client.post(
+                    "/rest/v1/recordings",
+                    json=recording_data
+                )
+                if recording_response.status_code not in [200, 201, 204]:
+                    print(f"DEBUG: Insert failed: {recording_response.text}")
+                    raise HTTPException(status_code=500, detail=f"Database error: {recording_response.text}")
             
             # Insert transcripts (delete existing first if updating to avoid duplicates?)
             # For simplicity, we'll just insert. If ID conflict, we might need to handle it.
@@ -323,15 +414,50 @@ async def create_recording(
 async def get_recordings(token: str):
     """Get all recordings for the authenticated user"""
     try:
+        # Verify user and get ID
+        async with httpx.AsyncClient() as client:
+            user_response = await client.get(
+                f"{SUPABASE_URL}/auth/v1/user",
+                headers={
+                    "Authorization": f"Bearer {token}",
+                    "apikey": SUPABASE_KEY
+                }
+            )
+            
+            if user_response.status_code != 200:
+                raise HTTPException(status_code=401, detail="Invalid token")
+            
+            user_data = user_response.json()
+            user_id = user_data["id"]
+
         async with await get_supabase_client(token) as supabase_client:
+            # Explicitly filter by user_id as a safeguard
             response = await supabase_client.get(
-                "/rest/v1/recordings?select=*&order=created_at.desc"
+                f"/rest/v1/recordings?select=*&user_id=eq.{user_id}&order=created_at.desc"
             )
             
             if response.status_code != 200:
                 raise HTTPException(status_code=response.status_code, detail=response.text)
             
-            return response.json()
+            recordings = response.json()
+            
+            # Generate signed URLs for each recording
+            for rec in recordings:
+                if rec.get("audio_url"):
+                    # Assuming audio_url now stores the path like "user_id/rec_id.webm"
+                    # If it's an old public URL, we might need to handle that, but for new ones it's path.
+                    path = rec["audio_url"]
+                    if path.startswith("http"):
+                        # Legacy: It's a full URL, try to extract path or just leave it
+                        # If it's a public URL, it might not work if bucket is private now.
+                        pass
+                    else:
+                        # It's a path, sign it
+                        signed_url = await create_signed_url(path, token)
+                        if signed_url:
+                            rec["audio_url"] = signed_url
+
+            return recordings
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
@@ -355,6 +481,35 @@ async def get_recording(recording_id: str, token: str):
             
             recording = recordings[0]
             
+            # Verify RBAC: Check if user_id matches
+            # We get user_id from the token verification in get_supabase_client context? 
+            # No, we need to verify it against the user_id we got from auth endpoint.
+            
+            # We need to get the user_id from the token again to be sure, 
+            # OR trust that RLS policies on Supabase handle it.
+            # BUT the user asked us to "make sure only the creator... access".
+            # RLS is the best place, but let's add an explicit check here too since we have the data.
+            
+            # Get user ID from token (we should probably do this once at start of request)
+            async with httpx.AsyncClient() as client:
+                user_res = await client.get(
+                    f"{SUPABASE_URL}/auth/v1/user",
+                    headers={"Authorization": f"Bearer {token}", "apikey": SUPABASE_KEY}
+                )
+                if user_res.status_code == 200:
+                    current_user_id = user_res.json()["id"]
+                    if recording["user_id"] != current_user_id:
+                        print(f"⛔ Access denied: User {current_user_id} tried to access recording {recording_id} owned by {recording['user_id']}")
+                        raise HTTPException(status_code=403, detail="Access denied")
+
+            # Generate signed URL
+            if recording.get("audio_url"):
+                path = recording["audio_url"]
+                if not path.startswith("http"):
+                    signed_url = await create_signed_url(path, token)
+                    if signed_url:
+                        recording["audio_url"] = signed_url
+
             # Get transcripts
             trans_response = await supabase_client.get(
                 f"/rest/v1/transcripts?recording_id=eq.{recording_id}&order=start_time.asc&select=*"
@@ -363,6 +518,66 @@ async def get_recording(recording_id: str, token: str):
             recording["transcripts"] = trans_response.json() if trans_response.status_code == 200 else []
             
             return recording
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+@app.delete("/api/recordings/{recording_id}")
+async def delete_recording(recording_id: str, token: str):
+    """Delete a recording, its transcripts, live shares, and storage object"""
+    try:
+        # Verify user
+        async with httpx.AsyncClient() as client:
+            user_response = await client.get(
+                f"{SUPABASE_URL}/auth/v1/user",
+                headers={
+                    "Authorization": f"Bearer {token}",
+                    "apikey": SUPABASE_KEY
+                }
+            )
+
+            if user_response.status_code != 200:
+                raise HTTPException(status_code=401, detail="Invalid token")
+
+            user_data = user_response.json()
+            user_id = user_data["id"]
+
+        # Fetch recording to confirm ownership and get audio path
+        async with await get_supabase_client(token) as supabase_client:
+            rec_response = await supabase_client.get(
+                f"/rest/v1/recordings?id=eq.{recording_id}&select=*"
+            )
+
+            if rec_response.status_code != 200 or not rec_response.json():
+                raise HTTPException(status_code=404, detail="Recording not found")
+
+            recording = rec_response.json()[0]
+            if recording.get("user_id") != user_id:
+                raise HTTPException(status_code=403, detail="Access denied")
+
+            audio_path = recording.get("audio_url")
+
+            # Delete transcripts and live shares first
+            await supabase_client.delete(f"/rest/v1/transcripts?recording_id=eq.{recording_id}")
+            await supabase_client.delete(f"/rest/v1/live_shares?recording_id=eq.{recording_id}")
+
+            # Delete recording row
+            delete_response = await supabase_client.delete(f"/rest/v1/recordings?id=eq.{recording_id}")
+            if delete_response.status_code not in [200, 204]:
+                raise HTTPException(status_code=500, detail=f"Failed to delete recording: {delete_response.text}")
+
+        # Delete storage object after DB delete (best-effort)
+        if audio_path and not audio_path.startswith("http"):
+            await delete_from_supabase_storage(audio_path, token)
+
+        # Clear in-memory caches
+        live_transcripts.pop(recording_id, None)
+        live_share_viewers.pop(recording_id, None)
+        active_recordings.discard(recording_id)
+
+        return {"status": "deleted"}
+
+    except HTTPException:
+        raise
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
@@ -665,7 +880,7 @@ async def websocket_endpoint(websocket: WebSocket):
                                             elif is_final or speech_final:
                                                 # Production: only show final transcripts
                                                 print(f"[{receive_time}] 📝 {transcript}")
-                                            
+
                                             # Send to client with type indicator
                                             message = json.dumps({
                                                 "transcript": transcript,
@@ -698,12 +913,6 @@ async def websocket_endpoint(websocket: WebSocket):
                                                             await viewer.send_text(json_msg)
                                                         except:
                                                             pass # Handle disconnected viewers in their own loop
-                                        elif DEBUG:
-                                            print(f"[{receive_time}] 🔇 Empty transcript received")
-                                            
-                            elif msg_type == "Metadata":
-                                # Deepgram metadata
-                                print(f"[{receive_time}] ℹ️ Metadata: {json.dumps(data, indent=2)}")
                                 
                             elif msg_type == "SpeechStarted":
                                 print(f"[{receive_time}] 🗣️ Speech started detected")
@@ -730,6 +939,8 @@ async def websocket_endpoint(websocket: WebSocket):
                         stats = metrics.get_stats_summary()
                         print(f"\n[{get_timestamp()}] 📊 PERFORMANCE STATS:")
                         print(f"  ⏱️  Runtime: {stats['runtime_seconds']}s")
+                        print(f"  🔴 Active Recordings: {len(active_recordings)} {list(active_recordings)}")
+                        print(f"  👀 Live Viewers: {sum(len(v) for v in live_share_viewers.values())}")
                         print(f"  📤 Chunks sent: {stats['chunks_sent']} ({stats['chunks_per_sec']}/sec)")
                         print(f"  📥 Transcripts received: {stats['transcripts_received']}")
                         print(f"  📦 Total bytes sent: {stats['total_bytes']:,}")
@@ -752,14 +963,17 @@ async def websocket_endpoint(websocket: WebSocket):
                     
                     if "text" in message:
                         # Handle configuration messages
+                        print(f"[{client_id}] 📩 Received text message: {message['text']}")
                         try:
                             data = json.loads(message["text"])
                             if data.get("type") == "configure" and "recording_id" in data:
                                 current_recording_id = data["recording_id"]
                                 active_recordings.add(current_recording_id)
                                 print(f"[{client_id}] 🎥 Configured for recording: {current_recording_id}")
-                        except:
-                            pass
+                            else:
+                                print(f"[{client_id}] ⚠️ Unknown text message type: {data.get('type')}")
+                        except Exception as e:
+                            print(f"[{client_id}] ❌ Error parsing text message: {e}")
                             
                     elif "bytes" in message:
                         # Handle audio data

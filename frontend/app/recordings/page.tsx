@@ -2,7 +2,7 @@
 
 import React, { useEffect, useState } from "react";
 import Link from "next/link";
-import { Play, Calendar, Clock, FileAudio, Share2 } from "lucide-react";
+import { Play, Calendar, Clock, FileAudio, Share2, Trash2 } from "lucide-react";
 
 interface Recording {
     id: string;
@@ -16,6 +16,7 @@ export default function RecordingsPage() {
     const [recordings, setRecordings] = useState<Recording[]>([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
+    const [deletingId, setDeletingId] = useState<string | null>(null);
 
     useEffect(() => {
         const fetchRecordings = async () => {
@@ -62,6 +63,34 @@ export default function RecordingsPage() {
             hour: '2-digit',
             minute: '2-digit'
         });
+    };
+
+    const handleDelete = async (id: string) => {
+        const confirmed = window.confirm("Delete this recording? This will remove the audio, transcript, and any share links.");
+        if (!confirmed) return;
+
+        setDeletingId(id);
+        try {
+            const { createClient } = await import('@/utils/supabase/client');
+            const supabase = createClient();
+            const { data: { session } } = await supabase.auth.getSession();
+            if (!session) throw new Error("Not authenticated");
+
+            const response = await fetch(`http://localhost:8000/api/recordings/${id}?token=${session.access_token}`, {
+                method: "DELETE",
+            });
+
+            if (!response.ok) {
+                throw new Error("Failed to delete recording");
+            }
+
+            setRecordings((prev) => prev.filter((rec) => rec.id !== id));
+        } catch (err) {
+            console.error("Delete failed:", err);
+            alert("Could not delete recording. Please try again.");
+        } finally {
+            setDeletingId(null);
+        }
     };
 
     if (loading) {
@@ -147,6 +176,18 @@ export default function RecordingsPage() {
                                         >
                                             View Transcript
                                         </Link>
+                                        <button
+                                            onClick={() => handleDelete(recording.id)}
+                                            disabled={deletingId === recording.id}
+                                            className="px-3 py-2 text-sm font-medium text-red-600 bg-red-50 rounded-lg hover:bg-red-100 transition-colors disabled:opacity-50"
+                                        >
+                                            {deletingId === recording.id ? "Deleting..." : (
+                                                <span className="flex items-center space-x-1">
+                                                    <Trash2 className="w-4 h-4" />
+                                                    <span>Delete</span>
+                                                </span>
+                                            )}
+                                        </button>
                                     </div>
                                 </div>
                             </div>

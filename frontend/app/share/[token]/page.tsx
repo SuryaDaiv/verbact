@@ -54,6 +54,8 @@ export default function SharePage({ params }: { params: Promise<{ token: string 
         fetchShare();
     }, [token]);
 
+    const [interimText, setInterimText] = useState("");
+
     // Audio-Text Sync Logic
     useEffect(() => {
         if (!recording) return;
@@ -88,34 +90,43 @@ export default function SharePage({ params }: { params: Promise<{ token: string 
                 const data = JSON.parse(event.data);
                 const { transcript, is_final, confidence, timestamp } = data;
 
-                if (transcript && is_final) {
-                    setRecording(prev => {
-                        if (!prev) return null;
+                if (transcript) {
+                    if (is_final) {
+                        setRecording(prev => {
+                            if (!prev) return null;
 
-                        // Calculate start/end times based on previous segment or timestamp
-                        // This is an approximation since we don't get exact times from broadcast yet
-                        // Ideally backend should send start/end times
-                        const lastSegment = prev.transcripts[prev.transcripts.length - 1];
-                        const startTime = lastSegment ? lastSegment.end_time : 0;
-                        const duration = transcript.split(' ').length * 0.5; // Rough estimate
+                            // Calculate start/end times based on previous segment or timestamp
+                            const lastSegment = prev.transcripts[prev.transcripts.length - 1];
+                            const startTime = lastSegment ? lastSegment.end_time : 0;
+                            const duration = transcript.split(' ').length * 0.5; // Rough estimate
 
-                        const newSegment: TranscriptSegment = {
-                            id: crypto.randomUUID(),
-                            text: transcript,
-                            start_time: startTime,
-                            end_time: startTime + duration,
-                            confidence: confidence
-                        };
+                            const newSegment: TranscriptSegment = {
+                                id: crypto.randomUUID(),
+                                text: transcript,
+                                start_time: startTime,
+                                end_time: startTime + duration,
+                                confidence: confidence
+                            };
 
-                        return {
-                            ...prev,
-                            transcripts: [...prev.transcripts, newSegment]
-                        };
-                    });
+                            return {
+                                ...prev,
+                                transcripts: [...prev.transcripts, newSegment]
+                            };
+                        });
+                        setInterimText(""); // Clear interim when final arrives
 
-                    // Auto-scroll to bottom for live
-                    if (transcriptRef.current) {
-                        transcriptRef.current.scrollTop = transcriptRef.current.scrollHeight;
+                        // Auto-scroll to bottom for live
+                        if (transcriptRef.current) {
+                            transcriptRef.current.scrollTop = transcriptRef.current.scrollHeight;
+                        }
+                    } else {
+                        // Update interim text
+                        setInterimText(transcript);
+
+                        // Auto-scroll for interim updates too
+                        if (transcriptRef.current) {
+                            transcriptRef.current.scrollTop = transcriptRef.current.scrollHeight;
+                        }
                     }
                 }
             } catch (e) {
@@ -297,8 +308,23 @@ export default function SharePage({ params }: { params: Promise<{ token: string 
                                 </div>
                             ))
                         ) : (
-                            <p className="text-center text-gray-500 italic py-12">No transcript available for this recording.</p>
+                            !interimText && (
+                                <div className="text-center py-12 text-gray-400 italic">
+                                    Waiting for live transcription...
+                                </div>
+                            )
                         )}
+
+                        {/* Interim Text Display */}
+                        {interimText && (
+                            <div className="p-3 rounded-lg border-l-4 border-blue-200 bg-blue-50/50 animate-pulse">
+                                <p className="text-lg leading-relaxed text-gray-500 italic">
+                                    {interimText}
+                                    <span className="inline-block w-1 h-4 bg-blue-400 ml-1 animate-pulse"></span>
+                                </p>
+                            </div>
+                        )}
+                        <div className="h-4" />
                     </div>
                 </div>
             </div>
