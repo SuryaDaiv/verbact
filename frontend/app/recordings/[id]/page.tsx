@@ -2,7 +2,8 @@
 
 import React, { useEffect, useState, useRef, use } from "react";
 import Link from "next/link";
-import { ArrowLeft, Play, Pause, Calendar, Clock, Share2, Download } from "lucide-react";
+import { useRouter } from "next/navigation";
+import { ArrowLeft, Play, Pause, Calendar, Clock, Share2, Download, Trash2 } from "lucide-react";
 
 interface TranscriptSegment {
     id: string;
@@ -29,9 +30,11 @@ export default function RecordingPage({ params }: { params: Promise<{ id: string
     const [isPlaying, setIsPlaying] = useState(false);
     const [currentTime, setCurrentTime] = useState(0);
     const [activeSegmentId, setActiveSegmentId] = useState<string | null>(null);
+    const [isDeleting, setIsDeleting] = useState(false);
 
     const audioRef = useRef<HTMLAudioElement | null>(null);
     const transcriptRef = useRef<HTMLDivElement | null>(null);
+    const router = useRouter();
 
     useEffect(() => {
         const fetchRecording = async () => {
@@ -83,14 +86,19 @@ export default function RecordingPage({ params }: { params: Promise<{ id: string
         }
     }, [currentTime, recording, activeSegmentId]);
 
-    const togglePlay = () => {
+    const togglePlay = async () => {
         if (audioRef.current) {
-            if (isPlaying) {
-                audioRef.current.pause();
-            } else {
-                audioRef.current.play();
+            try {
+                if (isPlaying) {
+                    audioRef.current.pause();
+                } else {
+                    await audioRef.current.play();
+                }
+                setIsPlaying(!isPlaying);
+            } catch (err) {
+                console.error("Playback error:", err);
+                setIsPlaying(false);
             }
-            setIsPlaying(!isPlaying);
         }
     };
 
@@ -100,11 +108,43 @@ export default function RecordingPage({ params }: { params: Promise<{ id: string
         }
     };
 
-    const handleSegmentClick = (startTime: number) => {
+    const handleSegmentClick = async (startTime: number) => {
         if (audioRef.current) {
-            audioRef.current.currentTime = startTime;
-            audioRef.current.play();
-            setIsPlaying(true);
+            try {
+                audioRef.current.currentTime = startTime;
+                await audioRef.current.play();
+                setIsPlaying(true);
+            } catch (err) {
+                console.error("Playback error:", err);
+            }
+        }
+    };
+
+    const handleDelete = async () => {
+        const confirmed = window.confirm("Delete this recording? This will remove the audio, transcript, and any share links.");
+        if (!confirmed) return;
+
+        setIsDeleting(true);
+        try {
+            const { createClient } = await import('@/utils/supabase/client');
+            const supabase = createClient();
+            const { data: { session } } = await supabase.auth.getSession();
+            if (!session) throw new Error("Not authenticated");
+
+            const response = await fetch(`http://localhost:8000/api/recordings/${id}?token=${session.access_token}`, {
+                method: "DELETE",
+            });
+
+            if (!response.ok) {
+                throw new Error("Failed to delete recording");
+            }
+
+            router.push("/recordings");
+        } catch (err) {
+            console.error("Error deleting recording:", err);
+            alert("Failed to delete recording. Please try again.");
+        } finally {
+            setIsDeleting(false);
         }
     };
 
@@ -167,6 +207,18 @@ export default function RecordingPage({ params }: { params: Promise<{ id: string
                                 <Clock className="w-4 h-4 mr-1.5" />
                                 {Math.floor(recording.duration_seconds / 60)}:{(recording.duration_seconds % 60).toString().padStart(2, '0')}
                             </div>
+                            <button
+                                onClick={handleDelete}
+                                disabled={isDeleting}
+                                className="flex items-center px-3 py-1.5 text-sm font-medium text-red-600 bg-red-50 rounded-lg hover:bg-red-100 transition-colors disabled:opacity-50"
+                            >
+                                {isDeleting ? "Deleting..." : (
+                                    <>
+                                        <Trash2 className="w-4 h-4 mr-1" />
+                                        Delete
+                                    </>
+                                )}
+                            </button>
                         </div>
                     </div>
 
