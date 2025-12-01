@@ -1,0 +1,2 @@
+export const SUPABASE_URL = process.env.NEXT_PUBLIC_SUPABASE_URL || 'https://ycbnhccwtcdbzjvujhzg.supabase.co'
+export const SUPABASE_ANON_KEY = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InljYm5oY2N3dGNkYnpqdnVqaHpnIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjQ0OTQ4MDYsImV4cCI6MjA4MDA3MDgwNn0.URW6yJzBbCp9ZV_kQFOtebz4GjRXzoK4YHLU8nCvonw'
