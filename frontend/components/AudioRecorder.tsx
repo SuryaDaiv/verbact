@@ -236,7 +236,6 @@ export default function AudioRecorder() {
       setTranscriptWithTimestamps([]);
       transcriptsForSaveRef.current = [];
       recordingStartTimeRef.current = Date.now();
-
       // Generate new recording ID immediately
       const newRecordingId = crypto.randomUUID();
       setSavedRecordingId(newRecordingId);
@@ -383,6 +382,9 @@ export default function AudioRecorder() {
       // Clear audio chunks to free memory but keep ID for sharing
       setAudioChunks([]);
 
+      // Redirect to recording page
+      window.location.href = `/recordings/${result.id}`;
+
     } catch (error) {
       console.error("Error saving recording:", error);
       alert("Failed to save recording. Please try again.");
@@ -402,43 +404,7 @@ export default function AudioRecorder() {
     try {
       // Initialize recording in DB if not saved yet (for live sharing)
       const initFormData = new FormData();
-      initFormData.append("id", savedRecordingId); // Assuming backend supports this now? No, I need to fix backend.
-      // Wait, I haven't fixed backend init_recording to accept ID yet.
-      // But create_recording DOES accept ID.
-      // So if I use create_recording with empty audio? No, audio is required.
-
-      // I will use the init_recording endpoint, but I need to update it to accept ID.
-      // Since I can't update backend in this tool call, I will assume I will update it next.
-      // I'll send the ID.
-
-      // Actually, let's just use the existing init endpoint which generates a NEW ID, 
-      // BUT that breaks the WebSocket link.
-
-      // I MUST update the backend init_recording to accept an ID.
-      // I will do that in the next step.
-
-      // For now, I'll write the frontend code to send the ID.
-      // Note: init_recording currently takes title and token.
-      // I'll add 'id' to the form data here.
-
-      // Wait, if I use the CURRENT init_recording, it ignores 'id' and returns a new one.
-      // So I should NOT call it yet if I want to use my generated ID.
-
-      // But I need to create the share.
-
-      // Let's assume I will fix backend to accept 'id'.
-
-      // If I can't fix backend immediately, I should use the ID returned by init_recording
-      // and send a NEW configure message to WS?
-      // Yes! That works without changing backend schema much.
-
-      // 1. Call init_recording -> get new ID.
-      // 2. Send {type: "configure", recording_id: newID} to WS.
-      // 3. Create share with newID.
-      // 4. Update savedRecordingId to newID.
-
-      // This is a robust solution that works even if backend init generates ID.
-
+      initFormData.append("id", savedRecordingId);
       const formData = new FormData();
       formData.append("title", isRecording ? "Live Recording..." : recordingTitle || "Untitled");
       formData.append("token", sessionToken);
@@ -547,9 +513,12 @@ export default function AudioRecorder() {
       <div className="relative group">
         <button
           onClick={isRecording ? stopRecording : startRecording}
+          disabled={status !== "Connected" && status !== "Recording..."}
           className={`p-6 rounded-full transition-all duration-300 transform hover:scale-105 focus:outline-none focus:ring-4 focus:ring-offset-2 ${isRecording
             ? "bg-red-500 hover:bg-red-600 focus:ring-red-200 shadow-red-200"
-            : "bg-black hover:bg-gray-800 focus:ring-gray-200 shadow-gray-200"
+            : status === "Connected"
+              ? "bg-black hover:bg-gray-800 focus:ring-gray-200 shadow-gray-200"
+              : "bg-gray-300 cursor-not-allowed"
             } shadow-xl`}
         >
           {isRecording ? (
@@ -562,6 +531,46 @@ export default function AudioRecorder() {
           <div className="absolute -inset-1 rounded-full border-2 border-red-500 opacity-50 animate-ping pointer-events-none"></div>
         )}
       </div>
+
+      {/* Live Share Button */}
+      {isRecording && savedRecordingId && (
+        <div className="w-full">
+          {!shareUrl ? (
+            <button
+              onClick={handleCreateShare}
+              disabled={isSharing}
+              className="w-full flex items-center justify-center px-4 py-2 bg-indigo-50 text-indigo-700 border border-indigo-200 rounded-lg hover:bg-indigo-100 transition-colors"
+            >
+              {isSharing ? (
+                <Activity className="w-4 h-4 mr-2 animate-spin" />
+              ) : (
+                <Share2 className="w-4 h-4 mr-2" />
+              )}
+              Share Live Link
+            </button>
+          ) : (
+            <div className="flex items-center space-x-2 bg-indigo-50 p-2 rounded-lg border border-indigo-200">
+              <span className="text-xs font-semibold text-indigo-800 uppercase px-2">Live Link:</span>
+              <input
+                type="text"
+                readOnly
+                value={shareUrl}
+                className="flex-1 p-1 text-sm bg-white border border-indigo-200 rounded"
+              />
+              <button
+                onClick={() => {
+                  navigator.clipboard.writeText(shareUrl);
+                  alert("Copied!");
+                }}
+                className="p-1 text-indigo-600 hover:bg-indigo-100 rounded"
+                title="Copy"
+              >
+                <Copy className="w-4 h-4" />
+              </button>
+            </div>
+          )}
+        </div>
+      )}
 
       <div className="w-full max-w-xs bg-gray-200 rounded-full h-2.5 dark:bg-gray-700 mt-4">
         <div
@@ -729,6 +738,6 @@ export default function AudioRecorder() {
         <Activity className="w-3 h-3" />
         <span>Deepgram Streaming - Real-time Mode</span>
       </div>
-    </div>
+    </div >
   );
 }

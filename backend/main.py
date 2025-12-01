@@ -187,6 +187,7 @@ def read_root():
 
 @app.post("/api/recordings/init")
 async def init_recording(
+    id: Optional[str] = Form(None),
     title: str = Form(...),
     token: str = Form(...)
 ):
@@ -208,7 +209,7 @@ async def init_recording(
             user_data = user_response.json()
             user_id = user_data["id"]
             
-        recording_id = str(uuid.uuid4())
+        recording_id = id if id else str(uuid.uuid4())
         
         async with await get_supabase_client(token) as supabase_client:
             recording_data = {
@@ -765,6 +766,10 @@ async def websocket_endpoint(websocket: WebSocket):
                         data = message["bytes"]
                         chunk_sequence += 1
                         chunk_size = len(data)
+                        
+                        # DEBUG: Confirm we are receiving bytes
+                        if chunk_sequence % 50 == 0:
+                            print(f"[{client_id}] 📨 Received {chunk_size} bytes (seq: {chunk_sequence})")
                         
                         # Send to Deepgram
                         send_time = get_timestamp()
