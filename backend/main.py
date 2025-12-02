@@ -12,6 +12,49 @@ import uuid
 import httpx
 import io
 import wave
+import struct
+import secrets
+from typing import Dict, List, Optional, Set
+from models import (
+    RecordingCreate, RecordingUpdate, RecordingResponse,
+    LiveShareCreate, LiveShareResponse, ShareViewResponse,
+    TranscriptSegment
+)
+from routers import payments
+
+load_dotenv()
+
+# Debug mode
+DEBUG = os.getenv("DEBUG", "false").lower() == "true"
+
+app = FastAPI()
+
+# Setup file logging
+def log_to_file(msg):
+    with open("debug.log", "a", encoding="utf-8") as f:
+        f.write(f"[{datetime.now().isoformat()}] {msg}\n")
+
+# Override print to also log to file (simple hack for debugging)
+original_print = print
+def print(*args, **kwargs):
+    msg = " ".join(map(str, args))
+    log_to_file(msg)
+    original_print(*args, **kwargs)
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+
+app.include_router(payments.router, prefix="/api/payments", tags=["payments"])
+
+# Performance tracking class
+class PerformanceMetrics:
+    def __init__(self):
+        self.chunks_sent = 0
         self.transcripts_received = 0
         self.total_bytes_sent = 0
         self.chunk_timestamps = deque(maxlen=100)  # Track last 100 chunks
