@@ -280,7 +280,7 @@ export default function SharePage({ params }: { params: Promise<{ token: string 
                                 />
                                 <div className="flex justify-between text-[11px] text-[#666666]">
                                     <span>{formatTimecode(currentTime)}</span>
-                                    <span>{formatTimecode(duration || recording.duration_seconds)}</span>
+                                    <span>{formatTimecode(duration || recording.duration_seconds || 0)}</span>
                                 </div>
                             </div>
                         </div>
