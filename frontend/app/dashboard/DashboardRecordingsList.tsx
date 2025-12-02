@@ -3,6 +3,7 @@
 import React, { useEffect, useState } from "react";
 import Link from "next/link";
 import { Play, Calendar, Clock, FileAudio } from "lucide-react";
+import { API_BASE_URL } from "@/utils/config";
 
 interface Recording {
     id: string;
@@ -29,7 +30,7 @@ export default function DashboardRecordingsList({ token }: { token?: string }) {
                 }
 
                 // Fetch only recent 5 recordings
-                const response = await fetch(`http://localhost:8000/api/recordings?token=${session.access_token}`);
+                const response = await fetch(`${API_BASE_URL}/api/recordings?token=${session.access_token}`);
                 if (!response.ok) {
                     throw new Error("Failed to fetch recordings");
                 }

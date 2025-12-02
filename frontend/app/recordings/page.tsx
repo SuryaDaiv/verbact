@@ -2,7 +2,9 @@
 
 import React, { useEffect, useState } from "react";
 import Link from "next/link";
-import { Play, Calendar, Clock, FileAudio, Share2, Trash2 } from "lucide-react";
+import { Play, Calendar, Clock, FileAudio, Trash2 } from "lucide-react";
+import AppHeader from "@/components/ui/AppHeader";
+import { API_BASE_URL } from "@/utils/config";
 
 interface Recording {
     id: string;
@@ -31,7 +33,7 @@ export default function RecordingsPage() {
                     return;
                 }
 
-                const response = await fetch(`http://localhost:8000/api/recordings?token=${session.access_token}`);
+                const response = await fetch(`${API_BASE_URL}/api/recordings?token=${session.access_token}`);
                 if (!response.ok) {
                     throw new Error("Failed to fetch recordings");
                 }
@@ -76,7 +78,7 @@ export default function RecordingsPage() {
             const { data: { session } } = await supabase.auth.getSession();
             if (!session) throw new Error("Not authenticated");
 
-            const response = await fetch(`http://localhost:8000/api/recordings/${id}?token=${session.access_token}`, {
+            const response = await fetch(`${API_BASE_URL}/api/recordings/${id}?token=${session.access_token}`, {
                 method: "DELETE",
             });
 
@@ -95,17 +97,17 @@ export default function RecordingsPage() {
 
     if (loading) {
         return (
-            <div className="flex items-center justify-center min-h-screen">
-                <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-blue-500"></div>
+            <div className="flex min-h-screen items-center justify-center bg-white">
+                <div className="h-10 w-10 animate-spin rounded-full border-2 border-[#3454F5] border-t-transparent" />
             </div>
         );
     }
 
     if (error) {
         return (
-            <div className="flex flex-col items-center justify-center min-h-screen text-red-500">
-                <p className="text-xl font-semibold">{error}</p>
-                <Link href="/" className="mt-4 text-blue-600 hover:underline">
+            <div className="flex min-h-screen flex-col items-center justify-center bg-white text-[#B91C1C]">
+                <p className="text-lg font-semibold">{error}</p>
+                <Link href="/" className="mt-4 text-sm text-[#3454F5]">
                     Go back home
                 </Link>
             </div>
@@ -113,77 +115,74 @@ export default function RecordingsPage() {
     }
 
     return (
-        <div className="min-h-screen bg-gray-50 p-8">
-            <div className="max-w-4xl mx-auto">
-                <div className="flex justify-between items-center mb-8">
-                    <h1 className="text-3xl font-bold text-gray-900">My Recordings</h1>
+        <div className="min-h-screen bg-white text-[#111111]">
+            <AppHeader />
+            <main className="mx-auto w-full max-w-5xl px-4 py-6 sm:px-6">
+                <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+                    <h1 className="text-2xl font-semibold leading-tight">My Recordings</h1>
                     <Link
-                        href="/dashboard"
-                        className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+                        href="/recordings/new"
+                        className="inline-flex items-center justify-center rounded-lg bg-[#3454F5] px-4 py-2 text-sm font-semibold text-white transition-opacity hover:opacity-90"
                     >
                         New Recording
                     </Link>
                 </div>
 
                 {recordings.length === 0 ? (
-                    <div className="bg-white rounded-xl shadow-sm p-12 text-center">
-                        <div className="w-16 h-16 bg-blue-100 text-blue-600 rounded-full flex items-center justify-center mx-auto mb-4">
-                            <FileAudio className="w-8 h-8" />
+                    <div className="mt-6 rounded-xl border border-[#E5E7EB] bg-white p-10 text-center">
+                        <div className="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-full border border-[#3454F5] text-[#3454F5]">
+                            <FileAudio className="h-5 w-5" />
                         </div>
-                        <h3 className="text-xl font-medium text-gray-900 mb-2">No recordings yet</h3>
-                        <p className="text-gray-500 mb-6">Start recording your voice to see them here.</p>
+                        <h3 className="text-lg font-semibold">No recordings yet</h3>
+                        <p className="mt-2 text-sm text-[#666666]">Start recording to see your sessions here.</p>
                         <Link
-                            href="/dashboard"
-                            className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-blue-700 bg-blue-100 hover:bg-blue-200"
+                            href="/recordings/new"
+                            className="mt-4 inline-flex items-center justify-center rounded-lg bg-[#3454F5] px-4 py-2 text-sm font-semibold text-white transition-opacity hover:opacity-90"
                         >
                             Start Recording
                         </Link>
                     </div>
                 ) : (
-                    <div className="grid gap-4">
+                    <div className="mt-6 grid gap-3">
                         {recordings.map((recording) => (
                             <div
                                 key={recording.id}
-                                className="bg-white rounded-xl shadow-sm p-6 hover:shadow-md transition-shadow border border-gray-100"
+                                className="flex flex-col gap-3 rounded-lg border border-[#E5E7EB] bg-white p-4"
                             >
-                                <div className="flex justify-between items-start">
-                                    <div className="flex-1">
-                                        <div className="flex items-center space-x-3 mb-2">
-                                            <div className="p-2 bg-blue-50 rounded-lg text-blue-600">
-                                                <Play className="w-5 h-5" />
-                                            </div>
-                                            <h3 className="text-lg font-semibold text-gray-900">
-                                                {recording.title || "Untitled Recording"}
-                                            </h3>
+                                <div className="flex items-start justify-between gap-3">
+                                    <div className="flex items-start gap-3">
+                                        <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-[#EEF2FF] text-[#3454F5]">
+                                            <Play className="h-4 w-4" />
                                         </div>
-
-                                        <div className="flex items-center space-x-6 text-sm text-gray-500 ml-12">
-                                            <div className="flex items-center">
-                                                <Calendar className="w-4 h-4 mr-1.5" />
-                                                {formatDate(recording.created_at)}
-                                            </div>
-                                            <div className="flex items-center">
-                                                <Clock className="w-4 h-4 mr-1.5" />
-                                                {formatDuration(recording.duration_seconds)}
+                                        <div className="flex flex-col">
+                                            <div className="text-sm font-semibold">{recording.title || "Untitled Recording"}</div>
+                                            <div className="mt-1 flex flex-wrap items-center gap-3 text-xs text-[#666666]">
+                                                <span className="inline-flex items-center">
+                                                    <Calendar className="mr-1.5 h-4 w-4" />
+                                                    {formatDate(recording.created_at)}
+                                                </span>
+                                                <span className="inline-flex items-center">
+                                                    <Clock className="mr-1.5 h-4 w-4" />
+                                                    {formatDuration(recording.duration_seconds)}
+                                                </span>
                                             </div>
                                         </div>
                                     </div>
-
-                                    <div className="flex space-x-2">
+                                    <div className="flex items-center gap-2">
                                         <Link
                                             href={`/recordings/${recording.id}`}
-                                            className="px-4 py-2 text-sm font-medium text-blue-600 bg-blue-50 rounded-lg hover:bg-blue-100 transition-colors"
+                                            className="rounded-lg border border-[#E5E7EB] px-3 py-1.5 text-sm font-semibold text-[#111111]"
                                         >
-                                            View Transcript
+                                            View
                                         </Link>
                                         <button
                                             onClick={() => handleDelete(recording.id)}
                                             disabled={deletingId === recording.id}
-                                            className="px-3 py-2 text-sm font-medium text-red-600 bg-red-50 rounded-lg hover:bg-red-100 transition-colors disabled:opacity-50"
+                                            className="inline-flex items-center rounded-lg border border-[#FCA5A5] px-3 py-1.5 text-sm font-semibold text-[#B91C1C] disabled:opacity-50"
                                         >
-                                            {deletingId === recording.id ? "Deleting..." : (
+                                            {deletingId === recording.id ? "Deleting…" : (
                                                 <span className="flex items-center space-x-1">
-                                                    <Trash2 className="w-4 h-4" />
+                                                    <Trash2 className="h-4 w-4" />
                                                     <span>Delete</span>
                                                 </span>
                                             )}
@@ -194,7 +193,7 @@ export default function RecordingsPage() {
                         ))}
                     </div>
                 )}
-            </div>
+            </main>
         </div>
     );
 }

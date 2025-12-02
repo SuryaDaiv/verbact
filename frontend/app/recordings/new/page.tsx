@@ -1,45 +1,35 @@
 "use client";
 
-import dynamic from 'next/dynamic';
-import Link from 'next/link';
-import { ArrowLeft } from 'lucide-react';
+import dynamic from "next/dynamic";
+import AppHeader from "@/components/ui/AppHeader";
+import LiveSessionHeader from "@/components/ui/LiveSessionHeader";
 
-const AudioRecorder = dynamic(() => import('@/components/AudioRecorder'), {
-    ssr: false,
-    loading: () => <p className="text-center p-8">Loading Recorder...</p>
+const AudioRecorder = dynamic(() => import("@/components/AudioRecorder"), {
+  ssr: false,
+  loading: () => <p className="p-6 text-center text-sm text-[#666666]">Loading recorder…</p>,
 });
 
 export default function NewRecordingPage() {
-    return (
-        <div className="min-h-screen bg-gray-50">
-            <header className="bg-white shadow">
-                <div className="mx-auto max-w-7xl px-4 py-6 sm:px-6 lg:px-8 flex justify-between items-center">
-                    <h1 className="text-3xl font-bold tracking-tight text-gray-900">
-                        New Recording
-                    </h1>
-                    <div className="flex items-center gap-4">
-                        <Link
-                            href="/dashboard"
-                            className="text-sm font-medium text-gray-500 hover:text-gray-900 transition-colors"
-                        >
-                            Back to Dashboard
-                        </Link>
-                        <form action="/auth/signout" method="post">
-                            <button
-                                type="submit"
-                                className="rounded-md bg-white px-3 py-2 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50"
-                            >
-                                Sign out
-                            </button>
-                        </form>
-                    </div>
-                </div>
-            </header>
-            <main className="p-8">
-                <div className="max-w-4xl mx-auto">
-                    <AudioRecorder />
-                </div>
-            </main>
+  const now = new Date();
+  const dateLabel = now.toLocaleString(undefined, { month: "short", day: "numeric", year: "numeric" });
+
+  return (
+    <div className="min-h-screen bg-white text-[#111111]">
+      <AppHeader />
+      <LiveSessionHeader title="Live Recording" dateLabel={dateLabel} showLive />
+      <main className="mx-auto w-full max-w-5xl px-4 py-6 sm:px-6">
+        <div className="flex flex-col gap-4 rounded-xl border border-[#E5E7EB] bg-white p-4">
+          <div className="flex flex-col gap-1">
+            <div className="text-sm font-semibold text-[#111111]">Capture and share instantly</div>
+            <p className="text-sm leading-6 text-[#666666]">
+              Tap record to start streaming audio and transcripts in real time. The feed stays lightweight and mobile-friendly.
+            </p>
+          </div>
+          <div className="rounded-lg border border-[#E5E7EB] bg-white">
+            <AudioRecorder />
+          </div>
         </div>
-    );
+      </main>
+    </div>
+  );
 }

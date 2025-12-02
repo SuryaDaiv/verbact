@@ -2,6 +2,7 @@
 
 import React, { useState, useRef, useEffect } from "react";
 import { Mic, Square, Activity, Terminal, Save, Share2, X, Copy, Check } from "lucide-react";
+import { API_BASE_URL, WS_BASE_URL } from "@/utils/config";
 
 interface LogEntry {
   timestamp: string;
@@ -219,7 +220,7 @@ export default function AudioRecorder() {
   useEffect(() => {
     if (!sessionToken) return;
 
-    const ws = new WebSocket(`ws://localhost:8000/ws/transcribe?token=${sessionToken}`);
+    const ws = new WebSocket(`${WS_BASE_URL}/ws/transcribe?token=${sessionToken}`);
 
     ws.onopen = () => {
       addLog("WebSocket Connected", "info");
@@ -508,7 +509,7 @@ export default function AudioRecorder() {
       });
 
       // Upload to backend
-      const response = await fetch("http://localhost:8000/api/recordings", {
+      const response = await fetch(`${API_BASE_URL}/api/recordings`, {
         method: "POST",
         body: formData,
       });
@@ -563,7 +564,7 @@ export default function AudioRecorder() {
       initFormData.append("title", baseTitle);
       initFormData.append("token", sessionToken);
 
-      const initResponse = await fetch("http://localhost:8000/api/recordings/init", {
+      const initResponse = await fetch(`${API_BASE_URL}/api/recordings/init`, {
         method: "POST",
         body: initFormData
       });
@@ -587,7 +588,7 @@ export default function AudioRecorder() {
       }
 
       // Create share link
-      const response = await fetch(`http://localhost:8000/api/shares?token=${sessionToken}`, {
+      const response = await fetch(`${API_BASE_URL}/api/shares?token=${sessionToken}`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -740,18 +741,17 @@ export default function AudioRecorder() {
 
       <div className="w-full bg-gray-50 rounded-lg p-4 h-64 overflow-y-auto border border-gray-100 shadow-inner">
         {transcript.length === 0 && !interimText ? (
-          <p className="text-gray-400 text-center italic mt-20">Start speaking to see text...</p>
+          <p className="text-gray-400 text-center mt-20">Start speaking to see text...</p>
         ) : (
           <div className="space-y-2">
             {transcript.map((text, index) => (
-              <p key={index} className="text-gray-700 leading-relaxed animate-in fade-in slide-in-from-bottom-2 duration-300">
+              <p key={index} className="text-gray-700 leading-relaxed">
                 {text}
               </p>
             ))}
             {interimText && (
-              <p className="text-gray-500 italic leading-relaxed">
+              <p className="text-gray-700 leading-relaxed">
                 {interimText}
-                <span className="inline-block w-0.5 h-4 bg-blue-500 ml-1 animate-pulse"></span>
               </p>
             )}
             <div className="h-2" />

@@ -3,7 +3,11 @@
 import React, { useEffect, useState, useRef, use } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { ArrowLeft, Play, Pause, Calendar, Clock, Share2, Download, Trash2 } from "lucide-react";
+import { ArrowLeft, Play, Pause, Calendar, Clock, Download, Trash2, Search } from "lucide-react";
+import AppHeader from "@/components/ui/AppHeader";
+import TranscriptList from "@/components/ui/TranscriptList";
+import KeyMomentsList from "@/components/ui/KeyMomentsList";
+import { API_BASE_URL } from "@/utils/config";
 
 interface TranscriptSegment {
     id: string;
@@ -31,6 +35,8 @@ export default function RecordingPage({ params }: { params: Promise<{ id: string
     const [currentTime, setCurrentTime] = useState(0);
     const [activeSegmentId, setActiveSegmentId] = useState<string | null>(null);
     const [isDeleting, setIsDeleting] = useState(false);
+    const [searchTerm, setSearchTerm] = useState("");
+    const [duration, setDuration] = useState(0);
 
     const audioRef = useRef<HTMLAudioElement | null>(null);
     const transcriptRef = useRef<HTMLDivElement | null>(null);
@@ -49,7 +55,7 @@ export default function RecordingPage({ params }: { params: Promise<{ id: string
                     return;
                 }
 
-                const response = await fetch(`http://localhost:8000/api/recordings/${id}?token=${session.access_token}`);
+                const response = await fetch(`${API_BASE_URL}/api/recordings/${id}?token=${session.access_token}`);
                 if (!response.ok) {
                     throw new Error("Failed to fetch recording");
                 }
@@ -108,6 +114,12 @@ export default function RecordingPage({ params }: { params: Promise<{ id: string
         }
     };
 
+    const handleLoadedMetadata = () => {
+        if (audioRef.current?.duration) {
+            setDuration(audioRef.current.duration);
+        }
+    };
+
     const handleSegmentClick = async (startTime: number) => {
         if (audioRef.current) {
             try {
@@ -131,7 +143,7 @@ export default function RecordingPage({ params }: { params: Promise<{ id: string
             const { data: { session } } = await supabase.auth.getSession();
             if (!session) throw new Error("Not authenticated");
 
-            const response = await fetch(`http://localhost:8000/api/recordings/${id}?token=${session.access_token}`, {
+            const response = await fetch(`${API_BASE_URL}/api/recordings/${id}?token=${session.access_token}`, {
                 method: "DELETE",
             });
 
@@ -148,153 +160,174 @@ export default function RecordingPage({ params }: { params: Promise<{ id: string
         }
     };
 
+    const filteredTranscripts = recording?.transcripts.filter((segment) =>
+        segment.text.toLowerCase().includes(searchTerm.toLowerCase())
+    ) || [];
+
+    const transcriptItems = filteredTranscripts.map((segment) => ({
+        id: segment.id,
+        timecode: formatTimecode(segment.start_time),
+        text: segment.text,
+        active: segment.id === activeSegmentId,
+    }));
+
+    const keyMoments = filteredTranscripts.slice(0, 3).map((segment) => ({
+        label: segment.text.substring(0, 60) + (segment.text.length > 60 ? "…" : ""),
+        time: formatTimecode(segment.start_time),
+    }));
+
+    const handleSelectSegment = async (segmentId?: string | number) => {
+        if (!segmentId || !recording) return;
+        const target = recording.transcripts.find((t) => t.id === segmentId);
+        if (!target) return;
+        await handleSegmentClick(target.start_time);
+    };
+
     if (loading) {
         return (
-            <div className="flex items-center justify-center min-h-screen">
-                <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-blue-500"></div>
+            <div className="flex min-h-screen items-center justify-center bg-white">
+                <div className="h-10 w-10 animate-spin rounded-full border-2 border-[#3454F5] border-t-transparent" />
             </div>
         );
     }
 
     if (error || !recording) {
         return (
-            <div className="flex flex-col items-center justify-center min-h-screen text-red-500">
-                <p className="text-xl font-semibold">{error || "Recording not found"}</p>
-                <Link href="/recordings" className="mt-4 text-blue-600 hover:underline flex items-center">
-                    <ArrowLeft className="w-4 h-4 mr-2" />
-                    Back to Recordings
+            <div className="flex min-h-screen flex-col items-center justify-center bg-white text-[#B91C1C]">
+                <p className="text-lg font-semibold">{error || "Recording not found"}</p>
+                <Link href="/recordings" className="mt-4 inline-flex items-center text-sm text-[#3454F5]">
+                    <ArrowLeft className="mr-1 h-4 w-4" /> Back to Recordings
                 </Link>
             </div>
         );
     }
 
     return (
-        <div className="min-h-screen bg-gray-50 p-8">
-            <div className="max-w-4xl mx-auto">
-                <Link
-                    href="/recordings"
-                    className="inline-flex items-center text-gray-500 hover:text-gray-900 mb-6 transition-colors"
-                >
-                    <ArrowLeft className="w-4 h-4 mr-2" />
-                    Back to Recordings
-                </Link>
+        <div className="min-h-screen bg-white text-[#111111]">
+            <AppHeader />
+            <main className="mx-auto w-full max-w-5xl px-4 py-6 sm:px-6">
+                <div className="mb-4 flex items-center text-sm text-[#666666]">
+                    <Link href="/recordings" className="inline-flex items-center text-[#3454F5]">
+                        <ArrowLeft className="mr-1 h-4 w-4" /> Back
+                    </Link>
+                </div>
 
-                <div className="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
-                    {/* Header */}
-                    <div className="p-6 border-b border-gray-100 bg-gray-50/50">
-                        <div className="flex justify-between items-start mb-4">
-                            <h1 className="text-2xl font-bold text-gray-900">{recording.title}</h1>
-                            <div className="flex space-x-2">
-                                <button className="p-2 text-gray-500 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-colors">
-                                    <Share2 className="w-5 h-5" />
-                                </button>
-                                <a
-                                    href={recording.audio_url}
-                                    download
-                                    className="p-2 text-gray-500 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-colors"
-                                >
-                                    <Download className="w-5 h-5" />
-                                </a>
-                            </div>
-                        </div>
-
-                        <div className="flex items-center space-x-6 text-sm text-gray-500">
-                            <div className="flex items-center">
-                                <Calendar className="w-4 h-4 mr-1.5" />
-                                {new Date(recording.created_at).toLocaleDateString()}
-                            </div>
-                            <div className="flex items-center">
-                                <Clock className="w-4 h-4 mr-1.5" />
-                                {Math.floor(recording.duration_seconds / 60)}:{(recording.duration_seconds % 60).toString().padStart(2, '0')}
-                            </div>
-                            <button
-                                onClick={handleDelete}
-                                disabled={isDeleting}
-                                className="flex items-center px-3 py-1.5 text-sm font-medium text-red-600 bg-red-50 rounded-lg hover:bg-red-100 transition-colors disabled:opacity-50"
-                            >
-                                {isDeleting ? "Deleting..." : (
-                                    <>
-                                        <Trash2 className="w-4 h-4 mr-1" />
-                                        Delete
-                                    </>
-                                )}
-                            </button>
-                        </div>
-                    </div>
-
-                    {/* Audio Player */}
-                    <div className="p-6 bg-white border-b border-gray-100 sticky top-0 z-10 shadow-sm">
-                        <audio
-                            ref={audioRef}
-                            src={recording.audio_url}
-                            onTimeUpdate={handleTimeUpdate}
-                            onEnded={() => setIsPlaying(false)}
-                            className="w-full hidden"
-                        />
-
-                        <div className="flex items-center space-x-4">
-                            <button
-                                onClick={togglePlay}
-                                className="w-12 h-12 flex items-center justify-center bg-blue-600 text-white rounded-full hover:bg-blue-700 transition-colors shadow-md hover:shadow-lg transform hover:scale-105"
-                            >
-                                {isPlaying ? <Pause className="w-5 h-5 fill-current" /> : <Play className="w-5 h-5 fill-current ml-1" />}
-                            </button>
-
-                            <div className="flex-1">
-                                <div className="relative w-full h-2 bg-gray-200 rounded-full cursor-pointer group"
-                                    onClick={(e) => {
-                                        const rect = e.currentTarget.getBoundingClientRect();
-                                        const percent = (e.clientX - rect.left) / rect.width;
-                                        if (audioRef.current) {
-                                            audioRef.current.currentTime = percent * audioRef.current.duration;
-                                        }
-                                    }}>
-                                    <div
-                                        className="absolute top-0 left-0 h-full bg-blue-600 rounded-full transition-all duration-100"
-                                        style={{ width: `${(currentTime / recording.duration_seconds) * 100}%` }}
-                                    />
-                                    <div
-                                        className="absolute top-1/2 -mt-2 w-4 h-4 bg-white border-2 border-blue-600 rounded-full shadow-sm opacity-0 group-hover:opacity-100 transition-opacity"
-                                        style={{ left: `${(currentTime / recording.duration_seconds) * 100}%`, transform: 'translateX(-50%) translateY(-50%)' }}
-                                    />
-                                </div>
-                                <div className="flex justify-between text-xs text-gray-500 mt-1 font-mono">
-                                    <span>{Math.floor(currentTime / 60)}:{(Math.floor(currentTime) % 60).toString().padStart(2, '0')}</span>
-                                    <span>{Math.floor(recording.duration_seconds / 60)}:{(recording.duration_seconds % 60).toString().padStart(2, '0')}</span>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
-                    {/* Transcript */}
-                    <div
-                        ref={transcriptRef}
-                        className="p-8 max-h-[600px] overflow-y-auto space-y-4 bg-white"
-                    >
-                        {recording.transcripts.map((segment) => (
-                            <div
-                                key={segment.id}
-                                id={`segment-${segment.id}`}
-                                onClick={() => handleSegmentClick(segment.start_time)}
-                                className={`p-3 rounded-lg cursor-pointer transition-all duration-200 hover:bg-gray-50 ${activeSegmentId === segment.id
-                                    ? "bg-blue-50 border-l-4 border-blue-500 shadow-sm"
-                                    : "border-l-4 border-transparent"
-                                    }`}
-                            >
-                                <div className="flex justify-between items-baseline mb-1">
-                                    <span className="text-xs font-mono text-gray-400">
-                                        {Math.floor(segment.start_time / 60)}:{(Math.floor(segment.start_time) % 60).toString().padStart(2, '0')}
-                                    </span>
-                                </div>
-                                <p className={`text-lg leading-relaxed ${activeSegmentId === segment.id ? "text-gray-900 font-medium" : "text-gray-600"
-                                    }`}>
-                                    {segment.text}
-                                </p>
-                            </div>
-                        ))}
+                <div className="flex flex-col gap-2">
+                    <h1 className="text-2xl font-semibold leading-tight">{recording.title}</h1>
+                    <div className="flex flex-wrap items-center gap-3 text-sm text-[#666666]">
+                        <span className="inline-flex items-center">
+                            <Calendar className="mr-1.5 h-4 w-4" />
+                            {new Date(recording.created_at).toLocaleDateString()}
+                        </span>
+                        <span className="inline-flex items-center">
+                            <Clock className="mr-1.5 h-4 w-4" />
+                            {formatTimecode(recording.duration_seconds)}
+                        </span>
+                        <a
+                            href={recording.audio_url}
+                            download
+                            className="inline-flex items-center rounded-lg border border-[#E5E7EB] px-3 py-1.5 text-sm font-semibold text-[#111111]"
+                        >
+                            <Download className="mr-1.5 h-4 w-4" />
+                            Download Audio
+                        </a>
+                        <button
+                            onClick={handleDelete}
+                            disabled={isDeleting}
+                            className="inline-flex items-center rounded-lg border border-[#FCA5A5] px-3 py-1.5 text-sm font-semibold text-[#B91C1C] disabled:opacity-50"
+                        >
+                            {isDeleting ? "Deleting…" : (<><Trash2 className="mr-1.5 h-4 w-4" /> Delete</>)}
+                        </button>
                     </div>
                 </div>
-            </div>
+
+                <div className="mt-4 rounded-xl border border-[#E5E7EB] bg-white p-4">
+                    <div className="flex flex-col gap-3">
+                        <div className="flex flex-col gap-2">
+                            <audio
+                                ref={audioRef}
+                                src={recording.audio_url}
+                                onTimeUpdate={handleTimeUpdate}
+                                onLoadedMetadata={handleLoadedMetadata}
+                                onEnded={() => setIsPlaying(false)}
+                                className="hidden"
+                            />
+                            <div className="flex items-center gap-3">
+                                <button
+                                    onClick={togglePlay}
+                                    className="flex h-10 w-10 items-center justify-center rounded-full border border-[#3454F5] text-[#3454F5]"
+                                    aria-label={isPlaying ? "Pause" : "Play"}
+                                >
+                                    {isPlaying ? <Pause className="h-4 w-4" /> : <Play className="h-4 w-4" />}
+                                </button>
+                                <div className="flex flex-1 flex-col gap-1">
+                                    <input
+                                        type="range"
+                                        min={0}
+                                        max={duration || recording.duration_seconds || 0}
+                                        step={0.1}
+                                        value={currentTime}
+                                        onChange={(e) => {
+                                            const value = Number(e.target.value);
+                                            if (audioRef.current) {
+                                                audioRef.current.currentTime = value;
+                                            }
+                                            setCurrentTime(value);
+                                        }}
+                                        className="h-1 w-full accent-[#3454F5]"
+                                    />
+                                    <div className="flex justify-between text-[11px] text-[#666666]">
+                                        <span>{formatTimecode(currentTime)}</span>
+                                        <span>{formatTimecode(duration || recording.duration_seconds)}</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div className="mt-6 flex flex-col gap-4 rounded-xl border border-[#E5E7EB] bg-white p-4">
+                    <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+                        <div className="text-sm font-semibold text-[#111111]">Transcript</div>
+                        <div className="flex w-full flex-col gap-2 sm:w-auto sm:flex-row sm:items-center">
+                            <div className="flex items-center rounded-lg border border-[#E5E7EB] px-3 py-2 text-sm text-[#666666]">
+                                <Search className="mr-2 h-4 w-4" />
+                                <input
+                                    value={searchTerm}
+                                    onChange={(e) => setSearchTerm(e.target.value)}
+                                    placeholder="Search transcript"
+                                    className="w-full bg-transparent text-sm outline-none"
+                                />
+                            </div>
+                            <div className="flex gap-2 text-xs font-semibold text-[#666666]">
+                                <span className="rounded-full border border-[#E5E7EB] px-3 py-1">All</span>
+                                <span className="rounded-full border border-[#E5E7EB] px-3 py-1">Important</span>
+                                <span className="rounded-full border border-[#E5E7EB] px-3 py-1">Speaker A/B</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div className="grid gap-6 lg:grid-cols-[2fr_1fr]">
+                        <div
+                            ref={transcriptRef}
+                            className="max-h-[540px] overflow-y-auto rounded-lg border border-[#E5E7EB]"
+                        >
+                            <TranscriptList items={transcriptItems} onSelect={handleSelectSegment} />
+                        </div>
+                        <div className="flex flex-col gap-3 rounded-lg border border-[#E5E7EB] p-3">
+                            <div className="text-sm font-semibold text-[#111111]">Key moments</div>
+                            <KeyMomentsList moments={keyMoments} />
+                        </div>
+                    </div>
+                </div>
+            </main>
         </div>
     );
+}
+
+function formatTimecode(value: number) {
+    if (!value || Number.isNaN(value)) return "0:00";
+    const mins = Math.floor(value / 60);
+    const secs = Math.floor(value % 60);
+    return `${mins}:${secs.toString().padStart(2, "0")}`;
 }

@@ -2,7 +2,10 @@
 
 import React, { useEffect, useState, useRef, use } from "react";
 import Link from "next/link";
-import { Play, Pause, Calendar, Clock, Download, ExternalLink } from "lucide-react";
+import { Play, Pause, Calendar, Clock, Download } from "lucide-react";
+import AppHeader from "@/components/ui/AppHeader";
+import TranscriptList from "@/components/ui/TranscriptList";
+import { API_BASE_URL, WS_BASE_URL } from "@/utils/config";
 
 interface TranscriptSegment {
     id: string;
@@ -18,6 +21,7 @@ interface SharedRecording {
     transcripts: TranscriptSegment[];
     is_live: boolean;
     audio_url: string;
+    duration_seconds?: number;
 }
 
 export default function SharePage({ params }: { params: Promise<{ token: string }> }) {
@@ -28,6 +32,7 @@ export default function SharePage({ params }: { params: Promise<{ token: string 
     const [isPlaying, setIsPlaying] = useState(false);
     const [currentTime, setCurrentTime] = useState(0);
     const [activeSegmentId, setActiveSegmentId] = useState<string | null>(null);
+    const [duration, setDuration] = useState(0);
 
     const audioRef = useRef<HTMLAudioElement | null>(null);
     const transcriptRef = useRef<HTMLDivElement | null>(null);
@@ -35,7 +40,7 @@ export default function SharePage({ params }: { params: Promise<{ token: string 
     useEffect(() => {
         const fetchShare = async () => {
             try {
-                const response = await fetch(`http://localhost:8000/api/shares/${token}`);
+                const response = await fetch(`${API_BASE_URL}/api/shares/${token}`);
                 if (!response.ok) {
                     if (response.status === 410) throw new Error("This share link has expired");
                     throw new Error("Failed to load shared recording");
@@ -79,7 +84,7 @@ export default function SharePage({ params }: { params: Promise<{ token: string 
     useEffect(() => {
         if (!recording || !recording.is_live) return;
 
-        const ws = new WebSocket(`ws://localhost:8000/ws/watch/${token}`);
+        const ws = new WebSocket(`${WS_BASE_URL}/ws/watch/${token}`);
 
         ws.onopen = () => {
             console.log("Connected to live share");
@@ -139,14 +144,18 @@ export default function SharePage({ params }: { params: Promise<{ token: string 
         };
     }, [recording?.is_live, token]);
 
-    const togglePlay = () => {
+    const togglePlay = async () => {
         if (audioRef.current) {
-            if (isPlaying) {
-                audioRef.current.pause();
-            } else {
-                audioRef.current.play();
+            try {
+                if (isPlaying) {
+                    audioRef.current.pause();
+                } else {
+                    await audioRef.current.play();
+                }
+                setIsPlaying(!isPlaying);
+            } catch (e) {
+                console.error("Playback error", e);
             }
-            setIsPlaying(!isPlaying);
         }
     };
 
@@ -156,12 +165,29 @@ export default function SharePage({ params }: { params: Promise<{ token: string 
         }
     };
 
-    const handleSegmentClick = (startTime: number) => {
-        if (audioRef.current) {
-            audioRef.current.currentTime = startTime;
-            audioRef.current.play();
-            setIsPlaying(true);
+    const handleLoadedMetadata = () => {
+        if (audioRef.current?.duration) {
+            setDuration(audioRef.current.duration);
         }
+    };
+
+    const handleSegmentClick = async (startTime: number) => {
+        if (audioRef.current) {
+            try {
+                audioRef.current.currentTime = startTime;
+                await audioRef.current.play();
+                setIsPlaying(true);
+            } catch (e) {
+                console.error("Playback error", e);
+            }
+        }
+    };
+
+    const handleSelectSegment = async (id?: string | number) => {
+        if (!id || !recording) return;
+        const target = recording.transcripts.find((t) => t.id === id);
+        if (!target) return;
+        await handleSegmentClick(target.start_time);
     };
 
     if (loading) {
@@ -189,145 +215,123 @@ export default function SharePage({ params }: { params: Promise<{ token: string 
     if (!recording) return null;
 
     return (
-        <div className="min-h-screen bg-gray-50 p-4 md:p-8">
-            <div className="max-w-4xl mx-auto">
-                <div className="flex justify-between items-center mb-6">
-                    <div className="flex items-center space-x-2">
-                        <div className="w-8 h-8 bg-blue-600 rounded-lg flex items-center justify-center">
-                            <span className="text-white font-bold">V</span>
-                        </div>
-                        <span className="text-xl font-bold text-gray-900">Verbact</span>
+        <div className="min-h-screen bg-white text-[#111111]">
+            <AppHeader rightSlot={<Link href="/recordings" className="text-sm text-[#3454F5]">Record your own</Link>} />
+            <main className="mx-auto w-full max-w-5xl px-4 py-6 sm:px-6">
+                <div className="flex flex-col gap-2">
+                    <h1 className="text-2xl font-semibold leading-tight">{recording.title}</h1>
+                    <div className="flex flex-wrap items-center gap-3 text-sm text-[#666666]">
+                        <span className="inline-flex items-center">
+                            <Calendar className="mr-1.5 h-4 w-4" />
+                            {new Date(recording.created_at).toLocaleDateString()}
+                        </span>
+                        {recording.is_live && (
+                            <span className="inline-flex items-center space-x-1 rounded-full bg-[#FEE2E2] px-2 py-1 text-[11px] font-semibold uppercase text-[#B91C1C]">
+                                <span className="h-2 w-2 rounded-full bg-[#EF4444]" />
+                                <span>Live</span>
+                            </span>
+                        )}
+                        {recording.audio_url && (
+                            <a
+                                href={recording.audio_url}
+                                download
+                                className="inline-flex items-center rounded-lg border border-[#E5E7EB] px-3 py-1.5 text-sm font-semibold text-[#111111]"
+                            >
+                                <Download className="mr-1.5 h-4 w-4" />
+                                Download Audio
+                            </a>
+                        )}
                     </div>
-                    <Link
-                        href="/dashboard"
-                        className="text-sm text-blue-600 hover:underline flex items-center"
-                    >
-                        Create your own <ExternalLink className="w-3 h-3 ml-1" />
-                    </Link>
                 </div>
 
-                <div className="bg-white rounded-xl shadow-lg border border-gray-100 overflow-hidden">
-                    {/* Header */}
-                    <div className="p-6 border-b border-gray-100 bg-gradient-to-r from-blue-50 to-indigo-50">
-                        <div className="flex justify-between items-start mb-4">
-                            <div>
-                                <h1 className="text-2xl font-bold text-gray-900 mb-2">{recording.title}</h1>
-                                <div className="flex items-center space-x-4 text-sm text-gray-600">
-                                    <div className="flex items-center">
-                                        <Calendar className="w-4 h-4 mr-1.5" />
-                                        {new Date(recording.created_at).toLocaleDateString()}
-                                    </div>
-                                    {recording.is_live && (
-                                        <span className="px-2 py-0.5 bg-red-100 text-red-600 rounded-full text-xs font-bold animate-pulse">
-                                            LIVE
-                                        </span>
-                                    )}
+                {recording.audio_url && (
+                    <div className="mt-4 rounded-xl border border-[#E5E7EB] bg-white p-4">
+                        <audio
+                            ref={audioRef}
+                            src={recording.audio_url}
+                            onTimeUpdate={handleTimeUpdate}
+                            onLoadedMetadata={handleLoadedMetadata}
+                            onEnded={() => setIsPlaying(false)}
+                            className="hidden"
+                        />
+                        <div className="flex items-center gap-3">
+                            <button
+                                onClick={togglePlay}
+                                className="flex h-10 w-10 items-center justify-center rounded-full border border-[#3454F5] text-[#3454F5]"
+                                aria-label={isPlaying ? "Pause" : "Play"}
+                            >
+                                {isPlaying ? <Pause className="h-4 w-4" /> : <Play className="h-4 w-4" />}
+                            </button>
+                            <div className="flex flex-1 flex-col gap-1">
+                                <input
+                                    type="range"
+                                    min={0}
+                                    max={duration || recording.duration_seconds || 0}
+                                    step={0.1}
+                                    value={currentTime}
+                                    onChange={(e) => {
+                                        const value = Number(e.target.value);
+                                        if (audioRef.current) {
+                                            audioRef.current.currentTime = value;
+                                        }
+                                        setCurrentTime(value);
+                                    }}
+                                    className="h-1 w-full accent-[#3454F5]"
+                                />
+                                <div className="flex justify-between text-[11px] text-[#666666]">
+                                    <span>{formatTimecode(currentTime)}</span>
+                                    <span>{formatTimecode(duration || recording.duration_seconds)}</span>
                                 </div>
                             </div>
-
-                            {recording.audio_url && (
-                                <a
-                                    href={recording.audio_url}
-                                    download
-                                    className="flex items-center px-4 py-2 bg-white text-blue-600 rounded-lg border border-blue-200 hover:bg-blue-50 transition-colors text-sm font-medium"
-                                >
-                                    <Download className="w-4 h-4 mr-2" />
-                                    Download Audio
-                                </a>
-                            )}
                         </div>
                     </div>
+                )}
 
-                    {/* Audio Player */}
-                    {recording.audio_url && (
-                        <div className="p-6 bg-white border-b border-gray-100 sticky top-0 z-10 shadow-sm">
-                            <audio
-                                ref={audioRef}
-                                src={recording.audio_url}
-                                onTimeUpdate={handleTimeUpdate}
-                                onEnded={() => setIsPlaying(false)}
-                                className="w-full hidden"
-                            />
-
-                            <div className="flex items-center space-x-4">
-                                <button
-                                    onClick={togglePlay}
-                                    className="w-12 h-12 flex items-center justify-center bg-blue-600 text-white rounded-full hover:bg-blue-700 transition-colors shadow-md hover:shadow-lg transform hover:scale-105"
-                                >
-                                    {isPlaying ? <Pause className="w-5 h-5 fill-current" /> : <Play className="w-5 h-5 fill-current ml-1" />}
-                                </button>
-
-                                <div className="flex-1">
-                                    <div className="relative w-full h-2 bg-gray-200 rounded-full cursor-pointer group"
-                                        onClick={(e) => {
-                                            const rect = e.currentTarget.getBoundingClientRect();
-                                            const percent = (e.clientX - rect.left) / rect.width;
-                                            if (audioRef.current) {
-                                                audioRef.current.currentTime = percent * audioRef.current.duration;
-                                            }
-                                        }}>
-                                        <div
-                                            className="absolute top-0 left-0 h-full bg-blue-600 rounded-full transition-all duration-100"
-                                            style={{ width: `${audioRef.current ? (currentTime / audioRef.current.duration) * 100 : 0}%` }}
-                                        />
-                                    </div>
-                                    <div className="flex justify-between text-xs text-gray-500 mt-1 font-mono">
-                                        <span>{Math.floor(currentTime / 60)}:{(Math.floor(currentTime) % 60).toString().padStart(2, '0')}</span>
-                                        <span>--:--</span>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    )}
-
-                    {/* Transcript */}
+                <div className="mt-6 rounded-xl border border-[#E5E7EB] bg-white p-4">
+                    <div className="mb-3 text-sm font-semibold text-[#111111]">Transcript</div>
                     <div
                         ref={transcriptRef}
-                        className="p-8 max-h-[600px] overflow-y-auto space-y-4 bg-white"
+                        className="max-h-[560px] overflow-y-auto rounded-lg border border-[#E5E7EB]"
                     >
                         {recording.transcripts && recording.transcripts.length > 0 ? (
-                            recording.transcripts.map((segment) => (
-                                <div
-                                    key={segment.id || Math.random()}
-                                    id={`segment-${segment.id}`}
-                                    onClick={() => handleSegmentClick(segment.start_time)}
-                                    className={`p-3 rounded-lg cursor-pointer transition-all duration-200 hover:bg-gray-50 ${activeSegmentId === segment.id
-                                        ? "bg-blue-50 border-l-4 border-blue-500 shadow-sm"
-                                        : "border-l-4 border-transparent"
-                                        }`}
-                                >
-                                    <div className="flex justify-between items-baseline mb-1">
-                                        <span className="text-xs font-mono text-gray-400">
-                                            {Math.floor(segment.start_time / 60)}:{(Math.floor(segment.start_time) % 60).toString().padStart(2, '0')}
-                                        </span>
-                                    </div>
-                                    <p className={`text-lg leading-relaxed ${activeSegmentId === segment.id ? "text-gray-900 font-medium" : "text-gray-600"
-                                        }`}>
-                                        {segment.text}
-                                    </p>
-                                </div>
-                            ))
+                            <TranscriptList
+                                items={recording.transcripts.map((segment) => ({
+                                    id: segment.id,
+                                    timecode: formatTimecode(segment.start_time),
+                                    text: segment.text,
+                                    active: segment.id === activeSegmentId,
+                                }))}
+                                onSelect={handleSelectSegment}
+                            />
                         ) : (
                             !interimText && (
-                                <div className="text-center py-12 text-gray-400 italic">
-                                    Waiting for live transcription...
+                                <div className="p-4 text-center text-sm text-[#666666]">
+                                    Waiting for live transcription…
                                 </div>
                             )
                         )}
-
-                        {/* Interim Text Display */}
                         {interimText && (
-                            <div className="p-3 rounded-lg border-l-4 border-blue-200 bg-blue-50/50 animate-pulse">
-                                <p className="text-lg leading-relaxed text-gray-500 italic">
-                                    {interimText}
-                                    <span className="inline-block w-1 h-4 bg-blue-400 ml-1 animate-pulse"></span>
-                                </p>
+                            <div className="px-3 py-2 text-sm italic text-[#666666]">
+                                {interimText}
                             </div>
                         )}
-                        <div className="h-4" />
                     </div>
                 </div>
-            </div>
+
+                <div className="mt-6 text-sm text-[#666666]">
+                    Want your own live transcript?{" "}
+                    <Link href="/recordings/new" className="text-[#3454F5]">
+                        Start a recording
+                    </Link>
+                </div>
+            </main>
         </div>
     );
+}
+
+function formatTimecode(value: number) {
+    if (!value || Number.isNaN(value)) return "0:00";
+    const mins = Math.floor(value / 60);
+    const secs = Math.floor(value % 60);
+    return `${mins}:${secs.toString().padStart(2, "0")}`;
 }
