@@ -18,6 +18,7 @@ export function AppHeader({ rightSlot }: AppHeaderProps) {
           </span>
         </Link>
         <div className="flex items-center space-x-3 text-[#666666]">
+          <Link href="/pricing" className="text-sm font-medium hover:text-gray-900">Pricing</Link>
           {rightSlot}
           {!rightSlot && <MoreHorizontal className="h-5 w-5" aria-label="Menu" />}
         </div>

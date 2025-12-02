@@ -12,46 +12,6 @@ import uuid
 import httpx
 import io
 import wave
-import struct
-import secrets
-from typing import Dict, List, Optional, Set
-from models import (
-    RecordingCreate, RecordingUpdate, RecordingResponse,
-    LiveShareCreate, LiveShareResponse, ShareViewResponse,
-    TranscriptSegment
-)
-
-load_dotenv()
-
-# Debug mode
-DEBUG = os.getenv("DEBUG", "false").lower() == "true"
-
-app = FastAPI()
-
-# Setup file logging
-def log_to_file(msg):
-    with open("debug.log", "a", encoding="utf-8") as f:
-        f.write(f"[{datetime.now().isoformat()}] {msg}\n")
-
-# Override print to also log to file (simple hack for debugging)
-original_print = print
-def print(*args, **kwargs):
-    msg = " ".join(map(str, args))
-    log_to_file(msg)
-    original_print(*args, **kwargs)
-
-app.add_middleware(
-    CORSMiddleware,
-    allow_origins=["*"],
-    allow_credentials=True,
-    allow_methods=["*"],
-    allow_headers=["*"],
-)
-
-# Performance tracking class
-class PerformanceMetrics:
-    def __init__(self):
-        self.chunks_sent = 0
         self.transcripts_received = 0
         self.total_bytes_sent = 0
         self.chunk_timestamps = deque(maxlen=100)  # Track last 100 chunks
@@ -807,6 +767,22 @@ async def websocket_endpoint(websocket: WebSocket):
             user_id = user.get("id")
             email = user.get("email")
             print(f"[{client_id}] 👤 Authenticated as: {email} ({user_id})")
+
+            # Check usage limits
+            profile_res = await client.get(
+                f"{SUPABASE_URL}/rest/v1/profiles?id=eq.{user_id}&select=subscription_tier,usage_seconds",
+                headers={"apikey": SUPABASE_KEY}
+            )
+            if profile_res.status_code == 200 and profile_res.json():
+                profile = profile_res.json()[0]
+                tier = profile.get("subscription_tier", "free")
+                usage = profile.get("usage_seconds", 0)
+                
+                # 10 minutes = 600 seconds
+                if tier == "free" and usage >= 600:
+                    print(f"[{client_id}] ⛔ Usage limit reached for free user: {usage}s")
+                    await websocket.close(code=4002, reason="Usage limit reached")
+                    return
             
     except Exception as e:
         print(f"[{client_id}] ❌ Auth error: {e}")
@@ -1015,6 +991,35 @@ async def websocket_endpoint(websocket: WebSocket):
                 final_stats = metrics.get_stats_summary()
                 for key, value in final_stats.items():
                     print(f"  {key}: {value}")
+
+                # Update usage stats
+                if user_id:
+                    session_duration = int(metrics.get_stats_summary()["runtime_seconds"])
+                    if session_duration > 0:
+                        try:
+                            # Simple increment (not atomic but sufficient for MVP)
+                            # Fetch current usage again to be safe
+                            async with httpx.AsyncClient() as client:
+                                p_res = await client.get(
+                                    f"{SUPABASE_URL}/rest/v1/profiles?id=eq.{user_id}&select=usage_seconds",
+                                    headers={"apikey": SUPABASE_KEY}
+                                )
+                                if p_res.status_code == 200 and p_res.json():
+                                    current_usage = p_res.json()[0]["usage_seconds"]
+                                    new_usage = current_usage + session_duration
+                                    
+                                    await client.patch(
+                                        f"{SUPABASE_URL}/rest/v1/profiles?id=eq.{user_id}",
+                                        json={"usage_seconds": new_usage},
+                                        headers={
+                                            "apikey": SUPABASE_KEY,
+                                            "Content-Type": "application/json",
+                                            "Prefer": "return=minimal"
+                                        }
+                                    )
+                                    print(f"[{client_id}] 📈 Updated usage: +{session_duration}s (Total: {new_usage}s)")
+                        except Exception as e:
+                            print(f"[{client_id}] ❌ Failed to update usage: {e}")
 
     except Exception as e:
         print(f"[{get_timestamp()}] ❌ Deepgram connection failed: {e}")

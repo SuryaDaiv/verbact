@@ -299,9 +299,14 @@ export default function AudioRecorder() {
       addLog("WebSocket Error!", "error");
     };
 
-    ws.onclose = () => {
-      addLog("WebSocket Closed", "info");
+    ws.onclose = (event) => {
+      addLog(`WebSocket Closed (Code: ${event.code})`, "info");
       setStatus("Disconnected");
+
+      if (event.code === 4002) {
+        alert("You have reached your free tier usage limit (10 minutes). Please upgrade to continue.");
+        window.location.href = "/pricing";
+      }
     };
 
     socketRef.current = ws;
