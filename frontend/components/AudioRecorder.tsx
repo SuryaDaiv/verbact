@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState, useRef, useEffect } from "react";
-import { Mic, Square, Activity, Terminal, Save, Share2, X, Copy, Check } from "lucide-react";
+import { Mic, Square, Activity, Save, Share2, X, Copy, Check } from "lucide-react";
 import { API_BASE_URL, WS_BASE_URL } from "@/utils/config";
 
 interface LogEntry {
@@ -101,6 +101,14 @@ export default function AudioRecorder() {
   const socketRef = useRef<WebSocket | null>(null);
   const animationFrameRef = useRef<number | null>(null);
   const statusRef = useRef("Ready");
+  const timerRef = useRef<NodeJS.Timeout | null>(null);
+  const [elapsedTime, setElapsedTime] = useState(0);
+
+  const formatTime = (seconds: number) => {
+    const mins = Math.floor(seconds / 60);
+    const secs = seconds % 60;
+    return `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
+  };
 
   const SILENCE_THRESHOLD = 0.001;
 
@@ -429,6 +437,13 @@ export default function AudioRecorder() {
       statusRef.current = "Recording";
       addLog("Recording Started", "info");
 
+      // Start timer
+      setElapsedTime(0);
+      if (timerRef.current) clearInterval(timerRef.current);
+      timerRef.current = setInterval(() => {
+        setElapsedTime(prev => prev + 1);
+      }, 1000);
+
       setMetrics({
         chunksSent: 0,
         transcriptsReceived: 0,
@@ -466,6 +481,11 @@ export default function AudioRecorder() {
     if (animationFrameRef.current) cancelAnimationFrame(animationFrameRef.current);
 
     addLog("Recording Stopped", "info");
+
+    if (timerRef.current) {
+      clearInterval(timerRef.current);
+      timerRef.current = null;
+    }
 
     if (transcriptsForSaveRef.current.length > 0 || audioChunks.length > 0) {
       setRecordingTitle(`Recording ${new Date().toLocaleString()}`);
@@ -619,19 +639,7 @@ export default function AudioRecorder() {
     }
   };
 
-  const getLatencyColor = () => {
-    if (metrics.lastLatencyMs === 0) return "text-gray-400";
-    if (metrics.lastLatencyMs < 500) return "text-green-500";
-    if (metrics.lastLatencyMs < 1500) return "text-yellow-500";
-    return "text-red-500";
-  };
 
-  const getLatencyLabel = () => {
-    if (metrics.lastLatencyMs === 0) return "---";
-    if (metrics.lastLatencyMs < 500) return "FAST";
-    if (metrics.lastLatencyMs < 1500) return "MODERATE";
-    return "SLOW";
-  };
 
   if (!mounted) return null;
 
@@ -644,33 +652,11 @@ export default function AudioRecorder() {
         </p>
       </div>
 
-      <div className="w-full grid grid-cols-2 gap-3 p-4 bg-gradient-to-br from-blue-50 to-indigo-50 rounded-lg border border-blue-100">
-        <div className="flex flex-col items-center p-3 bg-white rounded-lg shadow-sm">
-          <div className="text-xs text-gray-500 mb-1">Chunks Sent</div>
-          <div className="text-2xl font-bold text-blue-600">{metrics.chunksSent}</div>
+      <div className="flex flex-col items-center justify-center py-4">
+        <div className={`text-5xl font-mono font-bold tracking-widest ${isRecording ? 'text-red-500' : 'text-gray-700'}`}>
+          {formatTime(elapsedTime)}
         </div>
-        <div className="flex flex-col items-center p-3 bg-white rounded-lg shadow-sm">
-          <div className="text-xs text-gray-500 mb-1">Transcripts</div>
-          <div className="text-2xl font-bold text-green-600">{metrics.transcriptsReceived}</div>
-        </div>
-        <div className="flex flex-col items-center p-3 bg-white rounded-lg shadow-sm">
-          <div className="text-xs text-gray-500 mb-1">Last Latency</div>
-          <div className={`text-xl font-bold ${getLatencyColor()}`}>
-            {metrics.lastLatencyMs > 0 ? `${metrics.lastLatencyMs}ms` : '---'}
-          </div>
-          <div className={`text-xs font-semibold ${getLatencyColor()}`}>
-            {getLatencyLabel()}
-          </div>
-        </div>
-        <div className="flex flex-col items-center p-3 bg-white rounded-lg shadow-sm">
-          <div className="text-xs text-gray-500 mb-1">Avg Latency</div>
-          <div className="text-xl font-bold text-purple-600">
-            {metrics.avgLatencyMs > 0 ? `${metrics.avgLatencyMs}ms` : '---'}
-          </div>
-          {waitingForResponse && (
-            <div className="text-xs text-orange-500 animate-pulse mt-1">Waiting...</div>
-          )}
-        </div>
+        <div className="text-xs text-gray-400 mt-1 uppercase tracking-wider">Duration</div>
       </div>
 
       <div className="relative group">
@@ -877,28 +863,7 @@ export default function AudioRecorder() {
         )
       }
 
-      <div className="w-full bg-black text-green-400 p-3 rounded text-xs font-mono h-48 overflow-y-auto opacity-90">
-        <div className="flex items-center space-x-2 border-b border-gray-700 pb-2 mb-2 sticky top-0 bg-black">
-          <Terminal className="w-3 h-3" />
-          <span className="font-semibold">Debug Logs</span>
-        </div>
-        {logs.map((log, i) => (
-          <div key={i} className="flex space-x-2 mb-1">
-            <span className="text-gray-500">[{log.timestamp}]</span>
-            <span className={
-              log.type === "send" ? "text-blue-400" :
-                log.type === "receive" ? "text-green-400" :
-                  log.type === "error" ? "text-red-400" :
-                    "text-gray-300"
-            }>
-              {log.type === "send" && "📤 "}
-              {log.type === "receive" && "📥 "}
-              {log.type === "error" && "❌ "}
-              {log.message}
-            </span>
-          </div>
-        ))}
-      </div>
+
 
       <div className="flex items-center space-x-2 text-xs text-gray-400">
         <Activity className="w-3 h-3" />
