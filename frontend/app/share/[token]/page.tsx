@@ -143,7 +143,7 @@ export default function SharePage({ params }: { params: Promise<{ token: string 
         return () => {
             ws.close();
         };
-    }, [recording, token]);
+    }, [recording?.is_live, token]);
 
     const togglePlay = async () => {
         if (audioRef.current) {
