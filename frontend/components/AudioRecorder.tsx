@@ -2,9 +2,7 @@
 
 import React, { useState, useRef, useEffect } from "react";
 import { Mic, Square, Activity, Terminal, Save, Share2, X, Copy, Check } from "lucide-react";
-
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL || "http://localhost:8000";
-const WS_BASE_URL = process.env.NEXT_PUBLIC_WS_BASE_URL || "ws://localhost:8000";
+import { API_BASE_URL, WS_BASE_URL } from "@/utils/config";
 
 interface LogEntry {
   timestamp: string;

@@ -3,9 +3,7 @@
 import React, { useEffect, useState, useRef, use } from "react";
 import Link from "next/link";
 import { Play, Pause, Calendar, Download, ExternalLink } from "lucide-react";
-
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL || "http://localhost:8000";
-const WS_BASE_URL = process.env.NEXT_PUBLIC_WS_BASE_URL || "ws://localhost:8000";
+import { API_BASE_URL, WS_BASE_URL } from "@/utils/config";
 
 interface TranscriptSegment {
     id: string;
