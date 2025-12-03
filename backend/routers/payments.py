@@ -13,14 +13,20 @@ stripe.api_key = os.getenv("STRIPE_SECRET_KEY")
 endpoint_secret = os.getenv("STRIPE_WEBHOOK_SECRET")
 
 # Initialize Supabase
+# Initialize Supabase
 SUPABASE_URL = os.getenv("SUPABASE_URL")
-SUPABASE_KEY = os.getenv("SUPABASE_ANON_KEY") # Use service role key for webhooks if possible, but anon works if RLS allows or we use a function. 
-# Actually for updating profiles from webhook, we ideally need SERVICE_ROLE_KEY to bypass RLS.
-# But for now let's assume we can use the same key or the user provides SERVICE_KEY.
-# Let's check if we have SERVICE_KEY in env. If not, we might hit RLS issues updating other users' profiles.
-# For now, I'll use the key available.
+SUPABASE_ANON_KEY = os.getenv("SUPABASE_ANON_KEY")
+SUPABASE_SERVICE_ROLE_KEY = os.getenv("SUPABASE_SERVICE_ROLE_KEY")
 
-supabase: Client = create_client(SUPABASE_URL, SUPABASE_KEY)
+# Client for public interactions (if needed)
+supabase: Client = create_client(SUPABASE_URL, SUPABASE_ANON_KEY)
+
+# Admin client for webhooks (bypasses RLS)
+if SUPABASE_SERVICE_ROLE_KEY:
+    supabase_admin: Client = create_client(SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY)
+else:
+    print("⚠️ SUPABASE_SERVICE_ROLE_KEY not found. Webhook updates may fail due to RLS.")
+    supabase_admin = supabase
 
 class CheckoutSessionRequest(BaseModel):
     price_id: str
@@ -117,7 +123,7 @@ async def stripe_webhook(request: Request, stripe_signature: str = Header(None))
             # Let's try updating directly. If it fails, we'll need to add a function.
             
             try:
-                supabase.table("profiles").update({
+                supabase_admin.table("profiles").update({
                     "subscription_tier": tier,
                     "stripe_customer_id": session['customer'],
                     "subscription_status": "active"

@@ -13,6 +13,7 @@ interface AppHeaderProps {
 
 export function AppHeader({ rightSlot }: AppHeaderProps) {
   const [user, setUser] = useState<User | null>(null);
+  const [tier, setTier] = useState<string>("free");
   const [loading, setLoading] = useState(true);
   const router = useRouter();
   const supabase = createClient();
@@ -21,12 +22,30 @@ export function AppHeader({ rightSlot }: AppHeaderProps) {
     const getUser = async () => {
       const { data: { session } } = await supabase.auth.getSession();
       setUser(session?.user ?? null);
+
+      if (session?.user) {
+        const { data: profile } = await supabase
+          .from('profiles')
+          .select('subscription_tier')
+          .eq('id', session.user.id)
+          .single();
+        if (profile) setTier(profile.subscription_tier);
+      }
+
       setLoading(false);
     };
     getUser();
 
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(async (_event, session) => {
       setUser(session?.user ?? null);
+      if (session?.user) {
+        const { data: profile } = await supabase
+          .from('profiles')
+          .select('subscription_tier')
+          .eq('id', session.user.id)
+          .single();
+        if (profile) setTier(profile.subscription_tier);
+      }
     });
 
     return () => subscription.unsubscribe();
@@ -36,6 +55,14 @@ export function AppHeader({ rightSlot }: AppHeaderProps) {
     await supabase.auth.signOut();
     setUser(null);
     router.push('/login');
+  };
+
+  const getTierBadge = (tier: string) => {
+    switch (tier) {
+      case 'pro': return <span className="bg-blue-100 text-blue-800 text-xs font-medium px-2.5 py-0.5 rounded border border-blue-400">PRO</span>;
+      case 'unlimited': return <span className="bg-purple-100 text-purple-800 text-xs font-medium px-2.5 py-0.5 rounded border border-purple-400">UNLIMITED</span>;
+      default: return <span className="bg-gray-100 text-gray-800 text-xs font-medium px-2.5 py-0.5 rounded border border-gray-500">FREE</span>;
+    }
   };
 
   return (
@@ -54,12 +81,15 @@ export function AppHeader({ rightSlot }: AppHeaderProps) {
             <div className="h-5 w-20 bg-gray-100 animate-pulse rounded"></div>
           ) : user ? (
             <>
-              <Link href="/pricing" className="text-sm font-medium text-indigo-600 hover:text-indigo-500">
-                Upgrade
-              </Link>
+              {tier === 'free' && (
+                <Link href="/pricing" className="text-sm font-medium text-indigo-600 hover:text-indigo-500">
+                  Upgrade
+                </Link>
+              )}
               <div className="flex items-center space-x-2 text-sm text-gray-900 bg-gray-50 px-3 py-1.5 rounded-full border border-gray-200">
                 <UserIcon className="h-4 w-4 text-gray-500" />
                 <span className="max-w-[150px] truncate">{user.email}</span>
+                {getTierBadge(tier)}
               </div>
               <button
                 onClick={handleSignOut}
