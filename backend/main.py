@@ -811,7 +811,14 @@ async def websocket_endpoint(websocket: WebSocket):
             email = user.get("email")
             print(f"[{client_id}] 👤 Authenticated as: {email} ({user_id})")
 
-            # Check usage limits
+            # Check subscription tier for time limits
+            tier_limits = {
+                "free": 600,  # 10 minutes per session
+                "pro": 1200 * 60,  # 1,200 minutes per session
+                "unlimited": None  # No cap
+            }
+            session_limit_seconds = tier_limits["free"]
+            
             profile_res = await client.get(
                 f"{SUPABASE_URL}/rest/v1/profiles?id=eq.{user_id}&select=subscription_tier,usage_seconds",
                 headers={
@@ -822,13 +829,11 @@ async def websocket_endpoint(websocket: WebSocket):
             if profile_res.status_code == 200 and profile_res.json():
                 profile = profile_res.json()[0]
                 tier = profile.get("subscription_tier", "free")
-                usage = profile.get("usage_seconds", 0)
-                
-                # 10 minutes = 600 seconds
-                if tier == "free" and usage >= 600:
-                    print(f"[{client_id}] ⛔ Usage limit reached for free user: {usage}s")
-                    await websocket.close(code=4002, reason="Usage limit reached")
-                    return
+                session_limit_seconds = tier_limits.get(tier, tier_limits["free"])
+            else:
+                tier = "free"
+            
+            print(f"[{client_id}] Using tier '{tier}' with session cap: {session_limit_seconds if session_limit_seconds is not None else 'unlimited'}s")
             
     except Exception as e:
         print(f"[{client_id}] ❌ Auth error: {e}")
@@ -837,6 +842,9 @@ async def websocket_endpoint(websocket: WebSocket):
 
     # Initialize performance metrics
     metrics = PerformanceMetrics()
+    session_start_time: Optional[float] = None
+    limit_task: Optional[asyncio.Task] = None
+    total_recorded_seconds = 0.0
     
     # Initialize audio buffer for this client
     audio_buffer = AudioBuffer()
@@ -971,6 +979,58 @@ async def websocket_endpoint(websocket: WebSocket):
                 except:
                     pass
 
+            async def enforce_time_limit():
+                """Hard-stop the session when the per-tier limit is reached."""
+                if session_limit_seconds is None:
+                    return
+                try:
+                    while True:
+                        await asyncio.sleep(1)
+                        if session_start_time is None:
+                            continue
+                        
+                        elapsed = time.monotonic() - session_start_time
+                        if elapsed >= session_limit_seconds:
+                            print(f"[{client_id}] ⛔ Session time limit reached for tier '{tier}' after {elapsed:.1f}s")
+                            if session_start_time is not None:
+                                total_recorded_seconds += session_limit_seconds
+                                session_start_time = None
+                            try:
+                                await websocket.send_text(json.dumps({
+                                    "type": "limit_reached",
+                                    "tier": tier,
+                                    "limit_seconds": session_limit_seconds
+                                }))
+                            except Exception as e:
+                                print(f"[{client_id}] Warning: failed to send limit notice: {e}")
+
+                            try:
+                                await dg_socket.close()
+                            except Exception:
+                                pass
+                            
+                            await websocket.close(code=4002, reason="time limit reached")
+                            return
+                except asyncio.CancelledError:
+                    return
+                except Exception as e:
+                    print(f"[{client_id}] Error in limit monitor: {e}")
+
+            def start_limit_timer(force_reset: bool = False):
+                """Start/reset the session timer once the user begins a recording."""
+                nonlocal session_start_time, limit_task
+                if session_limit_seconds is None:
+                    return
+                if force_reset or session_start_time is None:
+                    if force_reset and session_start_time is not None:
+                        total_recorded_seconds += time.monotonic() - session_start_time
+                    session_start_time = time.monotonic()
+                    if limit_task:
+                        limit_task.cancel()
+                        limit_task = None
+                if not limit_task or limit_task.done():
+                    limit_task = asyncio.create_task(enforce_time_limit())
+
             # Start tasks
             receive_task = asyncio.create_task(receive_from_deepgram())
             keepalive_task = asyncio.create_task(send_keepalive())
@@ -991,7 +1051,16 @@ async def websocket_endpoint(websocket: WebSocket):
                             if data.get("type") == "configure" and "recording_id" in data:
                                 current_recording_id = data["recording_id"]
                                 active_recordings.add(current_recording_id)
+                                start_limit_timer(True)
                                 print(f"[{client_id}] 🎥 Configured for recording: {current_recording_id}")
+                            elif data.get("type") == "stop_recording":
+                                if session_start_time:
+                                    total_recorded_seconds += time.monotonic() - session_start_time
+                                session_start_time = None
+                                if limit_task:
+                                    limit_task.cancel()
+                                    limit_task = None
+                                print(f"[{client_id}] Recording stop received; session timer reset")
                             else:
                                 print(f"[{client_id}] ⚠️ Unknown text message type: {data.get('type')}")
                         except Exception as e:
@@ -1002,6 +1071,7 @@ async def websocket_endpoint(websocket: WebSocket):
                         data = message["bytes"]
                         chunk_sequence += 1
                         chunk_size = len(data)
+                        start_limit_timer()
                         
                         # DEBUG: Confirm we are receiving bytes
                         if chunk_sequence % 50 == 0:
@@ -1028,6 +1098,8 @@ async def websocket_endpoint(websocket: WebSocket):
                 receive_task.cancel()
                 keepalive_task.cancel()
                 stats_task.cancel()
+                if limit_task:
+                    limit_task.cancel()
                 
                 print(f"\n[{get_timestamp()}] 🔌 Closing connection")
                 if current_recording_id and current_recording_id in active_recordings:
@@ -1040,7 +1112,11 @@ async def websocket_endpoint(websocket: WebSocket):
 
                 # Update usage stats
                 if user_id:
-                    session_duration = int(metrics.get_stats_summary()["runtime_seconds"])
+                    session_duration = int(total_recorded_seconds)
+                    if session_start_time:
+                        session_duration += max(0, int(time.monotonic() - session_start_time))
+                    if session_duration <= 0:
+                        session_duration = int(metrics.get_stats_summary()["runtime_seconds"])
                     if session_duration > 0:
                         try:
                             # Simple increment (not atomic but sufficient for MVP)

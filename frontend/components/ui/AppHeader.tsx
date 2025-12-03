@@ -1,11 +1,43 @@
+'use client';
+
 import Link from "next/link";
-import { MoreHorizontal } from "lucide-react";
+import { MoreHorizontal, User as UserIcon, LogOut } from "lucide-react";
+import { useEffect, useState } from "react";
+import { createClient } from "@/utils/supabase/client";
+import { User } from "@supabase/supabase-js";
+import { useRouter } from "next/navigation";
 
 interface AppHeaderProps {
   rightSlot?: React.ReactNode;
 }
 
 export function AppHeader({ rightSlot }: AppHeaderProps) {
+  const [user, setUser] = useState<User | null>(null);
+  const [loading, setLoading] = useState(true);
+  const router = useRouter();
+  const supabase = createClient();
+
+  useEffect(() => {
+    const getUser = async () => {
+      const { data: { session } } = await supabase.auth.getSession();
+      setUser(session?.user ?? null);
+      setLoading(false);
+    };
+    getUser();
+
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+      setUser(session?.user ?? null);
+    });
+
+    return () => subscription.unsubscribe();
+  }, []);
+
+  const handleSignOut = async () => {
+    await supabase.auth.signOut();
+    setUser(null);
+    router.push('/login');
+  };
+
   return (
     <header className="sticky top-0 z-20 w-full bg-white border-b border-[#E5E7EB]">
       <div className="mx-auto flex h-14 max-w-5xl items-center justify-between px-4 sm:px-6">
@@ -17,10 +49,33 @@ export function AppHeader({ rightSlot }: AppHeaderProps) {
             Verbact
           </span>
         </Link>
-        <div className="flex items-center space-x-3 text-[#666666]">
-          <Link href="/pricing" className="text-sm font-medium hover:text-gray-900">Pricing</Link>
+        <div className="flex items-center space-x-4 text-[#666666]">
+          {loading ? (
+            <div className="h-5 w-20 bg-gray-100 animate-pulse rounded"></div>
+          ) : user ? (
+            <>
+              <Link href="/pricing" className="text-sm font-medium text-indigo-600 hover:text-indigo-500">
+                Upgrade
+              </Link>
+              <div className="flex items-center space-x-2 text-sm text-gray-900 bg-gray-50 px-3 py-1.5 rounded-full border border-gray-200">
+                <UserIcon className="h-4 w-4 text-gray-500" />
+                <span className="max-w-[150px] truncate">{user.email}</span>
+              </div>
+              <button
+                onClick={handleSignOut}
+                className="text-gray-500 hover:text-red-600 transition-colors"
+                title="Sign out"
+              >
+                <LogOut className="h-5 w-5" />
+              </button>
+            </>
+          ) : (
+            <>
+              <Link href="/pricing" className="text-sm font-medium hover:text-gray-900">Pricing</Link>
+              <Link href="/login" className="text-sm font-medium hover:text-gray-900">Login</Link>
+            </>
+          )}
           {rightSlot}
-          {!rightSlot && <MoreHorizontal className="h-5 w-5" aria-label="Menu" />}
         </div>
       </div>
     </header>

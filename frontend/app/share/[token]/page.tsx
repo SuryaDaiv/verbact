@@ -48,9 +48,10 @@ export default function SharePage({ params }: { params: Promise<{ token: string 
 
                 const data = await response.json();
                 setRecording(data);
-            } catch (err: any) {
+            } catch (err) {
+                const message = err instanceof Error ? err.message : "Failed to load recording";
                 console.error("Error fetching share:", err);
-                setError(err.message || "Failed to load recording");
+                setError(message);
             } finally {
                 setLoading(false);
             }
@@ -93,7 +94,7 @@ export default function SharePage({ params }: { params: Promise<{ token: string 
         ws.onmessage = (event) => {
             try {
                 const data = JSON.parse(event.data);
-                const { transcript, is_final, confidence, timestamp } = data;
+                const { transcript, is_final, confidence } = data;
 
                 if (transcript) {
                     if (is_final) {
@@ -142,7 +143,7 @@ export default function SharePage({ params }: { params: Promise<{ token: string 
         return () => {
             ws.close();
         };
-    }, [recording?.is_live, token]);
+    }, [recording, token]);
 
     const togglePlay = async () => {
         if (audioRef.current) {

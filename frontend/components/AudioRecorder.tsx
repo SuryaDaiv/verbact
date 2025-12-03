@@ -24,6 +24,8 @@ interface TranscriptSegment {
   confidence?: number;
 }
 
+type SubscriptionTier = "free" | "pro" | "unlimited";
+
 export default function AudioRecorder() {
   const [isRecording, setIsRecording] = useState(false);
   const [transcript, setTranscript] = useState<string[]>([]);
@@ -40,6 +42,13 @@ export default function AudioRecorder() {
   const [waitingForResponse, setWaitingForResponse] = useState(false);
   const [sessionToken, setSessionToken] = useState<string | null>(null);
   const [mounted, setMounted] = useState(false);
+  const [subscriptionTier, setSubscriptionTier] = useState<SubscriptionTier>("free");
+  const tierLimits: Record<SubscriptionTier, number | null> = {
+    free: 10 * 60, // 10 minutes
+    pro: 1200 * 60, // 1,200 minutes
+    unlimited: null,
+  };
+  const sessionLimitSeconds = tierLimits[subscriptionTier];
 
   useEffect(() => {
     setMounted(true);
@@ -61,6 +70,18 @@ export default function AudioRecorder() {
         if (session) {
           console.log("Session found, setting token...");
           setSessionToken(session.access_token);
+
+          const { data: profile, error: profileError } = await supabase
+            .from("profiles")
+            .select("subscription_tier")
+            .eq("id", session.user.id)
+            .single();
+
+          if (profileError) {
+            console.error("Profile fetch error:", profileError);
+          } else if (profile?.subscription_tier) {
+            setSubscriptionTier(profile.subscription_tier as SubscriptionTier);
+          }
         } else {
           console.log("No session found");
           setStatus("Not Logged In");
@@ -199,13 +220,14 @@ export default function AudioRecorder() {
 
   const getTimestamp = () => {
     const now = new Date();
-    return now.toLocaleTimeString('en-US', {
+    const options: Intl.DateTimeFormatOptions & { fractionalSecondDigits?: number } = {
       hour12: false,
       hour: '2-digit',
       minute: '2-digit',
       second: '2-digit',
       fractionalSecondDigits: 3
-    } as any);
+    };
+    return now.toLocaleTimeString('en-US', options);
   };
 
   const addLog = (msg: string, type: LogEntry["type"] = "info") => {
@@ -218,12 +240,36 @@ export default function AudioRecorder() {
   };
 
   const recordingIdRef = useRef<string | null>(null);
+  const limitReachedRef = useRef(false);
 
   useEffect(() => {
     if (savedRecordingId) {
       recordingIdRef.current = savedRecordingId;
     }
   }, [savedRecordingId]);
+
+  const handleLimitReached = (source: string) => {
+    if (sessionLimitSeconds === null) return;
+    if (limitReachedRef.current) return;
+    limitReachedRef.current = true;
+
+    if (timerRef.current) {
+      clearInterval(timerRef.current);
+      timerRef.current = null;
+    }
+
+    if (sessionLimitSeconds) {
+      setElapsedTime(sessionLimitSeconds);
+    }
+
+    stopRecording("Time limit reached");
+
+    const minutes = Math.floor(sessionLimitSeconds / 60);
+    alert(`You've reached your ${subscriptionTier} plan limit (${minutes} minute${minutes === 1 ? "" : "s"}). Recording has been stopped.`);
+    if (subscriptionTier === "free") {
+      window.location.href = "/pricing";
+    }
+  };
 
   useEffect(() => {
     if (!sessionToken) return;
@@ -246,6 +292,12 @@ export default function AudioRecorder() {
     ws.onmessage = (event) => {
       try {
         const data = JSON.parse(event.data);
+
+        if (data?.type === "limit_reached") {
+          handleLimitReached("server");
+          return;
+        }
+
         const { transcript: text, is_final, confidence } = data;
 
         if (text && !text.startsWith("[Error")) {
@@ -309,12 +361,11 @@ export default function AudioRecorder() {
 
     ws.onclose = (event) => {
       addLog(`WebSocket Closed (Code: ${event.code})`, "info");
-      setStatus("Disconnected");
-
       if (event.code === 4002) {
-        alert("You have reached your free tier usage limit (10 minutes). Please upgrade to continue.");
-        window.location.href = "/pricing";
+        handleLimitReached("server-close");
+        return;
       }
+      setStatus("Disconnected");
     };
 
     socketRef.current = ws;
@@ -322,7 +373,7 @@ export default function AudioRecorder() {
     return () => {
       if (ws.readyState === WebSocket.OPEN) ws.close();
     };
-  }, [sessionToken]);
+  }, [sessionToken, sessionLimitSeconds, subscriptionTier]);
 
   const visualize = () => {
     if (!analyserRef.current || statusRef.current !== "Recording") return;
@@ -343,7 +394,14 @@ export default function AudioRecorder() {
     try {
       const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
 
-      const audioContext = new (window.AudioContext || (window as any).webkitAudioContext)({
+      const AudioContextClass =
+        window.AudioContext ||
+        (window as typeof window & { webkitAudioContext?: typeof AudioContext }).webkitAudioContext;
+      if (!AudioContextClass) {
+        throw new Error("Web Audio API is not supported in this browser");
+      }
+
+      const audioContext = new AudioContextClass({
         sampleRate: 16000
       });
       await audioContext.resume();
@@ -363,6 +421,7 @@ export default function AudioRecorder() {
       processorRef.current = processor;
 
       // Reset state for new recording
+      limitReachedRef.current = false;
       setAudioChunks([]);
       setTranscriptWithTimestamps([]);
       transcriptsForSaveRef.current = [];
@@ -441,7 +500,18 @@ export default function AudioRecorder() {
       setElapsedTime(0);
       if (timerRef.current) clearInterval(timerRef.current);
       timerRef.current = setInterval(() => {
-        setElapsedTime(prev => prev + 1);
+        setElapsedTime(prev => {
+          const next = prev + 1;
+          if (sessionLimitSeconds && next >= sessionLimitSeconds) {
+            if (timerRef.current) {
+              clearInterval(timerRef.current);
+              timerRef.current = null;
+            }
+            handleLimitReached("timer");
+            return sessionLimitSeconds;
+          }
+          return next;
+        });
       }, 1000);
 
       setMetrics({
@@ -461,13 +531,17 @@ export default function AudioRecorder() {
     }
   };
 
-  const stopRecording = () => {
+  const stopRecording = (reason?: string) => {
     statusRef.current = "Stopped";
     setIsRecording(false);
-    setStatus("Stopped");
+    setStatus(reason || "Stopped");
     setVolume(0);
     setWaitingForResponse(false);
     setInterimText("");
+
+    if (socketRef.current && socketRef.current.readyState === WebSocket.OPEN) {
+      socketRef.current.send(JSON.stringify({ type: "stop_recording" }));
+    }
 
     if (mediaRecorderRef.current && mediaRecorderRef.current.state !== "inactive") {
       mediaRecorderRef.current.stop();
@@ -480,7 +554,7 @@ export default function AudioRecorder() {
     if (audioContextRef.current) audioContextRef.current.close();
     if (animationFrameRef.current) cancelAnimationFrame(animationFrameRef.current);
 
-    addLog("Recording Stopped", "info");
+    addLog(reason ? `Recording Stopped (${reason})` : "Recording Stopped", "info");
 
     if (timerRef.current) {
       clearInterval(timerRef.current);
@@ -661,7 +735,7 @@ export default function AudioRecorder() {
 
       <div className="relative group">
         <button
-          onClick={isRecording ? stopRecording : startRecording}
+          onClick={() => (isRecording ? stopRecording() : startRecording())}
           disabled={status !== "Connected" && status !== "Recording..."}
           className={`p-6 rounded-full transition-all duration-300 transform hover:scale-105 focus:outline-none focus:ring-4 focus:ring-offset-2 ${isRecording
             ? "bg-red-500 hover:bg-red-600 focus:ring-red-200 shadow-red-200"
