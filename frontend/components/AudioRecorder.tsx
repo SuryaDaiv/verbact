@@ -3,6 +3,9 @@
 import React, { useState, useRef, useEffect } from "react";
 import { Mic, Square, Activity, Terminal, Save, Share2, X, Copy, Check } from "lucide-react";
 
+const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL || "http://localhost:8000";
+const WS_BASE_URL = process.env.NEXT_PUBLIC_WS_BASE_URL || "ws://localhost:8000";
+
 interface LogEntry {
   timestamp: string;
   message: string;
@@ -190,13 +193,14 @@ export default function AudioRecorder() {
 
   const getTimestamp = () => {
     const now = new Date();
-    return now.toLocaleTimeString('en-US', {
+    const options: Intl.DateTimeFormatOptions & { fractionalSecondDigits?: number } = {
       hour12: false,
       hour: '2-digit',
       minute: '2-digit',
       second: '2-digit',
       fractionalSecondDigits: 3
-    } as any);
+    };
+    return now.toLocaleTimeString('en-US', options);
   };
 
   const addLog = (msg: string, type: LogEntry["type"] = "info") => {
@@ -209,6 +213,7 @@ export default function AudioRecorder() {
   };
 
   const recordingIdRef = useRef<string | null>(null);
+  const limitReachedRef = useRef(false);
 
   useEffect(() => {
     if (savedRecordingId) {
@@ -216,10 +221,17 @@ export default function AudioRecorder() {
     }
   }, [savedRecordingId]);
 
+  const handleLimitReached = () => {
+    if (limitReachedRef.current) return;
+    limitReachedRef.current = true;
+    stopRecording("Time limit reached");
+    alert("Recording stopped: you reached your plan's time limit.");
+  };
+
   useEffect(() => {
     if (!sessionToken) return;
 
-    const ws = new WebSocket(`ws://localhost:8000/ws/transcribe?token=${sessionToken}`);
+    const ws = new WebSocket(`${WS_BASE_URL}/ws/transcribe?token=${sessionToken}`);
 
     ws.onopen = () => {
       addLog("WebSocket Connected", "info");
@@ -237,6 +249,12 @@ export default function AudioRecorder() {
     ws.onmessage = (event) => {
       try {
         const data = JSON.parse(event.data);
+
+        if (data?.type === "limit_reached") {
+          handleLimitReached();
+          return;
+        }
+
         const { transcript: text, is_final, confidence } = data;
 
         if (text && !text.startsWith("[Error")) {
@@ -298,8 +316,12 @@ export default function AudioRecorder() {
       addLog("WebSocket Error!", "error");
     };
 
-    ws.onclose = () => {
-      addLog("WebSocket Closed", "info");
+    ws.onclose = (event) => {
+      addLog(`WebSocket Closed (Code: ${event.code})`, "info");
+      if (event.code === 4002) {
+        handleLimitReached();
+        return;
+      }
       setStatus("Disconnected");
     };
 
@@ -329,7 +351,13 @@ export default function AudioRecorder() {
     try {
       const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
 
-      const audioContext = new (window.AudioContext || (window as any).webkitAudioContext)({
+      const AudioContextClass =
+        window.AudioContext ||
+        (window as typeof window & { webkitAudioContext?: typeof AudioContext }).webkitAudioContext;
+      if (!AudioContextClass) {
+        throw new Error("Web Audio API not supported");
+      }
+      const audioContext = new AudioContextClass({
         sampleRate: 16000
       });
       await audioContext.resume();
@@ -349,6 +377,7 @@ export default function AudioRecorder() {
       processorRef.current = processor;
 
       // Reset state for new recording
+      limitReachedRef.current = false;
       setAudioChunks([]);
       setTranscriptWithTimestamps([]);
       transcriptsForSaveRef.current = [];
@@ -440,10 +469,10 @@ export default function AudioRecorder() {
     }
   };
 
-  const stopRecording = () => {
+  const stopRecording = (reason?: string) => {
     statusRef.current = "Stopped";
     setIsRecording(false);
-    setStatus("Stopped");
+    setStatus(reason || "Stopped");
     setVolume(0);
     setWaitingForResponse(false);
     setInterimText("");
@@ -508,7 +537,7 @@ export default function AudioRecorder() {
       });
 
       // Upload to backend
-      const response = await fetch("http://localhost:8000/api/recordings", {
+      const response = await fetch(`${API_BASE_URL}/api/recordings`, {
         method: "POST",
         body: formData,
       });
@@ -563,7 +592,7 @@ export default function AudioRecorder() {
       initFormData.append("title", baseTitle);
       initFormData.append("token", sessionToken);
 
-      const initResponse = await fetch("http://localhost:8000/api/recordings/init", {
+      const initResponse = await fetch(`${API_BASE_URL}/api/recordings/init`, {
         method: "POST",
         body: initFormData
       });
@@ -587,7 +616,7 @@ export default function AudioRecorder() {
       }
 
       // Create share link
-      const response = await fetch(`http://localhost:8000/api/shares?token=${sessionToken}`, {
+      const response = await fetch(`${API_BASE_URL}/api/shares?token=${sessionToken}`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -669,7 +698,7 @@ export default function AudioRecorder() {
 
       <div className="relative group">
         <button
-          onClick={isRecording ? stopRecording : startRecording}
+          onClick={() => (isRecording ? stopRecording() : startRecording())}
           disabled={status !== "Connected" && status !== "Recording..."}
           className={`p-6 rounded-full transition-all duration-300 transform hover:scale-105 focus:outline-none focus:ring-4 focus:ring-offset-2 ${isRecording
             ? "bg-red-500 hover:bg-red-600 focus:ring-red-200 shadow-red-200"

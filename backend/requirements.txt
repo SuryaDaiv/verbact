@@ -4,3 +4,7 @@ websockets
 httpx
 python-dotenv
 python-multipart
+pydantic
+stripe>=5.0.0
+supabase
+pytest

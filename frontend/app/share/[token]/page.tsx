@@ -2,7 +2,10 @@
 
 import React, { useEffect, useState, useRef, use } from "react";
 import Link from "next/link";
-import { Play, Pause, Calendar, Clock, Download, ExternalLink } from "lucide-react";
+import { Play, Pause, Calendar, Download, ExternalLink } from "lucide-react";
+
+const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL || "http://localhost:8000";
+const WS_BASE_URL = process.env.NEXT_PUBLIC_WS_BASE_URL || "ws://localhost:8000";
 
 interface TranscriptSegment {
     id: string;
@@ -35,7 +38,7 @@ export default function SharePage({ params }: { params: Promise<{ token: string 
     useEffect(() => {
         const fetchShare = async () => {
             try {
-                const response = await fetch(`http://localhost:8000/api/shares/${token}`);
+                const response = await fetch(`${API_BASE_URL}/api/shares/${token}`);
                 if (!response.ok) {
                     if (response.status === 410) throw new Error("This share link has expired");
                     throw new Error("Failed to load shared recording");
@@ -43,9 +46,10 @@ export default function SharePage({ params }: { params: Promise<{ token: string 
 
                 const data = await response.json();
                 setRecording(data);
-            } catch (err: any) {
+            } catch (err) {
+                const message = err instanceof Error ? err.message : "Failed to load recording";
                 console.error("Error fetching share:", err);
-                setError(err.message || "Failed to load recording");
+                setError(message);
             } finally {
                 setLoading(false);
             }
@@ -79,7 +83,7 @@ export default function SharePage({ params }: { params: Promise<{ token: string 
     useEffect(() => {
         if (!recording || !recording.is_live) return;
 
-        const ws = new WebSocket(`ws://localhost:8000/ws/watch/${token}`);
+        const ws = new WebSocket(`${WS_BASE_URL}/ws/watch/${token}`);
 
         ws.onopen = () => {
             console.log("Connected to live share");
@@ -87,8 +91,12 @@ export default function SharePage({ params }: { params: Promise<{ token: string 
 
         ws.onmessage = (event) => {
             try {
-                const data = JSON.parse(event.data);
-                const { transcript, is_final, confidence, timestamp } = data;
+                const data = JSON.parse(event.data) as {
+                    transcript?: string;
+                    is_final?: boolean;
+                    confidence?: number;
+                };
+                const { transcript, is_final, confidence } = data;
 
                 if (transcript) {
                     if (is_final) {
@@ -105,7 +113,7 @@ export default function SharePage({ params }: { params: Promise<{ token: string 
                                 text: transcript,
                                 start_time: startTime,
                                 end_time: startTime + duration,
-                                confidence: confidence
+                                confidence: confidence ?? 0
                             };
 
                             return {

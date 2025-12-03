@@ -20,6 +20,7 @@ from models import (
     LiveShareCreate, LiveShareResponse, ShareViewResponse,
     TranscriptSegment
 )
+from routers import payments
 
 load_dotenv()
 
@@ -47,6 +48,8 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
+app.include_router(payments.router, prefix="/api/payments", tags=["payments"])
 
 # Performance tracking class
 class PerformanceMetrics:
@@ -807,6 +810,74 @@ async def websocket_endpoint(websocket: WebSocket):
             user_id = user.get("id")
             email = user.get("email")
             print(f"[{client_id}] 👤 Authenticated as: {email} ({user_id})")
+
+            # Subscription tier and usage checks
+            tier_limits = {
+                "free": 600,  # 10 minutes per session
+                "pro": None,  # No per-session cap (monthly cap enforced below)
+                "unlimited": None
+            }
+            monthly_caps = {
+                "free": None,
+                "pro": 1200 * 60,  # 1,200 minutes per month
+                "unlimited": None
+            }
+            tier = "free"
+            usage_seconds = 0
+            session_limit_seconds = tier_limits["free"]
+            monthly_cap_seconds = monthly_caps["free"]
+
+            async with httpx.AsyncClient() as client_profile:
+                profile_res = await client_profile.get(
+                    f"{os.environ.get('SUPABASE_URL')}/rest/v1/profiles?id=eq.{user_id}&select=subscription_tier,usage_seconds,updated_at",
+                    headers={
+                        "apikey": os.environ.get("SUPABASE_ANON_KEY"),
+                        "Authorization": f"Bearer {token}"
+                    }
+                )
+                if profile_res.status_code == 200 and profile_res.json():
+                    profile = profile_res.json()[0]
+                    tier = profile.get("subscription_tier", "free")
+                    usage_seconds = profile.get("usage_seconds", 0) or 0
+                    monthly_cap_seconds = monthly_caps.get(tier)
+
+                    # Reset monthly usage if last update was before current month
+                    updated_at = profile.get("updated_at")
+                    now = datetime.now(timezone.utc)
+                    month_start = now.replace(day=1, hour=0, minute=0, second=0, microsecond=0)
+                    if updated_at:
+                        try:
+                            updated_dt = datetime.fromisoformat(updated_at.replace("Z", "+00:00"))
+                            if updated_dt < month_start and monthly_cap_seconds:
+                                await client_profile.patch(
+                                    f"{os.environ.get('SUPABASE_URL')}/rest/v1/profiles?id=eq.{user_id}",
+                                    json={"usage_seconds": 0, "updated_at": now.isoformat()},
+                                    headers={
+                                        "apikey": os.environ.get("SUPABASE_ANON_KEY"),
+                                        "Authorization": f"Bearer {token}",
+                                        "Content-Type": "application/json",
+                                        "Prefer": "return=minimal"
+                                    }
+                                )
+                                usage_seconds = 0
+                        except Exception as e:
+                            print(f"[{client_id}] Warning: failed to parse updated_at for profile: {e}")
+
+                    session_limit_seconds = tier_limits.get(tier, tier_limits["free"])
+
+                    if monthly_cap_seconds is not None:
+                        remaining = monthly_cap_seconds - usage_seconds
+                        if remaining <= 0:
+                            print(f"[{client_id}] ⛔ Monthly limit reached for tier '{tier}'. Usage: {usage_seconds}s")
+                            await websocket.close(code=4002, reason="Usage limit reached")
+                            return
+                        if session_limit_seconds is None:
+                            session_limit_seconds = remaining
+                        else:
+                            session_limit_seconds = min(session_limit_seconds, remaining)
+                else:
+                    tier = "free"
+                    session_limit_seconds = tier_limits["free"]
             
     except Exception as e:
         print(f"[{client_id}] ❌ Auth error: {e}")
@@ -815,6 +886,9 @@ async def websocket_endpoint(websocket: WebSocket):
 
     # Initialize performance metrics
     metrics = PerformanceMetrics()
+    session_start_time: Optional[float] = None
+    limit_task: Optional[asyncio.Task] = None
+    total_recorded_seconds = 0.0
     
     # Initialize audio buffer for this client
     audio_buffer = AudioBuffer()
@@ -949,6 +1023,58 @@ async def websocket_endpoint(websocket: WebSocket):
                 except:
                     pass
 
+            async def enforce_time_limit():
+                """Hard-stop the session when the per-tier limit is reached."""
+                if session_limit_seconds is None:
+                    return
+                try:
+                    while True:
+                        await asyncio.sleep(1)
+                        if session_start_time is None:
+                            continue
+
+                        elapsed = time.monotonic() - session_start_time
+                        if elapsed >= session_limit_seconds:
+                            print(f"[{client_id}] ⛔ Session time limit reached for tier '{tier}' after {elapsed:.1f}s")
+                            if session_start_time is not None:
+                                total_recorded_seconds += session_limit_seconds
+                                session_start_time = None
+                            try:
+                                await websocket.send_text(json.dumps({
+                                    "type": "limit_reached",
+                                    "tier": tier,
+                                    "limit_seconds": session_limit_seconds
+                                }))
+                            except Exception as e:
+                                print(f"[{client_id}] Warning: failed to send limit notice: {e}")
+
+                            try:
+                                await dg_socket.close()
+                            except Exception:
+                                pass
+
+                            await websocket.close(code=4002, reason="time limit reached")
+                            return
+                except asyncio.CancelledError:
+                    return
+                except Exception as e:
+                    print(f"[{client_id}] Error in limit monitor: {e}")
+
+            def start_limit_timer(force_reset: bool = False):
+                """Start/reset the session timer once the user begins a recording."""
+                nonlocal session_start_time, limit_task
+                if session_limit_seconds is None:
+                    return
+                if force_reset or session_start_time is None:
+                    if force_reset and session_start_time is not None:
+                        total_recorded_seconds += time.monotonic() - session_start_time
+                    session_start_time = time.monotonic()
+                    if limit_task:
+                        limit_task.cancel()
+                        limit_task = None
+                if not limit_task or limit_task.done():
+                    limit_task = asyncio.create_task(enforce_time_limit())
+
             # Start tasks
             receive_task = asyncio.create_task(receive_from_deepgram())
             keepalive_task = asyncio.create_task(send_keepalive())
@@ -969,7 +1095,16 @@ async def websocket_endpoint(websocket: WebSocket):
                             if data.get("type") == "configure" and "recording_id" in data:
                                 current_recording_id = data["recording_id"]
                                 active_recordings.add(current_recording_id)
+                                start_limit_timer(True)
                                 print(f"[{client_id}] 🎥 Configured for recording: {current_recording_id}")
+                            elif data.get("type") == "stop_recording":
+                                if session_start_time:
+                                    total_recorded_seconds += time.monotonic() - session_start_time
+                                session_start_time = None
+                                if limit_task:
+                                    limit_task.cancel()
+                                    limit_task = None
+                                print(f"[{client_id}] Recording stop received; session timer reset")
                             else:
                                 print(f"[{client_id}] ⚠️ Unknown text message type: {data.get('type')}")
                         except Exception as e:
@@ -980,6 +1115,7 @@ async def websocket_endpoint(websocket: WebSocket):
                         data = message["bytes"]
                         chunk_sequence += 1
                         chunk_size = len(data)
+                        start_limit_timer()
                         
                         # DEBUG: Confirm we are receiving bytes
                         if chunk_sequence % 50 == 0:
@@ -1006,6 +1142,8 @@ async def websocket_endpoint(websocket: WebSocket):
                 receive_task.cancel()
                 keepalive_task.cancel()
                 stats_task.cancel()
+                if limit_task:
+                    limit_task.cancel()
                 
                 print(f"\n[{get_timestamp()}] 🔌 Closing connection")
                 if current_recording_id and current_recording_id in active_recordings:
@@ -1015,6 +1153,34 @@ async def websocket_endpoint(websocket: WebSocket):
                 final_stats = metrics.get_stats_summary()
                 for key, value in final_stats.items():
                     print(f"  {key}: {value}")
+
+                # Update usage stats
+                if user_id:
+                    session_duration = int(total_recorded_seconds)
+                    if session_start_time:
+                        session_duration += max(0, int(time.monotonic() - session_start_time))
+                    if session_duration > 0:
+                        try:
+                            async with httpx.AsyncClient() as client_profile:
+                                new_usage = usage_seconds + session_duration
+                                if monthly_cap_seconds is not None:
+                                    new_usage = min(new_usage, monthly_cap_seconds)
+                                await client_profile.patch(
+                                    f"{os.environ.get('SUPABASE_URL')}/rest/v1/profiles?id=eq.{user_id}",
+                                    json={
+                                        "usage_seconds": new_usage,
+                                        "updated_at": datetime.now(timezone.utc).isoformat()
+                                    },
+                                    headers={
+                                        "apikey": os.environ.get("SUPABASE_ANON_KEY"),
+                                        "Authorization": f"Bearer {token}",
+                                        "Content-Type": "application/json",
+                                        "Prefer": "return=minimal"
+                                    }
+                                )
+                                print(f"[{client_id}] ⏱️ Updated usage: +{session_duration}s (Total: {new_usage}s)")
+                        except Exception as e:
+                            print(f"[{client_id}] ❌ Failed to update usage: {e}")
 
     except Exception as e:
         print(f"[{get_timestamp()}] ❌ Deepgram connection failed: {e}")
