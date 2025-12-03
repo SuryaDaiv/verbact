@@ -51,6 +51,10 @@ app.add_middleware(
 
 app.include_router(payments.router, prefix="/api/payments", tags=["payments"])
 
+@app.get("/health")
+async def health_check():
+    return {"status": "ok", "timestamp": datetime.now().isoformat()}
+
 # Performance tracking class
 class PerformanceMetrics:
     def __init__(self):

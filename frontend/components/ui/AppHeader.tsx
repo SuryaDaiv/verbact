@@ -20,27 +20,38 @@ export function AppHeader({ rightSlot }: AppHeaderProps) {
 
   useEffect(() => {
     const getUser = async () => {
+      console.log("AppHeader: getUser started");
       try {
-        const { data: { session } } = await supabase.auth.getSession();
+        const { data: { session }, error: sessionError } = await supabase.auth.getSession();
+        if (sessionError) console.error("AppHeader: Error fetching session", sessionError);
+
+        console.log("AppHeader: Session retrieved", session ? "User found" : "No user");
         setUser(session?.user ?? null);
 
         if (session?.user) {
-          const { data: profile } = await supabase
+          const { data: profile, error: profileError } = await supabase
             .from('profiles')
             .select('subscription_tier')
             .eq('id', session.user.id)
             .single();
-          if (profile) setTier(profile.subscription_tier);
+
+          if (profileError) console.error("AppHeader: Error fetching profile", profileError);
+          if (profile) {
+            console.log("AppHeader: Profile retrieved", profile);
+            setTier(profile.subscription_tier);
+          }
         }
       } catch (error) {
-        console.error("Error fetching user:", error);
+        console.error("AppHeader: Error in getUser:", error);
       } finally {
+        console.log("AppHeader: getUser finished, setting loading to false");
         setLoading(false);
       }
     };
     getUser();
 
-    const { data: { subscription } } = supabase.auth.onAuthStateChange(async (_event, session) => {
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
+      console.log("AppHeader: Auth state changed", event);
       setUser(session?.user ?? null);
       if (session?.user) {
         const { data: profile } = await supabase
