@@ -814,7 +814,10 @@ async def websocket_endpoint(websocket: WebSocket):
             # Check usage limits
             profile_res = await client.get(
                 f"{SUPABASE_URL}/rest/v1/profiles?id=eq.{user_id}&select=subscription_tier,usage_seconds",
-                headers={"apikey": SUPABASE_KEY}
+                headers={
+                    "apikey": SUPABASE_KEY,
+                    "Authorization": f"Bearer {token}"
+                }
             )
             if profile_res.status_code == 200 and profile_res.json():
                 profile = profile_res.json()[0]
@@ -1045,7 +1048,10 @@ async def websocket_endpoint(websocket: WebSocket):
                             async with httpx.AsyncClient() as client:
                                 p_res = await client.get(
                                     f"{SUPABASE_URL}/rest/v1/profiles?id=eq.{user_id}&select=usage_seconds",
-                                    headers={"apikey": SUPABASE_KEY}
+                                    headers={
+                                        "apikey": SUPABASE_KEY,
+                                        "Authorization": f"Bearer {token}"
+                                    }
                                 )
                                 if p_res.status_code == 200 and p_res.json():
                                     current_usage = p_res.json()[0]["usage_seconds"]
@@ -1056,6 +1062,7 @@ async def websocket_endpoint(websocket: WebSocket):
                                         json={"usage_seconds": new_usage},
                                         headers={
                                             "apikey": SUPABASE_KEY,
+                                            "Authorization": f"Bearer {token}",
                                             "Content-Type": "application/json",
                                             "Prefer": "return=minimal"
                                         }
