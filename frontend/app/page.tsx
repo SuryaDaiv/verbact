@@ -7,21 +7,7 @@ import FooterLinks from "@/components/ui/FooterLinks";
 export default function Home() {
   return (
     <div className="min-h-screen bg-white text-[#111111]">
-      <AppHeader
-        rightSlot={
-          <div className="flex items-center gap-4 text-sm font-medium">
-            <Link href="/login" className="text-[#666666] hover:text-[#111111]">
-              Log in
-            </Link>
-            <Link
-              href="/login"
-              className="rounded-lg bg-[#111111] px-4 py-2 text-white hover:bg-black"
-            >
-              Sign up
-            </Link>
-          </div>
-        }
-      />
+      <AppHeader />
 
       <main className="mx-auto flex w-full max-w-5xl flex-col px-4 py-16 sm:px-6 sm:py-24">
         {/* Hero Section */}
