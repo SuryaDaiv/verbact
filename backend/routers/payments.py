@@ -37,35 +37,49 @@ class CheckoutSessionRequest(BaseModel):
 @router.post("/create-checkout-session")
 async def create_checkout_session(request: CheckoutSessionRequest):
     try:
-        # Define prices (You can also use Price IDs from Stripe Dashboard)
-        # For simplicity, we map "price_id" from frontend to ad-hoc prices or real IDs
+        # Map tier names to Price IDs from env, or fall back to ad-hoc amounts
+        price_id_map = {
+            "pro": os.getenv("STRIPE_PRICE_PRO"),
+            "unlimited": os.getenv("STRIPE_PRICE_UNLIMITED")
+        }
         
-        # Map frontend "tier" names to amounts (in cents)
-        amounts = {
+        # Ad-hoc fallback amounts (in cents)
+        adhoc_amounts = {
             "pro": 700, # $7.00
             "unlimited": 1500 # $15.00
         }
-        
-        if request.price_id not in amounts:
+
+        tier_key = request.price_id.lower()
+        if tier_key not in adhoc_amounts:
              raise HTTPException(status_code=400, detail="Invalid price ID")
+
+        line_item = {}
+        
+        # If a real Price ID is configured, use it
+        if price_id_map.get(tier_key):
+            line_item = {
+                'price': price_id_map[tier_key],
+                'quantity': 1,
+            }
+        else:
+            # Fallback to ad-hoc price
+            line_item = {
+                'price_data': {
+                    'currency': 'usd',
+                    'unit_amount': adhoc_amounts[tier_key],
+                    'product_data': {
+                        'name': f'Verbact {tier_key.capitalize()} Subscription',
+                    },
+                    'recurring': {
+                        'interval': 'month',
+                    },
+                },
+                'quantity': 1,
+            }
 
         checkout_session = stripe.checkout.Session.create(
             payment_method_types=['card'],
-            line_items=[
-                {
-                    'price_data': {
-                        'currency': 'usd',
-                        'unit_amount': amounts[request.price_id],
-                        'product_data': {
-                            'name': f'Verbact {request.price_id.capitalize()} Subscription',
-                        },
-                        'recurring': {
-                            'interval': 'month',
-                        },
-                    },
-                    'quantity': 1,
-                },
-            ],
+            line_items=[line_item],
             mode='subscription',
             success_url=request.return_url + '?session_id={CHECKOUT_SESSION_ID}',
             cancel_url=request.return_url,
@@ -73,7 +87,7 @@ async def create_checkout_session(request: CheckoutSessionRequest):
             customer_email=request.email,
             metadata={
                 'user_id': request.user_id,
-                'tier': request.price_id
+                'tier': tier_key
             }
         )
         return {"sessionId": checkout_session.id, "url": checkout_session.url}
