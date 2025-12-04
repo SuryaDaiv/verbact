@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Check, Loader2 } from 'lucide-react';
 import { API_BASE_URL } from '@/utils/config';
 import { createClient } from '@/utils/supabase/client';
@@ -8,7 +8,24 @@ import { useRouter } from 'next/navigation';
 
 export default function PricingPage() {
     const [loading, setLoading] = useState<string | null>(null);
+    const [currentTier, setCurrentTier] = useState<string>('free');
     const router = useRouter();
+
+    useEffect(() => {
+        const getTier = async () => {
+            const supabase = createClient();
+            const { data: { session } } = await supabase.auth.getSession();
+            if (session?.user) {
+                const { data: profile } = await supabase
+                    .from('profiles')
+                    .select('subscription_tier')
+                    .eq('id', session.user.id)
+                    .single();
+                if (profile) setCurrentTier(profile.subscription_tier);
+            }
+        };
+        getTier();
+    }, []);
 
     const handleUpgrade = async (tier: string) => {
         try {
@@ -55,7 +72,7 @@ export default function PricingPage() {
             description: 'Perfect for trying out Verbact.',
             features: ['10 minutes of transcription', 'Real-time transcription', 'Basic support'],
             cta: 'Current Plan',
-            current: true,
+            current: currentTier === 'free',
             id: 'free'
         },
         {
@@ -64,8 +81,9 @@ export default function PricingPage() {
             period: '/month',
             description: 'For professionals and creators.',
             features: ['1,200 minutes / month', 'Priority processing', 'Email support', 'Export to PDF/TXT'],
-            cta: 'Upgrade to Pro',
+            cta: currentTier === 'pro' ? 'Current Plan' : 'Upgrade to Pro',
             highlight: true,
+            current: currentTier === 'pro',
             id: 'pro'
         },
         {
@@ -74,7 +92,8 @@ export default function PricingPage() {
             period: '/month',
             description: 'For power users and businesses.',
             features: ['Unlimited transcription', 'Highest priority', '24/7 Priority support', 'Advanced analytics'],
-            cta: 'Go Unlimited',
+            cta: currentTier === 'unlimited' ? 'Current Plan' : 'Go Unlimited',
+            current: currentTier === 'unlimited',
             id: 'unlimited'
         },
     ];
@@ -98,8 +117,8 @@ export default function PricingPage() {
                             <div
                                 key={tier.name}
                                 className={`rounded-3xl p-8 ring-1 xl:p-10 ${tier.highlight
-                                        ? 'bg-gray-900 ring-gray-900 text-white shadow-2xl scale-105 z-10'
-                                        : 'bg-white ring-gray-200 text-gray-900 shadow-sm'
+                                    ? 'bg-gray-900 ring-gray-900 text-white shadow-2xl scale-105 z-10'
+                                    : 'bg-white ring-gray-200 text-gray-900 shadow-sm'
                                     }`}
                             >
                                 <div className="flex items-center justify-between gap-x-4">
@@ -122,10 +141,10 @@ export default function PricingPage() {
                                     onClick={() => !tier.current && handleUpgrade(tier.id)}
                                     disabled={tier.current || loading !== null}
                                     className={`mt-6 block w-full rounded-md px-3 py-2 text-center text-sm font-semibold leading-6 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 disabled:opacity-50 disabled:cursor-not-allowed ${tier.highlight
-                                            ? 'bg-indigo-500 text-white hover:bg-indigo-400 focus-visible:outline-indigo-500'
-                                            : tier.current
-                                                ? 'bg-gray-100 text-gray-600 cursor-default'
-                                                : 'bg-indigo-600 text-white hover:bg-indigo-500 focus-visible:outline-indigo-600'
+                                        ? 'bg-indigo-500 text-white hover:bg-indigo-400 focus-visible:outline-indigo-500'
+                                        : tier.current
+                                            ? 'bg-gray-100 text-gray-600 cursor-default'
+                                            : 'bg-indigo-600 text-white hover:bg-indigo-500 focus-visible:outline-indigo-600'
                                         }`}
                                 >
                                     {loading === tier.id ? (
