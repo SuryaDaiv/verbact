@@ -40,6 +40,7 @@ export function AppHeader({ rightSlot }: AppHeaderProps) {
         setUser(session?.user ?? null);
 
         if (session?.user) {
+          console.log("AppHeader: Fetching profile for user", session.user.id);
           const { data: profile, error: profileError } = await supabase
             .from('profiles')
             .select('subscription_tier')
@@ -48,8 +49,11 @@ export function AppHeader({ rightSlot }: AppHeaderProps) {
 
           if (profileError) {
             console.error("AppHeader: profile error", profileError);
-            setAuthError("Unable to fetch profile");
+            // Don't set authError here, as the user is logged in, just profile fetch failed.
+            // Maybe they don't have a profile yet (race condition with trigger).
           }
+
+          console.log("AppHeader: Fetched profile:", profile);
           if (profile) {
             setTier(profile.subscription_tier);
           }
@@ -82,7 +86,7 @@ export function AppHeader({ rightSlot }: AppHeaderProps) {
       clearTimeout(timeout);
       subscription.unsubscribe();
     };
-  }, [loading, supabase]);
+  }, [supabase]);
 
   const handleSignOut = async () => {
     await supabase.auth.signOut();
