@@ -66,7 +66,10 @@ export default function DashboardRecordingsList({ token }: { token?: string }) {
     if (loading) {
         return (
             <div className="flex justify-center py-8">
-                <div className="animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-blue-500"></div>
+                <div className="flex flex-col items-center space-y-3">
+                    <div className="animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-blue-500"></div>
+                    <p className="text-sm text-gray-500">Loading recordings... <span className="text-xs text-gray-400">(server may be waking up)</span></p>
+                </div>
             </div>
         );
     }
