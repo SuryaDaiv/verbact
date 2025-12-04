@@ -5,7 +5,6 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { ArrowLeft, Play, Pause, Calendar, Clock, Download, Trash2, Search } from "lucide-react";
 import TranscriptList from "@/components/ui/TranscriptList";
-import KeyMomentsList from "@/components/ui/KeyMomentsList";
 import { API_BASE_URL } from "@/utils/config";
 
 interface TranscriptSegment {
@@ -170,11 +169,6 @@ export default function RecordingPage({ params }: { params: Promise<{ id: string
         active: segment.id === activeSegmentId,
     }));
 
-    const keyMoments = filteredTranscripts.slice(0, 3).map((segment) => ({
-        label: segment.text.substring(0, 60) + (segment.text.length > 60 ? "…" : ""),
-        time: formatTimecode(segment.start_time),
-    }));
-
     const handleSelectSegment = async (segmentId?: string | number) => {
         if (!segmentId || !recording) return;
         const target = recording.transcripts.find((t) => t.id === segmentId);
@@ -212,7 +206,7 @@ export default function RecordingPage({ params }: { params: Promise<{ id: string
 
                 <div className="flex flex-col gap-2">
                     <h1 className="text-2xl font-semibold leading-tight">{recording.title}</h1>
-                    <div className="flex flex-wrap items-center gap-3 text-sm text-[#666666]">
+                    <div className="flex flex-wrap items-center gap-3 text-sm text-[#6666666]">
                         <span className="inline-flex items-center">
                             <Calendar className="mr-1.5 h-4 w-4" />
                             {new Date(recording.created_at).toLocaleDateString()}
@@ -298,23 +292,17 @@ export default function RecordingPage({ params }: { params: Promise<{ id: string
                                 />
                             </div>
                             <div className="flex gap-2 text-xs font-semibold text-[#666666]">
-                                <span className="rounded-full border border-[#E5E7EB] px-3 py-1">All</span>
-                                <span className="rounded-full border border-[#E5E7EB] px-3 py-1">Important</span>
-                                <span className="rounded-full border border-[#E5E7EB] px-3 py-1">Speaker A/B</span>
+                                <span className="rounded-full border border-[#E5E7EB] px-3 py-1 bg-gray-100 text-gray-900">All</span>
                             </div>
                         </div>
                     </div>
 
-                    <div className="grid gap-6 lg:grid-cols-[2fr_1fr]">
+                    <div className="flex flex-col">
                         <div
                             ref={transcriptRef}
                             className="max-h-[540px] overflow-y-auto rounded-lg border border-[#E5E7EB]"
                         >
                             <TranscriptList items={transcriptItems} onSelect={handleSelectSegment} />
-                        </div>
-                        <div className="flex flex-col gap-3 rounded-lg border border-[#E5E7EB] p-3">
-                            <div className="text-sm font-semibold text-[#111111]">Key moments</div>
-                            <KeyMomentsList moments={keyMoments} />
                         </div>
                     </div>
                 </div>
@@ -324,7 +312,17 @@ export default function RecordingPage({ params }: { params: Promise<{ id: string
 }
 
 function formatTimecode(value: number) {
-    if (!value || Number.isNaN(value)) return "0:00";
+    if (!value || Number.isNaN(value) || !Number.isFinite(value)) return "0:00";
+
+    // Heuristic for different time units
+    if (value > 86400) { // If > 24 hours, it's likely not seconds
+        if (value > 10000000) { // > 10 million: assume microseconds (e.g. 29,000,000 = 29s)
+            value = value / 1000000;
+        } else { // Assume milliseconds
+            value = value / 1000;
+        }
+    }
+
     const mins = Math.floor(value / 60);
     const secs = Math.floor(value % 60);
     return `${mins}:${secs.toString().padStart(2, "0")}`;
