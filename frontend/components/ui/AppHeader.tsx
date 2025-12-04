@@ -15,17 +15,28 @@ export function AppHeader({ rightSlot }: AppHeaderProps) {
   const [user, setUser] = useState<User | null>(null);
   const [tier, setTier] = useState<string>("free");
   const [loading, setLoading] = useState(true);
+  const [authError, setAuthError] = useState<string | null>(null);
   const router = useRouter();
   const supabase = createClient();
 
   useEffect(() => {
+    let cancelled = false;
+    const timeout = setTimeout(() => {
+      if (loading && !cancelled) {
+        setLoading(false);
+        setAuthError("Auth check timed out");
+      }
+    }, 4000);
+
     const getUser = async () => {
-      console.log("AppHeader: getUser started");
       try {
         const { data: { session }, error: sessionError } = await supabase.auth.getSession();
-        if (sessionError) console.error("AppHeader: Error fetching session", sessionError);
+        if (sessionError) {
+          console.error("AppHeader: session error", sessionError);
+          setAuthError("Unable to fetch session");
+        }
 
-        console.log("AppHeader: Session retrieved", session ? "User found" : "No user");
+        if (cancelled) return;
         setUser(session?.user ?? null);
 
         if (session?.user) {
@@ -35,23 +46,26 @@ export function AppHeader({ rightSlot }: AppHeaderProps) {
             .eq('id', session.user.id)
             .single();
 
-          if (profileError) console.error("AppHeader: Error fetching profile", profileError);
+          if (profileError) {
+            console.error("AppHeader: profile error", profileError);
+            setAuthError("Unable to fetch profile");
+          }
           if (profile) {
-            console.log("AppHeader: Profile retrieved", profile);
             setTier(profile.subscription_tier);
           }
         }
       } catch (error) {
-        console.error("AppHeader: Error in getUser:", error);
+        console.error("AppHeader: unexpected error", error);
+        setAuthError("Auth check failed");
       } finally {
-        console.log("AppHeader: getUser finished, setting loading to false");
-        setLoading(false);
+        if (!cancelled) setLoading(false);
       }
     };
+
     getUser();
 
-    const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
-      console.log("AppHeader: Auth state changed", event);
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(async (_event, session) => {
+      if (cancelled) return;
       setUser(session?.user ?? null);
       if (session?.user) {
         const { data: profile } = await supabase
@@ -63,8 +77,12 @@ export function AppHeader({ rightSlot }: AppHeaderProps) {
       }
     });
 
-    return () => subscription.unsubscribe();
-  }, []);
+    return () => {
+      cancelled = true;
+      clearTimeout(timeout);
+      subscription.unsubscribe();
+    };
+  }, [loading, supabase]);
 
   const handleSignOut = async () => {
     await supabase.auth.signOut();
@@ -118,6 +136,9 @@ export function AppHeader({ rightSlot }: AppHeaderProps) {
             <>
               <Link href="/pricing" className="text-sm font-medium hover:text-gray-900">Pricing</Link>
               <Link href="/login" className="text-sm font-medium hover:text-gray-900">Login</Link>
+              {authError && (
+                <span className="text-xs text-red-500">{authError}</span>
+              )}
             </>
           )}
           {rightSlot}

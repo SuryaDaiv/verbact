@@ -1,14 +1,11 @@
 import Link from "next/link";
 import { Mic, FileText, Zap, ArrowRight } from "lucide-react";
-import AppHeader from "@/components/ui/AppHeader";
 import FeatureCard from "@/components/ui/FeatureCard";
 import FooterLinks from "@/components/ui/FooterLinks";
 
 export default function Home() {
   return (
     <div className="min-h-screen bg-white text-[#111111]">
-      <AppHeader />
-
       <main className="mx-auto flex w-full max-w-5xl flex-col px-4 py-16 sm:px-6 sm:py-24">
         {/* Hero Section */}
         <div className="flex flex-col items-center text-center">
