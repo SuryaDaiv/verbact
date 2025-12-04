@@ -18,24 +18,6 @@ export default function Home() {
             No clutter, just clarity.
           </p>
           <div className="mt-8 flex flex-col gap-4 sm:flex-row sm:items-center">
-            <Link
-              href="/recordings/new"
-              className="inline-flex items-center justify-center rounded-lg bg-[#3454F5] px-6 py-3 text-base font-semibold text-white transition-transform hover:scale-[1.02] active:scale-[0.98]"
-            >
-              Start Recording
-            </Link>
-            <Link
-              href="/login"
-              className="inline-flex items-center justify-center rounded-lg border border-[#E5E7EB] bg-white px-6 py-3 text-base font-semibold text-[#111111] hover:bg-[#F9FAFB]"
-            >
-              View Demo
-            </Link>
-          </div>
-        </div>
-
-        {/* Mockup / Visual */}
-        <div className="mt-16 w-full overflow-hidden rounded-xl border border-[#E5E7EB] bg-[#F9FAFB] p-4 sm:p-8">
-          <div className="flex flex-col gap-4 rounded-lg border border-[#E5E7EB] bg-white p-6 shadow-sm">
             <div className="flex items-center gap-3 border-b border-[#E5E7EB] pb-4">
               <div className="h-3 w-3 rounded-full bg-[#EF4444]" />
               <div className="text-sm font-medium text-[#111111]">Live Session</div>

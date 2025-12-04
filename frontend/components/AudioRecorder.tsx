@@ -941,7 +941,7 @@ export default function AudioRecorder() {
 
       <div className="flex items-center space-x-2 text-xs text-gray-400">
         <Activity className="w-3 h-3" />
-        <span>Deepgram Streaming - Real-time Mode</span>
+        <span>Real-time Transcription</span>
       </div>
     </div >
   );
