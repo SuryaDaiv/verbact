@@ -203,7 +203,6 @@ export default function RecordingPage({ params }: { params: Promise<{ id: string
 
     return (
         <div className="min-h-screen bg-white text-[#111111]">
-            <AppHeader />
             <main className="mx-auto w-full max-w-5xl px-4 py-6 sm:px-6">
                 <div className="mb-4 flex items-center text-sm text-[#666666]">
                     <Link href="/recordings" className="inline-flex items-center text-[#3454F5]">
