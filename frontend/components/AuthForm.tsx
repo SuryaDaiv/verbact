@@ -138,8 +138,14 @@ export default function AuthForm() {
                             className="relative block w-full rounded-b-md border-0 py-1.5 text-gray-900 ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:z-10 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6 px-3"
                             placeholder="Password"
                             value={password}
-                            onChange={(e) => setPassword(e.target.value)}
                         />
+                    </div>
+                    <div className="flex items-center justify-end">
+                        <div className="text-sm">
+                            <a href="/forgot-password" className="font-medium text-indigo-600 hover:text-indigo-500">
+                                Forgot your password?
+                            </a>
+                        </div>
                     </div>
                 </div>
 
