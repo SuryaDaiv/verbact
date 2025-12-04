@@ -18,24 +18,7 @@ export default async function DashboardPage() {
 
     return (
         <div className="min-h-screen bg-gray-50">
-            <header className="bg-white shadow">
-                <div className="mx-auto max-w-7xl px-4 py-6 sm:px-6 lg:px-8 flex justify-between items-center">
-                    <h1 className="text-3xl font-bold tracking-tight text-gray-900">
-                        Dashboard
-                    </h1>
-                    <div className="flex items-center gap-4">
-                        <span className="text-sm text-gray-500">{user.email}</span>
-                        <form action="/auth/signout" method="post">
-                            <button
-                                type="submit"
-                                className="rounded-md bg-white px-3 py-2 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50"
-                            >
-                                Sign out
-                            </button>
-                        </form>
-                    </div>
-                </div>
-            </header>
+
             <main>
                 <div className="mx-auto max-w-7xl py-6 sm:px-6 lg:px-8">
                     <div className="mb-12">
