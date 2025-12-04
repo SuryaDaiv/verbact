@@ -3,7 +3,6 @@
 import React, { useEffect, useState, useRef, use } from "react";
 import Link from "next/link";
 import { Play, Pause, Calendar, Clock, Download } from "lucide-react";
-import AppHeader from "@/components/ui/AppHeader";
 import TranscriptList from "@/components/ui/TranscriptList";
 import { API_BASE_URL, WS_BASE_URL } from "@/utils/config";
 
@@ -217,7 +216,6 @@ export default function SharePage({ params }: { params: Promise<{ token: string 
 
     return (
         <div className="min-h-screen bg-white text-[#111111]">
-            <AppHeader rightSlot={<Link href="/recordings" className="text-sm text-[#3454F5]">Record your own</Link>} />
             <main className="mx-auto w-full max-w-5xl px-4 py-6 sm:px-6">
                 <div className="flex flex-col gap-2">
                     <h1 className="text-2xl font-semibold leading-tight">{recording.title}</h1>

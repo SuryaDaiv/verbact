@@ -1,11 +1,9 @@
-import AppHeader from "@/components/ui/AppHeader";
 import ComingSoonCard from "@/components/ui/ComingSoonCard";
 import FooterLinks from "@/components/ui/FooterLinks";
 
 export default function ComingSoonPage() {
   return (
     <div className="min-h-screen bg-white text-[#111111]">
-      <AppHeader />
       <main className="mx-auto flex max-w-4xl flex-col gap-8 px-4 py-10 sm:px-6">
         <div className="flex flex-col gap-3">
           <h1 className="text-3xl font-semibold leading-tight sm:text-4xl">

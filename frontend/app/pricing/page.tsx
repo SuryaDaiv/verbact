@@ -2,7 +2,6 @@
 
 import React, { useState } from 'react';
 import { Check, Loader2 } from 'lucide-react';
-import AppHeader from '@/components/ui/AppHeader';
 import { API_BASE_URL } from '@/utils/config';
 import { createClient } from '@/utils/supabase/client';
 import { useRouter } from 'next/navigation';
@@ -82,8 +81,6 @@ export default function PricingPage() {
 
     return (
         <div className="min-h-screen bg-gray-50">
-            <AppHeader />
-
             <div className="py-24 sm:py-32">
                 <div className="mx-auto max-w-7xl px-6 lg:px-8">
                     <div className="mx-auto max-w-4xl text-center">

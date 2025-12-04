@@ -1,19 +1,10 @@
 import Link from "next/link";
 import { Bot, ArrowLeft } from "lucide-react";
-import AppHeader from "@/components/ui/AppHeader";
 import FooterLinks from "@/components/ui/FooterLinks";
 
 export default function ComingSoonPage() {
     return (
         <div className="min-h-screen bg-white text-[#111111]">
-            <AppHeader
-                rightSlot={
-                    <Link href="/" className="text-sm font-medium text-[#666666] hover:text-[#111111]">
-                        Back to Home
-                    </Link>
-                }
-            />
-
             <main className="mx-auto flex w-full max-w-md flex-col items-center px-4 py-24 text-center sm:px-6">
                 <div className="mb-6 flex h-16 w-16 items-center justify-center rounded-2xl bg-[#EEF2FF] text-[#3454F5]">
                     <Bot className="h-8 w-8" />

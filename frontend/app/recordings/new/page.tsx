@@ -1,7 +1,6 @@
 "use client";
 
 import dynamic from "next/dynamic";
-import AppHeader from "@/components/ui/AppHeader";
 import LiveSessionHeader from "@/components/ui/LiveSessionHeader";
 
 const AudioRecorder = dynamic(() => import("@/components/AudioRecorder"), {
@@ -15,7 +14,6 @@ export default function NewRecordingPage() {
 
   return (
     <div className="min-h-screen bg-white text-[#111111]">
-      <AppHeader />
       <LiveSessionHeader title="Live Recording" dateLabel={dateLabel} showLive />
       <main className="mx-auto w-full max-w-5xl px-4 py-6 sm:px-6">
         <div className="flex flex-col gap-4 rounded-xl border border-[#E5E7EB] bg-white p-4">

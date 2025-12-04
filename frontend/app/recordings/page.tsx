@@ -3,7 +3,6 @@
 import React, { useEffect, useState } from "react";
 import Link from "next/link";
 import { Play, Calendar, Clock, FileAudio, Trash2 } from "lucide-react";
-import AppHeader from "@/components/ui/AppHeader";
 import { API_BASE_URL } from "@/utils/config";
 
 interface Recording {
@@ -116,7 +115,6 @@ export default function RecordingsPage() {
 
     return (
         <div className="min-h-screen bg-white text-[#111111]">
-            <AppHeader />
             <main className="mx-auto w-full max-w-5xl px-4 py-6 sm:px-6">
                 <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
                     <h1 className="text-2xl font-semibold leading-tight">My Recordings</h1>

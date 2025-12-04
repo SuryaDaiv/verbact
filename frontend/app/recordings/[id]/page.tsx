@@ -4,7 +4,6 @@ import React, { useEffect, useState, useRef, use } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { ArrowLeft, Play, Pause, Calendar, Clock, Download, Trash2, Search } from "lucide-react";
-import AppHeader from "@/components/ui/AppHeader";
 import TranscriptList from "@/components/ui/TranscriptList";
 import KeyMomentsList from "@/components/ui/KeyMomentsList";
 import { API_BASE_URL } from "@/utils/config";
