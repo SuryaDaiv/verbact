@@ -1,5 +1,6 @@
 import { createClient } from '@/utils/supabase/server'
 import { NextResponse } from 'next/server'
+import { cookies } from 'next/headers'
 
 export async function GET(request: Request) {
     const { searchParams, origin } = new URL(request.url)
@@ -19,7 +20,9 @@ export async function GET(request: Request) {
             return NextResponse.redirect(`${origin}${next}`)
         }
         // If exchange fails, redirect to error page
-        return NextResponse.redirect(`${origin}/auth/auth-code-error?error=${encodeURIComponent(sessionError.message)}`)
+        const cookieStore = await cookies()
+        const cookieNames = cookieStore.getAll().map(c => c.name).join(', ')
+        return NextResponse.redirect(`${origin}/auth/auth-code-error?error=${encodeURIComponent(sessionError.message + " | Cookies: " + cookieNames)}`)
     }
 
     // return the user to an error page with instructions

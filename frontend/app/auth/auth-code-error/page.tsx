@@ -13,7 +13,16 @@ function ErrorContent() {
                 <h1 className="text-2xl font-bold text-red-600 mb-4">Authentication Error</h1>
                 <p className="text-gray-600 mb-6">
                     {error || 'There was an error verifying your account.'}
+                    {error || 'There was an error verifying your account.'}
                 </p>
+                <div className="text-sm text-gray-500 mb-6 text-left bg-gray-50 p-4 rounded-md">
+                    <p className="font-semibold mb-2">Troubleshooting:</p>
+                    <ul className="list-disc pl-4 space-y-1">
+                        <li>Ensure you open the link in the <strong>same browser</strong> where you requested it.</li>
+                        <li>Try copying the link and pasting it into this browser window.</li>
+                        <li>If the link has expired, request a new one.</li>
+                    </ul>
+                </div>
                 <div className="space-y-4">
                     <Link
                         href="/login"
