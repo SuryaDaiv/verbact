@@ -20,14 +20,6 @@ export function AppHeader({ rightSlot }: AppHeaderProps) {
   const supabase = createClient();
 
   useEffect(() => {
-    let cancelled = false;
-    const timeout = setTimeout(() => {
-      if (loading && !cancelled) {
-        setLoading(false);
-        setAuthError("Auth check timed out");
-      }
-    }, 4000);
-
     const getUser = async () => {
       try {
         const { data: { session }, error: sessionError } = await supabase.auth.getSession();
@@ -36,7 +28,6 @@ export function AppHeader({ rightSlot }: AppHeaderProps) {
           setAuthError("Unable to fetch session");
         }
 
-        if (cancelled) return;
         setUser(session?.user ?? null);
 
         if (session?.user) {
@@ -62,14 +53,13 @@ export function AppHeader({ rightSlot }: AppHeaderProps) {
         console.error("AppHeader: unexpected error", error);
         setAuthError("Auth check failed");
       } finally {
-        if (!cancelled) setLoading(false);
+        setLoading(false);
       }
     };
 
     getUser();
 
     const { data: { subscription } } = supabase.auth.onAuthStateChange(async (_event, session) => {
-      if (cancelled) return;
       setUser(session?.user ?? null);
       if (session?.user) {
         const { data: profile } = await supabase
@@ -82,8 +72,6 @@ export function AppHeader({ rightSlot }: AppHeaderProps) {
     });
 
     return () => {
-      cancelled = true;
-      clearTimeout(timeout);
       subscription.unsubscribe();
     };
   }, [supabase]);
