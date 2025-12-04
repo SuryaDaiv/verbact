@@ -21,6 +21,9 @@ export function AppHeader({ rightSlot }: AppHeaderProps) {
 
   useEffect(() => {
     const getUser = async () => {
+      console.log("AppHeader: getUser started");
+      console.log("AppHeader: SUPABASE_URL", process.env.NEXT_PUBLIC_SUPABASE_URL);
+      console.log("AppHeader: API_BASE_URL", process.env.NEXT_PUBLIC_API_BASE_URL);
       try {
         const { data: { session }, error: sessionError } = await supabase.auth.getSession();
         if (sessionError) {
