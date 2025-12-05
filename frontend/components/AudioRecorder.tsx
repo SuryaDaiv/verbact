@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState, useRef, useEffect } from "react";
-import { Mic, Square, Activity, Save, Share2, X, Copy, Check } from "lucide-react";
+import { Mic, Square, Activity, Save, Share2, X, Copy, Check, RefreshCw } from "lucide-react";
 import { API_BASE_URL, WS_BASE_URL } from "@/utils/config";
 
 interface LogEntry {
@@ -49,52 +49,79 @@ export default function AudioRecorder() {
     unlimited: null,
   };
   const sessionLimitSeconds = tierLimits[subscriptionTier];
+  const [authError, setAuthError] = useState<string | null>(null);
+
+  const getToken = async () => {
+    setStatus("Authenticating...");
+    setAuthError(null);
+    const startTime = performance.now();
+    console.log(`[Auth Debug] Starting session check at ${new Date().toISOString()}`);
+
+    try {
+      const { createClient } = await import('@/utils/supabase/client');
+      const supabase = createClient();
+
+      // Log config (masked)
+      const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
+      console.log(`[Auth Debug] Config: URL=${supabaseUrl ? supabaseUrl.substring(0, 15) + '...' : 'MISSING'}`);
+
+      // Create a timeout promise
+      const timeoutPromise = new Promise((_, reject) =>
+        setTimeout(() => reject(new Error("Auth check timed out (10s)")), 10000)
+      );
+
+      // Race the auth check against the timeout
+      const sessionPromise = supabase.auth.getSession();
+
+      const result = await Promise.race([sessionPromise, timeoutPromise]) as { data: { session: any }, error: any };
+      const { data: { session }, error } = result;
+
+      const endTime = performance.now();
+      console.log(`[Auth Debug] Session check complete in ${(endTime - startTime).toFixed(2)}ms`);
+
+      if (error) {
+        console.error("[Auth Debug] Auth error:", error);
+        setStatus("Auth Failed");
+        setAuthError(error.message);
+        return;
+      }
+
+      if (session) {
+        console.log(`[Auth Debug] Session found for user ${session.user.id}`);
+        setSessionToken(session.access_token);
+
+        const { data: profile, error: profileError } = await supabase
+          .from("profiles")
+          .select("subscription_tier")
+          .eq("id", session.user.id)
+          .single();
+
+        if (profileError) {
+          console.error("[Auth Debug] Profile fetch error:", profileError);
+        } else if (profile?.subscription_tier) {
+          setSubscriptionTier(profile.subscription_tier as SubscriptionTier);
+        }
+      } else {
+        console.log("[Auth Debug] No session found (user not logged in)");
+        setStatus("Not Logged In");
+        setAuthError("Please log in to record.");
+      }
+    } catch (err: any) {
+      const endTime = performance.now();
+      console.error(`[Auth Debug] Error getting token after ${(endTime - startTime).toFixed(2)}ms:`, err);
+      setStatus("Connection Failed");
+      setAuthError(err.message || "Unknown error");
+    }
+  };
 
   useEffect(() => {
     setMounted(true);
-
-    // Get session token
-    const getToken = async () => {
-      setStatus("Authenticating...");
-      try {
-        const { createClient } = await import('@/utils/supabase/client');
-        const supabase = createClient();
-        const { data: { session }, error } = await supabase.auth.getSession();
-
-        if (error) {
-          console.error("Auth error:", error);
-          setStatus("Auth Error");
-          return;
-        }
-
-        if (session) {
-          console.log("Session found, setting token...");
-          setSessionToken(session.access_token);
-
-          const { data: profile, error: profileError } = await supabase
-            .from("profiles")
-            .select("subscription_tier")
-            .eq("id", session.user.id)
-            .single();
-
-          if (profileError) {
-            console.error("Profile fetch error:", profileError);
-          } else if (profile?.subscription_tier) {
-            setSubscriptionTier(profile.subscription_tier as SubscriptionTier);
-          }
-        } else {
-          console.log("No session found");
-          setStatus("Not Logged In");
-          // For debugging purposes, we can uncomment this to force a mock token
-          // if (DEBUG) setSessionToken("mock-token");
-        }
-      } catch (err) {
-        console.error("Error getting token:", err);
-        setStatus("Auth Failed");
-      }
-    };
     getToken();
   }, []);
+
+  const handleRetry = () => {
+    getToken();
+  };
 
   // Save/Share state
   const [showSaveModal, setShowSaveModal] = useState(false);
@@ -724,6 +751,18 @@ export default function AudioRecorder() {
         <p className={`text-sm font-medium ${status === "Recording..." ? "text-red-500 animate-pulse" : "text-gray-500"}`}>
           {status}
         </p>
+        {authError && (
+          <div className="flex flex-col items-center mt-2 space-y-2">
+            <p className="text-xs text-red-500">{authError}</p>
+            <button
+              onClick={handleRetry}
+              className="flex items-center px-3 py-1 text-xs font-medium text-blue-600 bg-blue-50 rounded-full hover:bg-blue-100 transition-colors"
+            >
+              <RefreshCw className="w-3 h-3 mr-1" />
+              Retry Connection
+            </button>
+          </div>
+        )}
       </div>
 
       <div className="flex flex-col items-center justify-center py-4">
