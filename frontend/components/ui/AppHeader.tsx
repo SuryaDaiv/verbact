@@ -21,6 +21,7 @@ export function AppHeader({ rightSlot }: AppHeaderProps) {
 
   useEffect(() => {
     const getUser = async () => {
+      console.log("AppHeader: Effect mounted - checking session");
       console.log("AppHeader: getUser started");
       console.log("AppHeader: SUPABASE_URL", process.env.NEXT_PUBLIC_SUPABASE_URL);
       console.log("AppHeader: API_BASE_URL", process.env.NEXT_PUBLIC_API_BASE_URL);
@@ -77,7 +78,7 @@ export function AppHeader({ rightSlot }: AppHeaderProps) {
     return () => {
       subscription.unsubscribe();
     };
-  }, [supabase]);
+  }, []);
 
   const handleSignOut = async () => {
     await supabase.auth.signOut();
@@ -108,7 +109,7 @@ export function AppHeader({ rightSlot }: AppHeaderProps) {
           {loading ? (
             <div className="flex items-center space-x-2 text-sm text-gray-500 bg-gray-50 px-3 py-1.5 rounded-full border border-gray-200">
               <div className="h-2 w-2 bg-yellow-400 rounded-full animate-pulse" />
-              <span>Connectingappheader...</span>
+              <span>Connecting...</span>
             </div>
           ) : user ? (
             <>
