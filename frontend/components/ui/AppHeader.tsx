@@ -108,7 +108,7 @@ export function AppHeader({ rightSlot }: AppHeaderProps) {
           {loading ? (
             <div className="flex items-center space-x-2 text-sm text-gray-500 bg-gray-50 px-3 py-1.5 rounded-full border border-gray-200">
               <div className="h-2 w-2 bg-yellow-400 rounded-full animate-pulse" />
-              <span>Connecting...</span>
+              <span>Connectingappheader...</span>
             </div>
           ) : user ? (
             <>
