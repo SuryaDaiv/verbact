@@ -16,7 +16,13 @@ export default async function AppHeader({ rightSlot }: AppHeaderProps) {
   try {
     const { data, error } = await supabase.auth.getUser();
     if (error) {
-      authError = error.message;
+      if (error.message === "Auth session missing!" || error.status === 400) {
+        // Treat missing session as logged-out without showing an error
+        authError = null;
+        user = null;
+      } else {
+        authError = error.message;
+      }
     } else {
       user = data.user;
     }
