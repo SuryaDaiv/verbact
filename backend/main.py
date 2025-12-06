@@ -20,8 +20,6 @@ from models import (
     LiveShareCreate, LiveShareResponse, ShareViewResponse,
     TranscriptSegment
 )
-from routers import payments
-
 load_dotenv()
 
 # Debug mode
@@ -49,6 +47,7 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+from routers import payments
 app.include_router(payments.router, prefix="/api/payments", tags=["payments"])
 
 @app.get("/health")

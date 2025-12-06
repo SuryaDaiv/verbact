@@ -18,6 +18,8 @@ export const metadata: Metadata = {
   description: "Fast, accurate, shareable live transcription.",
 };
 
+import { AutoLogoutProvider } from "@/components/AutoLogoutProvider";
+
 export default function RootLayout({
   children,
 }: Readonly<{
@@ -28,8 +30,10 @@ export default function RootLayout({
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
-        <AppHeader />
-        {children}
+        <AutoLogoutProvider>
+          <AppHeader />
+          {children}
+        </AutoLogoutProvider>
       </body>
     </html>
   );

@@ -26,7 +26,17 @@ export function AppHeader({ rightSlot }: AppHeaderProps) {
       console.log("AppHeader: SUPABASE_URL", process.env.NEXT_PUBLIC_SUPABASE_URL);
       console.log("AppHeader: API_BASE_URL", process.env.NEXT_PUBLIC_API_BASE_URL);
       try {
-        const { data: { session }, error: sessionError } = await supabase.auth.getSession();
+        // Create a timeout promise that rejects after 5 seconds
+        const timeoutPromise = new Promise((_, reject) =>
+          setTimeout(() => reject(new Error('Session check timeout')), 5000)
+        );
+
+        // Race the actual session check against the timeout
+        const { data: { session }, error: sessionError } = await Promise.race([
+          supabase.auth.getSession(),
+          timeoutPromise
+        ]) as any;
+
         if (sessionError) {
           console.error("AppHeader: session error", sessionError);
           setAuthError("Unable to fetch session");
@@ -54,8 +64,12 @@ export function AppHeader({ rightSlot }: AppHeaderProps) {
           }
         }
       } catch (error) {
-        console.error("AppHeader: unexpected error", error);
-        setAuthError("Auth check failed");
+        console.error("AppHeader: unexpected error or timeout", error);
+        // If it's a timeout or other error, strictly speaking we don't know if they are logged in.
+        // But to stop the spinner, we should assume 'not logged in' or just show 'error'.
+        // For UX, assuming not logged in (and letting them try to login) is safer than hanging.
+        setUser(null);
+        setAuthError("Connection timeout");
       } finally {
         setLoading(false);
       }
