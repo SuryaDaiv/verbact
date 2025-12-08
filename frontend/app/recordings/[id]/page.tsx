@@ -269,7 +269,7 @@ export default function RecordingPage({ params }: { params: Promise<{ id: string
                                 <div className="flex justify-between text-xs font-mono text-[#BFC2CF]">
                                     <span>{formatTimecode(currentTime)}</span>
                                     <span>{formatTimecode(duration || recording.duration_seconds)}</span>
-                                }
+
                                 </div>
                             </div>
                         </div>
@@ -310,8 +310,8 @@ export default function RecordingPage({ params }: { params: Promise<{ id: string
                                         id={`segment-${segment.id}`}
                                         onClick={() => handleSegmentClick(segment.start_time)}
                                         className={`group px-3 py-2 rounded-lg cursor-pointer transition-all border border-transparent ${segment.id === activeSegmentId
-                                                ? "bg-[#A86CFF]/10 border-[#A86CFF]/20 text-white"
-                                                : "hover:bg-white/5 text-[#BFC2CF] hover:text-white"
+                                            ? "bg-[#A86CFF]/10 border-[#A86CFF]/20 text-white"
+                                            : "hover:bg-white/5 text-[#BFC2CF] hover:text-white"
                                             }`}
                                     >
                                         <div className="flex gap-4">
