@@ -19,7 +19,7 @@ export default function NewRecordingPage() {
   const dateLabel = now.toLocaleString(undefined, { month: "short", day: "numeric", year: "numeric" });
 
   return (
-    <div className="min-h-screen bg-[#0E0E12] text-white">
+    <div className="min-h-screen bg-[#0E0E12] text-white overflow-hidden h-screen flex flex-col">
       {/* Header */}
       <div className="w-full border-b border-white/5 bg-[#0E0E12]">
         <div className="mx-auto flex max-w-5xl flex-col gap-2 px-4 py-4 sm:px-6 sm:flex-row sm:items-center sm:justify-between">

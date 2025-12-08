@@ -115,12 +115,18 @@ export default function SharePage({ params }: { params: Promise<{ token: string 
                         });
                         setInterimText("");
                         if (transcriptRef.current) {
-                            transcriptRef.current.scrollTop = transcriptRef.current.scrollHeight;
+                            transcriptRef.current.scrollTo({
+                                top: transcriptRef.current.scrollHeight,
+                                behavior: "smooth"
+                            });
                         }
                     } else {
                         setInterimText(transcript);
                         if (transcriptRef.current) {
-                            transcriptRef.current.scrollTop = transcriptRef.current.scrollHeight;
+                            transcriptRef.current.scrollTo({
+                                top: transcriptRef.current.scrollHeight,
+                                behavior: "smooth"
+                            });
                         }
                     }
                 }
@@ -232,8 +238,17 @@ export default function SharePage({ params }: { params: Promise<{ token: string 
                 </div>
 
                 {/* Transcription Stream */}
-                <div className="flex-1 overflow-y-auto pr-4 scrollbar-hide mask-image-b fade-bottom relative">
-                    <div ref={transcriptRef} className="space-y-6 pb-32">
+                <div className="flex-1 overflow-y-auto pr-4 scrollbar-hide mask-image-b fade-bottom relative flex flex-col no-scrollbar">
+                    <style jsx global>{`
+                        .no-scrollbar::-webkit-scrollbar {
+                            display: none;
+                        }
+                        .no-scrollbar {
+                            -ms-overflow-style: none;
+                            scrollbar-width: none;
+                        }
+                    `}</style>
+                    <div ref={transcriptRef} className="space-y-4 pb-32 h-full overflow-y-auto no-scrollbar scroll-smooth">
                         {recording.transcripts.length === 0 && !interimText ? (
                             <div className="flex flex-col items-center justify-center h-48 text-[#BFC2CF]/30">
                                 <p>Waiting for speech...</p>
@@ -244,16 +259,16 @@ export default function SharePage({ params }: { params: Promise<{ token: string 
                                     <div
                                         key={segment.id}
                                         id={`segment-${segment.id}`}
-                                        className={`transition-all duration-500 py-2 pl-2 ${activeSegmentId === segment.id ? 'opacity-100 scale-[1.01] border-l-2 border-[#A86CFF]' : 'opacity-60 hover:opacity-80 border-l-2 border-transparent'}`}
+                                        className={`transition-all duration-500 py-1 pl-2 ${activeSegmentId === segment.id ? 'opacity-100 scale-[1.01] border-l-2 border-[#A86CFF]' : 'opacity-60 hover:opacity-80 border-l-2 border-transparent'}`}
                                     >
-                                        <p className="text-lg md:text-xl leading-relaxed">
+                                        <p className="text-lg leading-snug">
                                             {segment.text}
                                         </p>
                                     </div>
                                 ))}
                                 {interimText && (
-                                    <div className="animate-pulse py-2 pl-2 border-l-2 border-[#A86CFF]/50">
-                                        <p className="text-lg md:text-xl leading-relaxed text-[#A86CFF] opacity-90 italic">
+                                    <div className="animate-pulse py-1 pl-2 border-l-2 border-[#A86CFF]/50">
+                                        <p className="text-lg leading-snug text-[#A86CFF] opacity-90 italic">
                                             {interimText}
                                         </p>
                                     </div>

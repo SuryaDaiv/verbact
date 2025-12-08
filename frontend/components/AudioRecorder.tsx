@@ -829,5 +829,34 @@ export default function AudioRecorder() {
 
       </div>
     </div>
+            
+            {/* Live Transcript Overlay */ }
+  <div className="mt-8 w-full max-w-2xl h-48 overflow-y-auto no-scrollbar scroll-smooth relative mask-image-b">
+    <style jsx global>{`
+                    .no-scrollbar::-webkit-scrollbar {
+                        display: none;
+                    }
+                    .no-scrollbar {
+                        -ms-overflow-style: none;
+                        scrollbar-width: none;
+                    }
+                `}</style>
+    <div ref={transcriptEndRef} className="space-y-2 pb-10">
+      {transcript.map((text, i) => (
+        <p key={i} className="text-lg text-white/80 leading-snug animate-in fade-in slide-in-from-bottom-2">
+          {text}
+        </p>
+      ))}
+      {interimText && (
+        <p className="text-lg text-[#A86CFF] italic leading-snug animate-pulse">
+          {interimText}
+        </p>
+      )}
+      <div ref={transcriptEndRef} />
+    </div>
+  </div>
+
+      </div >
+    </div >
   );
 }
