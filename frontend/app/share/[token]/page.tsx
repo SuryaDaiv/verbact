@@ -226,8 +226,8 @@ export default function SharePage({ params }: { params: Promise<{ token: string 
                         </div>
                     </div>
 
-                    <Link href="/" className="group p-2 rounded-full bg-white/5 hover:bg-white/10 transition-colors border border-white/5 flex items-center justify-center">
-                        <span className="text-xs font-bold text-white px-2">V</span>
+                    <Link href="/" className="group p-3 rounded-full bg-white/5 hover:bg-white/10 transition-all border border-white/5 flex items-center justify-center hover:scale-110 active:scale-95">
+                        <span className="text-lg font-bold text-white px-2">V</span>
                     </Link>
                 </div>
 
@@ -244,16 +244,16 @@ export default function SharePage({ params }: { params: Promise<{ token: string 
                                     <div
                                         key={segment.id}
                                         id={`segment-${segment.id}`}
-                                        className={`transition-all duration-500 ${activeSegmentId === segment.id ? 'opacity-100 scale-[1.01]' : 'opacity-60 hover:opacity-80'}`}
+                                        className={`transition-all duration-500 py-2 pl-2 ${activeSegmentId === segment.id ? 'opacity-100 scale-[1.01] border-l-2 border-[#A86CFF]' : 'opacity-60 hover:opacity-80 border-l-2 border-transparent'}`}
                                     >
-                                        <p className="text-xl md:text-2xl leading-relaxed py-1">
+                                        <p className="text-lg md:text-xl leading-relaxed">
                                             {segment.text}
                                         </p>
                                     </div>
                                 ))}
                                 {interimText && (
-                                    <div className="animate-pulse">
-                                        <p className="text-xl md:text-2xl leading-relaxed text-[#A86CFF] opacity-90 italic">
+                                    <div className="animate-pulse py-2 pl-2 border-l-2 border-[#A86CFF]/50">
+                                        <p className="text-lg md:text-xl leading-relaxed text-[#A86CFF] opacity-90 italic">
                                             {interimText}
                                         </p>
                                     </div>
