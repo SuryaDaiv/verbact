@@ -803,60 +803,33 @@ export default function AudioRecorder() {
           </div>
         )}
 
-        {/* Live Transcription Block */}
-        <div className="w-full max-w-2xl bg-[#111218]/50 border border-white/5 rounded-2xl p-6 h-[250px] md:h-[300px] overflow-y-auto relative scrollbar-thin scrollbar-thumb-white/10 hover:scrollbar-thumb-white/20 transition-colors shadow-inner">
-          {transcript.length === 0 && !interimText ? (
-            <div className="h-full flex flex-col items-center justify-center text-[#BFC2CF]/30 space-y-3">
-              <Activity className="w-8 h-8 opacity-20" />
-              <p className="text-sm">Transcripts will appear here...</p>
-            </div>
-          ) : (
-            <div className="space-y-4">
-              {transcript.map((text, i) => (
-                <div key={i} className="animate-in fade-in slide-in-from-bottom-2 duration-300">
-                  <p className="text-[#E0E0E0] text-lg leading-relaxed">{text}</p>
-                </div>
-              ))}
-              {interimText && (
-                <div className="animate-pulse">
-                  <p className="text-[#A86CFF] text-lg leading-relaxed italic opacity-80">{interimText}</p>
-                </div>
-              )}
-              <div ref={transcriptEndRef} />
-            </div>
-          )}
+        {/* Live Transcript Overlay */}
+        <div className="mt-8 w-full max-w-2xl h-48 overflow-y-auto no-scrollbar scroll-smooth relative mask-image-b">
+          <style jsx global>{`
+                .no-scrollbar::-webkit-scrollbar {
+                    display: none;
+                }
+                .no-scrollbar {
+                    -ms-overflow-style: none;
+                    scrollbar-width: none;
+                }
+            `}</style>
+          <div ref={transcriptEndRef} className="space-y-2 pb-10">
+            {transcript.map((text, i) => (
+              <p key={i} className="text-lg text-white/80 leading-snug animate-in fade-in slide-in-from-bottom-2">
+                {text}
+              </p>
+            ))}
+            {interimText && (
+              <p className="text-lg text-[#A86CFF] italic leading-snug animate-pulse">
+                {interimText}
+              </p>
+            )}
+            <div ref={transcriptEndRef} />
+          </div>
         </div>
 
       </div>
     </div>
-            
-            {/* Live Transcript Overlay */ }
-  <div className="mt-8 w-full max-w-2xl h-48 overflow-y-auto no-scrollbar scroll-smooth relative mask-image-b">
-    <style jsx global>{`
-                    .no-scrollbar::-webkit-scrollbar {
-                        display: none;
-                    }
-                    .no-scrollbar {
-                        -ms-overflow-style: none;
-                        scrollbar-width: none;
-                    }
-                `}</style>
-    <div ref={transcriptEndRef} className="space-y-2 pb-10">
-      {transcript.map((text, i) => (
-        <p key={i} className="text-lg text-white/80 leading-snug animate-in fade-in slide-in-from-bottom-2">
-          {text}
-        </p>
-      ))}
-      {interimText && (
-        <p className="text-lg text-[#A86CFF] italic leading-snug animate-pulse">
-          {interimText}
-        </p>
-      )}
-      <div ref={transcriptEndRef} />
-    </div>
-  </div>
-
-      </div >
-    </div >
   );
 }
