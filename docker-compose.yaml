@@ -6,23 +6,28 @@ services:
     ports:
       - "8001:8000"
     environment:
-      - SUPABASE_URL=https://ycbnhccwtcdbzjvujhzg.supabase.co
-      - SUPABASE_KEY=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InljYm5oY2N3dGNkYnpqdnVqaHpnIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjQ0OTQ4MDYsImV4cCI6MjA4MDA3MDgwNn0.URW6yJzBbCp9ZV_kQFOtebz4GjRXzoK4YHLU8nCvonw
+      - SUPABASE_URL=${SUPABASE_URL}
+      - SUPABASE_KEY=${SUPABASE_KEY}
       - STRIPE_SECRET_KEY=${STRIPE_SECRET_KEY}
       - STRIPE_WEBHOOK_SECRET=${STRIPE_WEBHOOK_SECRET}
-      - FRONTEND_URL=https://verbact.com
-      - DEEPGRAM_API_KEY=06e7974e2d07b655e0eee36ba1d35b2139028fbc
+      - FRONTEND_URL=${FRONTEND_URL}
+      - DEEPGRAM_API_KEY=${DEEPGRAM_API_KEY}
     restart: always
 
   frontend:
     build:
       context: ./frontend
       dockerfile: Dockerfile
+      args:
+        NEXT_PUBLIC_SUPABASE_URL: ${NEXT_PUBLIC_SUPABASE_URL}
+        NEXT_PUBLIC_SUPABASE_ANON_KEY: ${NEXT_PUBLIC_SUPABASE_ANON_KEY}
+        NEXT_PUBLIC_API_BASE_URL: ${NEXT_PUBLIC_API_BASE_URL}
+        NEXT_PUBLIC_WS_BASE_URL: ${NEXT_PUBLIC_WS_BASE_URL}
     ports:
       - "3000:3000"
     environment:
-      - NEXT_PUBLIC_SUPABASE_URL=https://ycbnhccwtcdbzjvujhzg.supabase.co
-      - NEXT_PUBLIC_SUPABASE_ANON_KEY=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InljYm5oY2N3dGNkYnpqdnVqaHpnIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjQ0OTQ4MDYsImV4cCI6MjA4MDA3MDgwNn0.URW6yJzBbCp9ZV_kQFOtebz4GjRXzoK4YHLU8nCvonw
-      - NEXT_PUBLIC_API_BASE_URL=https://api.verbact.com
-      - NEXT_PUBLIC_WS_BASE_URL=wss://api.verbact.com
+      - NEXT_PUBLIC_SUPABASE_URL=${NEXT_PUBLIC_SUPABASE_URL}
+      - NEXT_PUBLIC_SUPABASE_ANON_KEY=${NEXT_PUBLIC_SUPABASE_ANON_KEY}
+      - NEXT_PUBLIC_API_BASE_URL=${NEXT_PUBLIC_API_BASE_URL}
+      - NEXT_PUBLIC_WS_BASE_URL=${NEXT_PUBLIC_WS_BASE_URL}
     restart: always
