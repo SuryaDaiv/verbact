@@ -1,23 +1,79 @@
 @import "tailwindcss";
 
+@theme {
+  --color-brand-charcoal: #0E0E12;
+  --color-brand-surface: #181A20;
+  --color-brand-purple: #A86CFF;
+  --color-brand-coral: #FF6F61;
+  --color-brand-orange: #FFB55A;
+  --color-brand-text-primary: #FFFFFF;
+  --color-brand-text-secondary: #BFC2CF;
+
+  --font-display: "Inter", "SF Pro Display", -apple-system, sans-serif;
+  --font-body: "Inter", "SF Pro Text", -apple-system, sans-serif;
+  
+  --animate-pulse-slow: pulse 3s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+  --animate-float: float 6s ease-in-out infinite;
+
+  @keyframes float {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-10px); }
+  }
+}
+
 :root {
-  --background: #ffffff;
-  --foreground: #111111;
-  --primary: #3454f5;
-  --secondary: #eef2ff;
-  --accent: #4bbf81;
-  --text-secondary: #666666;
-  --line: #e5e7eb;
+  --background: var(--color-brand-charcoal);
+  --foreground: var(--color-brand-text-primary);
+  --primary: var(--color-brand-purple);
+  --secondary: var(--color-brand-surface);
+  --accent: var(--color-brand-coral);
+  --text-secondary: var(--color-brand-text-secondary);
+  --line: rgba(255, 255, 255, 0.1);
 }
 
 body {
   background: var(--background);
   color: var(--foreground);
-  font-family: "Inter", "SF Pro Display", "SF Pro Text", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
-  text-rendering: optimizeLegibility;
+  font-family: var(--font-body);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 }
 
-a {
-  color: inherit;
-  text-decoration: none;
+h1, h2, h3, h4, h5, h6 {
+  font-family: var(--font-display);
+  letter-spacing: -0.02em;
 }
+
+/* Custom Utilities */
+.glass-card {
+  background: rgba(24, 26, 32, 0.6);
+  backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+}
+
+.text-gradient {
+  background: linear-gradient(135deg, var(--color-brand-purple) 0%, var(--color-brand-coral) 50%, var(--color-brand-orange) 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.bg-gradient-brand {
+  background: linear-gradient(135deg, var(--color-brand-purple) 0%, var(--color-brand-coral) 50%, var(--color-brand-orange) 100%);
+}
+
+.border-gradient-brand {
+    border: 1px solid transparent;
+    background: linear-gradient(var(--color-brand-surface), var(--color-brand-surface)) padding-box,
+              linear-gradient(135deg, var(--color-brand-purple), var(--color-brand-coral)) border-box;
+}
+
+.glow-text {
+  text-shadow: 0 0 20px rgba(168, 108, 255, 0.5);
+}
+
+.glow-box {
+  box-shadow: 0 0 20px rgba(168, 108, 255, 0.15);
+}
+

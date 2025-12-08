@@ -1,6 +1,7 @@
 'use client';
 
 import Link from "next/link";
+import Image from "next/image";
 import { useEffect, useMemo, useState } from "react";
 import { User as UserIcon, LogOut } from "lucide-react";
 import { createClient } from "@/utils/supabase/client";
@@ -74,57 +75,70 @@ export default function AppHeaderClient({
 
   const getTierBadge = (tier: string) => {
     switch (tier) {
-      case 'pro': return <span className="bg-blue-100 text-blue-800 text-xs font-medium px-2.5 py-0.5 rounded border border-blue-400">PRO</span>;
-      case 'unlimited': return <span className="bg-purple-100 text-purple-800 text-xs font-medium px-2.5 py-0.5 rounded border border-purple-400">UNLIMITED</span>;
-      default: return <span className="bg-gray-100 text-gray-800 text-xs font-medium px-2.5 py-0.5 rounded border border-gray-500">FREE</span>;
+      case 'pro': return <span className="text-[#A86CFF] text-[10px] font-bold tracking-wider px-2 py-0.5 rounded-full border border-[#A86CFF]/30 bg-[#A86CFF]/10">PRO</span>;
+      case 'unlimited': return <span className="text-[#A86CFF] text-[10px] font-bold tracking-wider px-2 py-0.5 rounded-full border border-[#A86CFF]/30 bg-[#A86CFF]/10">UNLIMITED</span>;
+      default: return null;
     }
   };
 
   return (
-    <header className="sticky top-0 z-20 w-full bg-white border-b border-[#E5E7EB]">
-      <div className="mx-auto flex h-14 max-w-5xl items-center justify-between px-4 sm:px-6">
-        <Link href="/" className="flex items-center space-x-2">
-          <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-[#3454F5] text-white text-sm font-semibold">
-            V
+    <header className="fixed top-0 z-50 w-full bg-transparent p-6">
+      <div className="mx-auto flex items-center justify-between">
+
+        {/* Left: Brand Monogram */}
+        <Link href="/" className="group relative flex items-center justify-center p-2 rounded-xl hover:bg-white/5 transition-colors">
+          <div className="relative h-10 w-10 overflow-hidden">
+            <Image
+              src="/logo.png"
+              alt="Verbact Logo"
+              fill
+              className="object-contain"
+            />
           </div>
-          <span className="text-sm font-semibold tracking-tight text-[#111111]">
-            Verbact
-          </span>
+          {/* Optional glow effect behind logo */}
+          <div className="absolute inset-0 bg-[#A86CFF] opacity-0 group-hover:opacity-20 blur-xl transition-opacity duration-500 rounded-full" />
         </Link>
-        <div className="flex items-center space-x-4 text-[#666666]">
+
+        {/* Right: User User/Nav */}
+        <div className="flex items-center space-x-6">
           {loading ? (
-            <div className="flex items-center space-x-2 text-sm text-gray-500 bg-gray-50 px-3 py-1.5 rounded-full border border-gray-200">
-              <div className="h-2 w-2 bg-yellow-400 rounded-full animate-pulse" />
+            <div className="flex items-center space-x-2 text-sm text-gray-400">
+              <div className="h-2 w-2 bg-[#FFB55A] rounded-full animate-pulse" />
               <span>Connecting...</span>
             </div>
           ) : user ? (
-            <>
-              {tier === 'free' && (
-                <Link href="/pricing" className="text-sm font-medium text-indigo-600 hover:text-indigo-500">
-                  Upgrade
-                </Link>
-              )}
-              <div className="flex items-center space-x-2 text-sm text-gray-900 bg-gray-50 px-3 py-1.5 rounded-full border border-gray-200">
-                <UserIcon className="h-4 w-4 text-gray-500" />
-                <span className="max-w-[150px] truncate">{user.email}</span>
-                {getTierBadge(tier)}
+            <div className="flex items-center space-x-6">
+
+              {/* User Profile */}
+              <div className="flex items-center space-x-3">
+                <div className="flex flex-col items-end">
+                  <span className="text-sm font-medium text-white/90">{user.email?.split('@')[0]}</span>
+                  {getTierBadge(tier)}
+                </div>
+                <div className="h-10 w-10 rounded-full bg-gradient-to-br from-[#181A20] to-[#252830] border border-white/10 flex items-center justify-center shadow-lg">
+                  <UserIcon className="h-5 w-5 text-[#BFC2CF]" />
+                </div>
               </div>
+
+              {/* Logout (Minimal) */}
               <button
                 onClick={handleSignOut}
-                className="text-gray-500 hover:text-red-600 transition-colors"
+                className="text-[#666] hover:text-[#FF6F61] transition-colors p-2"
                 title="Sign out"
               >
                 <LogOut className="h-5 w-5" />
               </button>
-            </>
+            </div>
           ) : (
-            <>
-              <Link href="/pricing" className="text-sm font-medium hover:text-gray-900">Pricing</Link>
-              <Link href="/login" className="text-sm font-medium hover:text-gray-900">Login</Link>
+            <div className="flex items-center space-x-6">
+              <Link href="/pricing" className="text-sm font-medium text-[#BFC2CF] hover:text-white transition-colors">Pricing</Link>
+              <Link href="/login" className="px-5 py-2 rounded-full border border-white/10 text-sm font-medium text-white hover:bg-white/5 transition-all hover:border-[#A86CFF]/50 hover:shadow-[0_0_15px_rgba(168,108,255,0.3)]">
+                Login
+              </Link>
               {authError && (
-                <span className="text-xs text-red-500">{authError}</span>
+                <span className="text-xs text-[#FF6F61]">{authError}</span>
               )}
-            </>
+            </div>
           )}
           {rightSlot}
         </div>

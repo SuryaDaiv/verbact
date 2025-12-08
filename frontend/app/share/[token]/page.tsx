@@ -2,8 +2,7 @@
 
 import React, { useEffect, useState, useRef, use } from "react";
 import Link from "next/link";
-import { Play, Pause, Calendar, Clock, Download } from "lucide-react";
-import TranscriptList from "@/components/ui/TranscriptList";
+import { Play, Pause, Calendar, ArrowLeft } from "lucide-react";
 import { API_BASE_URL, WS_BASE_URL } from "@/utils/config";
 
 interface TranscriptSegment {
@@ -71,8 +70,6 @@ export default function SharePage({ params }: { params: Promise<{ token: string 
 
         if (segment && segment.id !== activeSegmentId) {
             setActiveSegmentId(segment.id);
-
-            // Auto-scroll to active segment
             const element = document.getElementById(`segment-${segment.id}`);
             if (element && transcriptRef.current) {
                 element.scrollIntoView({ behavior: "smooth", block: "center" });
@@ -99,11 +96,9 @@ export default function SharePage({ params }: { params: Promise<{ token: string 
                     if (is_final) {
                         setRecording(prev => {
                             if (!prev) return null;
-
-                            // Calculate start/end times based on previous segment or timestamp
                             const lastSegment = prev.transcripts[prev.transcripts.length - 1];
                             const startTime = lastSegment ? lastSegment.end_time : 0;
-                            const duration = transcript.split(' ').length * 0.5; // Rough estimate
+                            const duration = transcript.split(' ').length * 0.5;
 
                             const newSegment: TranscriptSegment = {
                                 id: crypto.randomUUID(),
@@ -118,17 +113,12 @@ export default function SharePage({ params }: { params: Promise<{ token: string 
                                 transcripts: [...prev.transcripts, newSegment]
                             };
                         });
-                        setInterimText(""); // Clear interim when final arrives
-
-                        // Auto-scroll to bottom for live
+                        setInterimText("");
                         if (transcriptRef.current) {
                             transcriptRef.current.scrollTop = transcriptRef.current.scrollHeight;
                         }
                     } else {
-                        // Update interim text
                         setInterimText(transcript);
-
-                        // Auto-scroll for interim updates too
                         if (transcriptRef.current) {
                             transcriptRef.current.scrollTop = transcriptRef.current.scrollHeight;
                         }
@@ -171,43 +161,26 @@ export default function SharePage({ params }: { params: Promise<{ token: string 
         }
     };
 
-    const handleSegmentClick = async (startTime: number) => {
-        if (audioRef.current) {
-            try {
-                audioRef.current.currentTime = startTime;
-                await audioRef.current.play();
-                setIsPlaying(true);
-            } catch (e) {
-                console.error("Playback error", e);
-            }
-        }
-    };
-
-    const handleSelectSegment = async (id?: string | number) => {
-        if (!id || !recording) return;
-        const target = recording.transcripts.find((t) => t.id === id);
-        if (!target) return;
-        await handleSegmentClick(target.start_time);
-    };
-
     if (loading) {
         return (
-            <div className="flex items-center justify-center min-h-screen">
-                <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-blue-500"></div>
+            <div className="flex flex-col items-center justify-center min-h-screen bg-[#0E0E12]">
+                <div className="absolute inset-0 bg-gradient-radial from-[#A86CFF]/10 to-transparent pointer-events-none" />
+                <div className="animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-[#A86CFF]"></div>
+                <p className="text-sm text-[#BFC2CF] mt-4 tracking-wide">Connecting to stream...</p>
             </div>
         );
     }
 
     if (error) {
         return (
-            <div className="flex flex-col items-center justify-center min-h-screen text-center p-4">
-                <div className="bg-red-50 text-red-600 p-6 rounded-xl max-w-md">
-                    <h3 className="text-xl font-bold mb-2">Unable to View Recording</h3>
-                    <p>{error}</p>
+            <div className="flex flex-col items-center justify-center min-h-screen text-center p-6 bg-[#0E0E12] text-white">
+                <div className="p-6 rounded-2xl bg-[#181A20] border border-white/5 max-w-md shadow-2xl">
+                    <h3 className="text-xl font-bold mb-2 text-[#FF6F61]">Unavailable</h3>
+                    <p className="text-[#BFC2CF] mb-6">{error}</p>
+                    <Link href="/" className="px-6 py-2 bg-white/10 hover:bg-white/20 rounded-full text-white transition-colors">
+                        Return Home
+                    </Link>
                 </div>
-                <Link href="/" className="mt-8 text-blue-600 hover:underline">
-                    Go to Verbact Home
-                </Link>
             </div>
         );
     }
@@ -215,114 +188,121 @@ export default function SharePage({ params }: { params: Promise<{ token: string 
     if (!recording) return null;
 
     return (
-        <div className="min-h-screen bg-white text-[#111111]">
-            <main className="mx-auto w-full max-w-5xl px-4 py-6 sm:px-6">
-                <div className="flex flex-col gap-2">
-                    <h1 className="text-2xl font-semibold leading-tight">{recording.title}</h1>
-                    <div className="flex flex-wrap items-center gap-3 text-sm text-[#666666]">
-                        <span className="inline-flex items-center">
-                            <Calendar className="mr-1.5 h-4 w-4" />
-                            {new Date(recording.created_at).toLocaleDateString()}
-                        </span>
-                        {recording.is_live && (
-                            <span className="inline-flex items-center space-x-1 rounded-full bg-[#FEE2E2] px-2 py-1 text-[11px] font-semibold uppercase text-[#B91C1C]">
-                                <span className="h-2 w-2 rounded-full bg-[#EF4444]" />
-                                <span>Live</span>
-                            </span>
-                        )}
-                        {recording.audio_url && (
-                            <a
-                                href={recording.audio_url}
-                                download
-                                className="inline-flex items-center rounded-lg border border-[#E5E7EB] px-3 py-1.5 text-sm font-semibold text-[#111111]"
-                            >
-                                <Download className="mr-1.5 h-4 w-4" />
-                                Download Audio
-                            </a>
-                        )}
+        <div className="min-h-screen bg-[#0E0E12] text-white overflow-hidden relative selection:bg-[#A86CFF]/30 selection:text-white">
+
+            {/* Ambient Background */}
+            <div className="fixed inset-0 pointer-events-none">
+                <div className="absolute top-[-20%] left-[-10%] w-[50%] h-[50%] bg-[#A86CFF]/10 blur-[120px] rounded-full" />
+                <div className="absolute bottom-[-20%] right-[-10%] w-[50%] h-[50%] bg-[#FF6F61]/10 blur-[120px] rounded-full" />
+            </div>
+
+            <main className="relative z-10 mx-auto w-full max-w-4xl px-6 py-12 flex flex-col h-screen">
+
+                {/* Minimal Header */}
+                <div className="flex items-center justify-between mb-12 animate-in fade-in slide-in-from-top-4 duration-700">
+                    <div>
+                        <div className="flex items-center space-x-3 mb-1">
+                            <h1 className="text-3xl font-bold tracking-tight text-transparent bg-clip-text bg-gradient-to-r from-white to-[#BFC2CF]">
+                                {recording.title}
+                            </h1>
+                            {recording.is_live ? (
+                                <span className="flex items-center space-x-1.5 px-3 py-1 rounded-full bg-[#FF0000]/10 border border-[#FF0000]/20">
+                                    <span className="w-1.5 h-1.5 rounded-full bg-[#FF0000] animate-pulse" />
+                                    <span className="text-[10px] font-bold text-[#FF0000] tracking-wider uppercase">LIVE</span>
+                                </span>
+                            ) : (
+                                <span className="flex items-center space-x-1.5 px-3 py-1 rounded-full bg-white/5 border border-white/10">
+                                    <span className="text-[10px] font-bold text-[#BFC2CF] tracking-wider uppercase">RECORDED</span>
+                                </span>
+                            )}
+                        </div>
+                        <div className="flex items-center text-xs text-[#666]">
+                            <Calendar className="w-3 h-3 mr-1.5" />
+                            {new Date(recording.created_at).toLocaleDateString(undefined, {
+                                year: 'numeric',
+                                month: 'long',
+                                day: 'numeric'
+                            })}
+                        </div>
                     </div>
+
+                    <Link href="/" className="group p-2 rounded-full bg-white/5 hover:bg-white/10 transition-colors border border-white/5 flex items-center justify-center">
+                        <span className="text-xs font-bold text-white px-2">V</span>
+                    </Link>
                 </div>
 
-                {recording.audio_url && (
-                    <div className="mt-4 rounded-xl border border-[#E5E7EB] bg-white p-4">
-                        <audio
-                            ref={audioRef}
-                            src={recording.audio_url}
-                            onTimeUpdate={handleTimeUpdate}
-                            onLoadedMetadata={handleLoadedMetadata}
-                            onEnded={() => setIsPlaying(false)}
-                            className="hidden"
-                        />
-                        <div className="flex items-center gap-3">
-                            <button
-                                onClick={togglePlay}
-                                className="flex h-10 w-10 items-center justify-center rounded-full border border-[#3454F5] text-[#3454F5]"
-                                aria-label={isPlaying ? "Pause" : "Play"}
-                            >
-                                {isPlaying ? <Pause className="h-4 w-4" /> : <Play className="h-4 w-4" />}
-                            </button>
-                            <div className="flex flex-1 flex-col gap-1">
-                                <input
-                                    type="range"
-                                    min={0}
-                                    max={duration || recording.duration_seconds || 0}
-                                    step={0.1}
-                                    value={currentTime}
-                                    onChange={(e) => {
-                                        const value = Number(e.target.value);
-                                        if (audioRef.current) {
-                                            audioRef.current.currentTime = value;
-                                        }
-                                        setCurrentTime(value);
-                                    }}
-                                    className="h-1 w-full accent-[#3454F5]"
+                {/* Transcription Stream */}
+                <div className="flex-1 overflow-y-auto pr-4 scrollbar-hide mask-image-b fade-bottom relative">
+                    <div ref={transcriptRef} className="space-y-6 pb-32">
+                        {recording.transcripts.length === 0 && !interimText ? (
+                            <div className="flex flex-col items-center justify-center h-48 text-[#BFC2CF]/30">
+                                <p>Waiting for speech...</p>
+                            </div>
+                        ) : (
+                            <>
+                                {recording.transcripts.map((segment) => (
+                                    <div
+                                        key={segment.id}
+                                        id={`segment-${segment.id}`}
+                                        className={`transition-all duration-500 ${activeSegmentId === segment.id ? 'opacity-100 scale-[1.01]' : 'opacity-60 hover:opacity-80'}`}
+                                    >
+                                        <p className="text-xl md:text-2xl leading-relaxed py-1">
+                                            {segment.text}
+                                        </p>
+                                    </div>
+                                ))}
+                                {interimText && (
+                                    <div className="animate-pulse">
+                                        <p className="text-xl md:text-2xl leading-relaxed text-[#A86CFF] opacity-90 italic">
+                                            {interimText}
+                                        </p>
+                                    </div>
+                                )}
+                            </>
+                        )}
+                    </div>
+
+                    {/* Floating Audio Player (Only if Recorded) */}
+                    {!recording.is_live && recording.audio_url && (
+                        <div className="fixed bottom-8 left-1/2 -translate-x-1/2 w-full max-w-md px-4 z-20">
+                            <div className="glass-card p-4 rounded-2xl flex items-center space-x-4 shadow-2xl animate-in slide-in-from-bottom-8">
+                                <audio
+                                    ref={audioRef}
+                                    src={recording.audio_url}
+                                    onTimeUpdate={handleTimeUpdate}
+                                    onLoadedMetadata={handleLoadedMetadata}
+                                    onEnded={() => setIsPlaying(false)}
+                                    className="hidden"
                                 />
-                                <div className="flex justify-between text-[11px] text-[#666666]">
-                                    <span>{formatTimecode(currentTime)}</span>
-                                    <span>{formatTimecode(duration || recording.duration_seconds || 0)}</span>
+                                <button
+                                    onClick={togglePlay}
+                                    className="w-12 h-12 rounded-full bg-white text-black flex items-center justify-center hover:scale-105 transition-transform"
+                                >
+                                    {isPlaying ? <Pause className="w-5 h-5 fill-current" /> : <Play className="w-5 h-5 fill-current ml-1" />}
+                                </button>
+                                <div className="flex-1 space-y-1">
+                                    <input
+                                        type="range"
+                                        min={0}
+                                        max={duration || recording.duration_seconds || 0}
+                                        value={currentTime}
+                                        onChange={(e) => {
+                                            const val = Number(e.target.value);
+                                            if (audioRef.current) audioRef.current.currentTime = val;
+                                            setCurrentTime(val);
+                                        }}
+                                        className="w-full h-1 bg-white/20 rounded-full appearance-none cursor-pointer [&::-webkit-slider-thumb]:appearance-none [&::-webkit-slider-thumb]:w-3 [&::-webkit-slider-thumb]:h-3 [&::-webkit-slider-thumb]:rounded-full [&::-webkit-slider-thumb]:bg-white"
+                                    />
+                                    <div className="flex justify-between text-[10px] text-[#BFC2CF] font-mono">
+                                        <span>{formatTimecode(currentTime)}</span>
+                                        <span>{formatTimecode(duration || recording.duration_seconds || 0)}</span>
+                                    </div>
                                 </div>
                             </div>
                         </div>
-                    </div>
-                )}
-
-                <div className="mt-6 rounded-xl border border-[#E5E7EB] bg-white p-4">
-                    <div className="mb-3 text-sm font-semibold text-[#111111]">Transcript</div>
-                    <div
-                        ref={transcriptRef}
-                        className="max-h-[560px] overflow-y-auto rounded-lg border border-[#E5E7EB]"
-                    >
-                        {recording.transcripts && recording.transcripts.length > 0 ? (
-                            <TranscriptList
-                                items={recording.transcripts.map((segment) => ({
-                                    id: segment.id,
-                                    timecode: formatTimecode(segment.start_time),
-                                    text: segment.text,
-                                    active: segment.id === activeSegmentId,
-                                }))}
-                                onSelect={handleSelectSegment}
-                            />
-                        ) : (
-                            !interimText && (
-                                <div className="p-4 text-center text-sm text-[#666666]">
-                                    Waiting for live transcription…
-                                </div>
-                            )
-                        )}
-                        {interimText && (
-                            <div className="px-3 py-2 text-sm italic text-[#666666]">
-                                {interimText}
-                            </div>
-                        )}
-                    </div>
+                    )}
                 </div>
 
-                <div className="mt-6 text-sm text-[#666666]">
-                    Want your own live transcript?{" "}
-                    <Link href="/recordings/new" className="text-[#3454F5]">
-                        Start a recording
-                    </Link>
-                </div>
             </main>
         </div>
     );

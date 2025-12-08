@@ -61,16 +61,13 @@ export default function AudioRecorder() {
       const { createClient } = await import('@/utils/supabase/client');
       const supabase = createClient();
 
-      // Log config (masked)
       const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
       console.log(`[Auth Debug] Config: URL=${supabaseUrl ? supabaseUrl.substring(0, 15) + '...' : 'MISSING'}`);
 
-      // Create a timeout promise
       const timeoutPromise = new Promise((_, reject) =>
         setTimeout(() => reject(new Error("Auth check timed out (10s)")), 10000)
       );
 
-      // Race the auth check against the timeout
       const sessionPromise = supabase.auth.getSession();
 
       const result = await Promise.race([sessionPromise, timeoutPromise]) as { data: { session: any }, error: any };
@@ -127,7 +124,7 @@ export default function AudioRecorder() {
   const [showSaveModal, setShowSaveModal] = useState(false);
   const [recordingTitle, setRecordingTitle] = useState("");
   const [isSaving, setIsSaving] = useState(false);
-  const [isSaved, setIsSaved] = useState(false); // New state to track if actually saved to DB
+  const [isSaved, setIsSaved] = useState(false);
   const [audioChunks, setAudioChunks] = useState<Blob[]>([]);
   const [savedRecordingId, setSavedRecordingId] = useState<string | null>(null);
 
@@ -152,6 +149,15 @@ export default function AudioRecorder() {
   const timerRef = useRef<NodeJS.Timeout | null>(null);
   const [elapsedTime, setElapsedTime] = useState(0);
 
+  // Scroll ref
+  const transcriptEndRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (transcriptEndRef.current) {
+      transcriptEndRef.current.scrollIntoView({ behavior: 'smooth' });
+    }
+  }, [transcript, interimText]);
+
   const formatTime = (seconds: number) => {
     const mins = Math.floor(seconds / 60);
     const secs = seconds % 60;
@@ -159,88 +165,6 @@ export default function AudioRecorder() {
   };
 
   const SILENCE_THRESHOLD = 0.001;
-
-  // ... (rest of the file)
-
-
-
-  // ...
-
-  // In the JSX for Modal:
-  /*
-          {
-            showSaveModal && (
-              <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
-                <div className="bg-white rounded-xl p-6 w-full max-w-md shadow-2xl">
-                  <div className="flex justify-between items-center mb-4">
-                    <h3 className="text-xl font-bold text-gray-800">Save Recording</h3>
-                    <button
-                      onClick={() => setShowSaveModal(false)}
-                      className="text-gray-500 hover:text-gray-700"
-                    >
-                      <X className="w-5 h-5" />
-                    </button>
-                  </div>
-
-                  {!isSaved ? ( // Check isSaved instead of savedRecordingId
-                    <div className="space-y-4">
-                      <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-1">Recording Title</label>
-                        <input
-                          type="text"
-                          value={recordingTitle}
-                          onChange={(e) => setRecordingTitle(e.target.value)}
-                          className="w-full p-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                          placeholder="My Recording"
-                        />
-                      </div>
-
-                      <div className="flex justify-end space-x-3 pt-2">
-                        <button
-                          onClick={() => setShowSaveModal(false)}
-                          className="px-4 py-2 text-gray-600 hover:bg-gray-100 rounded-lg"
-                        >
-                          Discard
-                        </button>
-                        <button
-                          onClick={handleSaveRecording}
-                          disabled={isSaving}
-                          className="flex items-center px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50"
-                        >
-                          {isSaving ? (
-                            <>
-                              <Activity className="w-4 h-4 mr-2 animate-spin" />
-                              Saving...
-                            </>
-                          ) : (
-                            <>
-                              <Save className="w-4 h-4 mr-2" />
-                              Save Recording
-                            </>
-                          )}
-                        </button>
-                      </div>
-                    </div>
-                  ) : (
-                    <div className="text-center py-8">
-                      <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                        <Check className="w-8 h-8 text-green-600" />
-                      </div>
-                      <h3 className="text-xl font-bold text-gray-800 mb-2">Recording Saved!</h3>
-                      <p className="text-gray-600 mb-6">Your recording has been saved successfully.</p>
-                      <button
-                        onClick={() => window.location.href = `/recordings/${savedRecordingId}`}
-                        className="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
-                      >
-                        View Recording
-                      </button>
-                    </div>
-                  )}
-                </div>
-              </div>
-            )
-          }
-  */
 
   // Debug mode
   const DEBUG = process.env.NEXT_PUBLIC_DEBUG === 'true';
@@ -307,7 +231,6 @@ export default function AudioRecorder() {
       addLog("WebSocket Connected", "info");
       setStatus("Connected");
 
-      // Re-configure if we have an active recording ID (e.g. after reconnect)
       if (recordingIdRef.current) {
         ws.send(JSON.stringify({
           type: "configure",
@@ -329,14 +252,12 @@ export default function AudioRecorder() {
 
         if (text && !text.startsWith("[Error")) {
           if (is_final) {
-            // Final result - add to transcript history
             setTranscript((prev) => [...prev, text]);
             setInterimText("");
             addLog(`✓ Final: ${text.substring(0, 30)}${text.length > 30 ? '...' : ''}`, "receive");
 
-            // Save with timestamp for audio-text sync
             const currentTime = (Date.now() - recordingStartTimeRef.current) / 1000;
-            const segmentDuration = text.split(' ').length * 0.5; // Approximate duration based on word count
+            const segmentDuration = text.split(' ').length * 0.5;
             const transcriptSegment: TranscriptSegment = {
               text,
               start_time: Math.max(0, currentTime - segmentDuration),
@@ -347,7 +268,6 @@ export default function AudioRecorder() {
             setTranscriptWithTimestamps(prev => [...prev, transcriptSegment]);
             transcriptsForSaveRef.current.push(transcriptSegment);
 
-            // Calculate latency and update metrics
             const now = Date.now();
             const latency = now - lastChunkTimeRef.current;
             setMetrics(prev => {
@@ -364,14 +284,12 @@ export default function AudioRecorder() {
               };
             });
           } else {
-            // Interim result - update temporary display
             setInterimText(text);
           }
 
           setWaitingForResponse(false);
         }
       } catch (e) {
-        // Fallback for non-JSON messages
         const text = event.data;
         if (text && !text.startsWith("[Error")) {
           setTranscript((prev) => [...prev, text]);
@@ -447,21 +365,18 @@ export default function AudioRecorder() {
       analyserRef.current = analyser;
       processorRef.current = processor;
 
-      // Reset state for new recording
       limitReachedRef.current = false;
       setAudioChunks([]);
       setTranscriptWithTimestamps([]);
       transcriptsForSaveRef.current = [];
-      // Generate new recording ID immediately
       const newRecordingId = crypto.randomUUID();
       setSavedRecordingId(newRecordingId);
       recordingIdRef.current = newRecordingId;
-      setIsSaved(false); // Reset saved state
+      setIsSaved(false);
 
       setShareToken(null);
       setShareUrl(null);
 
-      // Setup MediaRecorder for saving valid audio file
       const mediaRecorder = new MediaRecorder(stream);
       mediaRecorderRef.current = mediaRecorder;
 
@@ -472,11 +387,9 @@ export default function AudioRecorder() {
         }
       };
 
-      // Request data every 1 second to ensure we capture chunks even if stop() doesn't fire ondataavailable immediately
       mediaRecorder.start(1000);
       recordingStartTimeRef.current = performance.now();
 
-      // Configure WebSocket with recording ID for live sharing
       if (socketRef.current && socketRef.current.readyState === WebSocket.OPEN) {
         socketRef.current.send(JSON.stringify({
           type: "configure",
@@ -523,7 +436,6 @@ export default function AudioRecorder() {
       statusRef.current = "Recording";
       addLog("Recording Started", "info");
 
-      // Start timer
       setElapsedTime(0);
       if (timerRef.current) clearInterval(timerRef.current);
       timerRef.current = setInterval(() => {
@@ -603,21 +515,17 @@ export default function AudioRecorder() {
     setIsSaving(true);
 
     try {
-      // Pick the active recording ID (ensure consistent with live-share/placeholder)
       const recordingId = savedRecordingId || recordingIdRef.current || crypto.randomUUID();
       recordingIdRef.current = recordingId;
       if (!savedRecordingId) {
         setSavedRecordingId(recordingId);
       }
 
-      // Create WebM blob from audio chunks (MediaRecorder output)
       const audioBlob = new Blob(audioChunks, { type: "audio/webm" });
 
-      // Calculate duration
       let duration = Math.floor((performance.now() - recordingStartTimeRef.current) / 1000);
       if (duration < 1) duration = 1;
 
-      // Prepare form data
       const formData = new FormData();
       formData.append("id", recordingId);
       formData.append("title", recordingTitle || `Recording ${new Date().toLocaleString()}`);
@@ -626,15 +534,6 @@ export default function AudioRecorder() {
       formData.append("transcripts", JSON.stringify(transcriptsForSaveRef.current));
       formData.append("token", sessionToken);
 
-      console.log("Saving recording:", {
-        id: recordingId,
-        title: recordingTitle,
-        duration,
-        audioSize: audioBlob.size,
-        transcriptsCount: transcriptsForSaveRef.current.length
-      });
-
-      // Upload to backend
       const response = await fetch(`${API_BASE_URL}/api/recordings`, {
         method: "POST",
         body: formData,
@@ -646,12 +545,10 @@ export default function AudioRecorder() {
 
       const result = await response.json();
       setSavedRecordingId(result.id);
-      setIsSaved(true); // Mark as saved
+      setIsSaved(true);
 
-      // Clear audio chunks to free memory but keep ID for sharing
       setAudioChunks([]);
 
-      // Redirect to recording page
       window.location.href = `/recordings/${result.id}`;
 
     } catch (error) {
@@ -684,7 +581,6 @@ export default function AudioRecorder() {
       }
       recordingIdRef.current = recordingId;
 
-      // Initialize recording in DB if not saved yet (for live sharing)
       const initFormData = new FormData();
       initFormData.append("id", recordingId);
       initFormData.append("title", baseTitle);
@@ -705,7 +601,6 @@ export default function AudioRecorder() {
       setSavedRecordingId(realRecordingId);
       recordingIdRef.current = realRecordingId;
 
-      // Re-configure WebSocket with the REAL DB ID
       if (socketRef.current && socketRef.current.readyState === WebSocket.OPEN) {
         socketRef.current.send(JSON.stringify({
           type: "configure",
@@ -713,7 +608,6 @@ export default function AudioRecorder() {
         }));
       }
 
-      // Create share link
       const response = await fetch(`${API_BASE_URL}/api/shares?token=${sessionToken}`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -740,248 +634,200 @@ export default function AudioRecorder() {
     }
   };
 
-
-
   if (!mounted) return null;
 
   return (
-    <div className="flex flex-col items-center justify-center p-6 space-y-6 bg-white rounded-xl shadow-lg w-full max-w-2xl mx-auto border border-gray-100">
-      <div className="text-center space-y-2">
-        <h2 className="text-2xl font-bold text-gray-800 tracking-tight">Live Transcription</h2>
-        <p className={`text-sm font-medium ${status === "Recording..." ? "text-red-500 animate-pulse" : "text-gray-500"}`}>
-          {status}
-        </p>
-        {authError && (
-          <div className="flex flex-col items-center mt-2 space-y-2">
-            <p className="text-xs text-red-500">{authError}</p>
-            <button
-              onClick={handleRetry}
-              className="flex items-center px-3 py-1 text-xs font-medium text-blue-600 bg-blue-50 rounded-full hover:bg-blue-100 transition-colors"
-            >
-              <RefreshCw className="w-3 h-3 mr-1" />
-              Retry Connection
-            </button>
+    <div className="flex flex-col items-center justify-center min-h-[85vh] w-full max-w-4xl mx-auto px-4 pt-20">
+
+      {/* Save Modal */}
+      {showSaveModal && (
+        <div className="fixed inset-0 bg-black/80 backdrop-blur-sm flex items-center justify-center z-50">
+          <div className="bg-[#181A20] rounded-2xl border border-white/10 p-8 w-full max-w-md shadow-2xl glow-box">
+            <div className="flex justify-between items-center mb-6">
+              <h3 className="text-xl font-bold text-white tracking-tight">Save Recording</h3>
+              <button
+                onClick={() => setShowSaveModal(false)}
+                className="text-gray-400 hover:text-white transition-colors"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+
+            {!isSaved ? (
+              <div className="space-y-6">
+                <div>
+                  <label className="block text-sm font-medium text-[#BFC2CF] mb-2">Title</label>
+                  <input
+                    type="text"
+                    value={recordingTitle}
+                    onChange={(e) => setRecordingTitle(e.target.value)}
+                    className="w-full bg-[#0E0E12] border border-white/10 rounded-lg p-3 text-white focus:outline-none focus:border-[#A86CFF] focus:ring-1 focus:ring-[#A86CFF] transition-all"
+                    placeholder="My Recording"
+                  />
+                </div>
+
+                <div className="flex justify-end space-x-3 pt-2">
+                  <button
+                    onClick={() => setShowSaveModal(false)}
+                    className="px-4 py-2 text-[#BFC2CF] hover:text-white transition-colors"
+                  >
+                    Discard
+                  </button>
+                  <button
+                    onClick={handleSaveRecording}
+                    disabled={isSaving}
+                    className="flex items-center px-6 py-2 bg-gradient-to-r from-[#A86CFF] to-[#FF6F61] text-white rounded-lg hover:opacity-90 transition-opacity disabled:opacity-50 font-medium shadow-lg shadow-[#A86CFF]/20"
+                  >
+                    {isSaving ? (
+                      <>
+                        <Activity className="w-4 h-4 mr-2 animate-spin" />
+                        Saving...
+                      </>
+                    ) : (
+                      <>
+                        <Save className="w-4 h-4 mr-2" />
+                        Save Recording
+                      </>
+                    )}
+                  </button>
+                </div>
+              </div>
+            ) : (
+              <div className="text-center py-8">
+                <div className="w-16 h-16 bg-[#A86CFF]/10 rounded-full flex items-center justify-center mx-auto mb-4">
+                  <Check className="w-8 h-8 text-[#A86CFF]" />
+                </div>
+                <h3 className="text-xl font-bold text-white mb-2">Saved Successfully!</h3>
+                <p className="text-[#BFC2CF] mb-6">Your recording is ready.</p>
+                <button
+                  onClick={() => window.location.href = `/recordings/${savedRecordingId}`}
+                  className="px-6 py-2 bg-[#A86CFF] text-white rounded-lg hover:bg-[#9755f5] transition-colors"
+                >
+                  View Recording
+                </button>
+              </div>
+            )}
           </div>
-        )}
-      </div>
-
-      <div className="flex flex-col items-center justify-center py-4">
-        <div className={`text-5xl font-mono font-bold tracking-widest ${isRecording ? 'text-red-500' : 'text-gray-700'}`}>
-          {formatTime(elapsedTime)}
         </div>
-        <div className="text-xs text-gray-400 mt-1 uppercase tracking-wider">Duration</div>
-      </div>
+      )}
 
-      <div className="relative group">
-        <button
-          onClick={() => (isRecording ? stopRecording() : startRecording())}
-          disabled={status !== "Connected" && status !== "Recording..."}
-          className={`p-6 rounded-full transition-all duration-300 transform hover:scale-105 focus:outline-none focus:ring-4 focus:ring-offset-2 ${isRecording
-            ? "bg-red-500 hover:bg-red-600 focus:ring-red-200 shadow-red-200"
-            : status === "Connected"
-              ? "bg-black hover:bg-gray-800 focus:ring-gray-200 shadow-gray-200"
-              : "bg-gray-300 cursor-not-allowed"
-            } shadow-xl`}
-        >
-          {isRecording ? (
-            <Square className="w-8 h-8 text-white fill-current" />
-          ) : (
-            <Mic className="w-8 h-8 text-white" />
-          )}
-        </button>
+      {/* Main Core Card */}
+      <div className="glass-card rounded-[28px] p-8 w-full relative overflow-hidden flex flex-col items-center">
+
+        {/* Subtle radial highlight background */}
+        <div className="absolute top-0 left-1/2 -translate-x-1/2 w-full h-1/2 bg-gradient-to-b from-[#A86CFF]/5 to-transparent pointer-events-none" />
+
+        {/* Top Section: Breadcrumb & Timestamp */}
+        <div className="w-full flex flex-col items-center mb-10 z-10 transition-all duration-500">
+          {/* Breadcrumb / Status */}
+          <div className="flex items-center space-x-3 mb-2">
+            <div className={`w-2 h-2 rounded-full ${isRecording ? 'bg-[#FF6F61] animate-pulse shadow-[0_0_8px_#FF6F61]' : 'bg-[#BFC2CF]/30'}`} />
+            <span className="text-sm uppercase tracking-widest text-[#BFC2CF] font-medium">
+              {isRecording ? 'Live Recording' : 'Ready to Record'}
+            </span>
+          </div>
+
+          {/* Large Timer */}
+          <div className={`text-6xl md:text-7xl font-bold font-mono tracking-wider tabular-nums transition-all duration-300 ${isRecording ? 'text-gradient scale-105 glow-text' : 'text-white/20'}`}>
+            {formatTime(elapsedTime)}
+          </div>
+        </div>
+
+        {/* Center: Record Button */}
+        <div className="relative z-10 mb-12 group">
+          <button
+            onClick={() => (isRecording ? stopRecording() : startRecording())}
+            disabled={status !== "Connected" && status !== "Recording..."}
+            className={`relative w-28 h-28 md:w-32 md:h-32 rounded-full flex items-center justify-center transition-all duration-500 transform hover:scale-105 focus:outline-none 
+                    ${isRecording
+                ? 'shadow-[0_0_40px_rgba(255,111,97,0.4)]'
+                : 'shadow-[0_0_40px_rgba(168,108,255,0.2)] hover:shadow-[0_0_60px_rgba(168,108,255,0.4)]'
+              }`
+            }
+          >
+            {/* Gradient Ring Background */}
+            <div className={`absolute inset-0 rounded-full bg-gradient-to-br transition-all duration-500
+                    ${isRecording ? 'from-[#FF6F61] to-[#FFB55A] animate-pulse-slow' : 'from-[#181A20] to-[#252830] border border-white/10 group-hover:border-[#A86CFF]/50'}`}
+            />
+
+            {/* Icon */}
+            <div className="relative z-10">
+              {isRecording ? (
+                <Square className="w-10 h-10 text-white fill-current animate-float" />
+              ) : (
+                <Mic className={`w-10 h-10 transition-colors duration-300 ${status === "Connected" ? 'text-white' : 'text-gray-500'}`} />
+              )}
+            </div>
+
+            {/* Outer Glow Ring on Hover */}
+            {!isRecording && (
+              <div className="absolute -inset-1 rounded-full border border-[#A86CFF]/30 opacity-0 group-hover:opacity-100 group-hover:scale-110 transition-all duration-500" />
+            )}
+          </button>
+          <div className="mt-4 text-center h-6">
+            <p className="text-xs text-[#666]">{status}</p>
+            {authError &&
+              <button onClick={handleRetry} className="text-xs text-[#FF6F61] flex items-center justify-center mt-1 mx-auto hover:underline">
+                <RefreshCw className="w-3 h-3 mr-1" /> Retry
+              </button>
+            }
+          </div>
+        </div>
+
+        {/* Share Link (Conditional) */}
         {isRecording && (
-          <div className="absolute -inset-1 rounded-full border-2 border-red-500 opacity-50 animate-ping pointer-events-none"></div>
-        )}
-      </div>
-
-      {/* Live Share Button */}
-      {
-        isRecording && savedRecordingId && (
-          <div className="w-full">
+          <div className="mb-8 w-full max-w-sm animate-in fade-in slide-in-from-bottom-4 duration-700">
             {!shareUrl ? (
               <button
                 onClick={handleCreateShare}
-                disabled={isSharing}
-                className="w-full flex items-center justify-center px-4 py-2 bg-indigo-50 text-indigo-700 border border-indigo-200 rounded-lg hover:bg-indigo-100 transition-colors"
+                className="w-full py-3 rounded-full border border-[#A86CFF]/30 bg-[#A86CFF]/5 text-[#A86CFF] text-sm font-medium hover:bg-[#A86CFF]/10 transition-colors flex items-center justify-center"
               >
-                {isSharing ? (
-                  <Activity className="w-4 h-4 mr-2 animate-spin" />
-                ) : (
-                  <Share2 className="w-4 h-4 mr-2" />
-                )}
-                Share Live Link
+                <Share2 className="w-4 h-4 mr-2" />
+                Create Live Public Link
               </button>
             ) : (
-              <div className="flex items-center space-x-2 bg-indigo-50 p-2 rounded-lg border border-indigo-200">
-                <span className="text-xs font-semibold text-indigo-800 uppercase px-2">Live Link:</span>
-                <input
-                  type="text"
-                  readOnly
-                  value={shareUrl}
-                  className="flex-1 p-1 text-sm bg-white border border-indigo-200 rounded"
-                />
+              <div className="flex items-center space-x-2 bg-[#181A20]/80 border border-[#A86CFF]/30 rounded-full p-1 pl-4 relative overflow-hidden">
+                <div className="absolute inset-0 bg-gradient-to-r from-[#A86CFF]/5 to-transparent pointer-events-none" />
+                <span className="text-xs text-[#BFC2CF] truncate flex-1">{shareUrl}</span>
                 <button
                   onClick={() => {
-                    navigator.clipboard.writeText(shareUrl);
-                    alert("Copied!");
+                    navigator.clipboard.writeText(shareUrl || "");
+                    alert("Copied to clipboard!");
                   }}
-                  className="p-1 text-indigo-600 hover:bg-indigo-100 rounded"
-                  title="Copy"
+                  className="bg-[#A86CFF] p-2 rounded-full text-white hover:bg-[#9755f5] transition-colors z-10"
                 >
-                  <Copy className="w-4 h-4" />
+                  <Copy className="w-3 h-3" />
                 </button>
               </div>
             )}
-          </div>
-        )
-      }
-
-      <div className="w-full max-w-xs bg-gray-200 rounded-full h-2.5 dark:bg-gray-700 mt-4">
-        <div
-          className="bg-blue-600 h-2.5 rounded-full transition-all duration-75"
-          style={{ width: `${Math.min(volume * 500, 100)}%` }}
-        ></div>
-      </div>
-
-      <div className="w-full bg-gray-50 rounded-lg p-4 h-64 overflow-y-auto border border-gray-100 shadow-inner">
-        {transcript.length === 0 && !interimText ? (
-          <p className="text-gray-400 text-center mt-20">Start speaking to see text...</p>
-        ) : (
-          <div className="space-y-2">
-            {transcript.map((text, index) => (
-              <p key={index} className="text-gray-700 leading-relaxed">
-                {text}
-              </p>
-            ))}
-            {interimText && (
-              <p className="text-gray-700 leading-relaxed">
-                {interimText}
-              </p>
-            )}
-            <div className="h-2" />
           </div>
         )}
-      </div>
 
-      {/* Save Recording Modal */}
-      {
-        showSaveModal && (
-          <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
-            <div className="bg-white rounded-xl p-6 w-full max-w-md shadow-2xl">
-              <div className="flex justify-between items-center mb-4">
-                <h3 className="text-xl font-bold text-gray-800">Save Recording</h3>
-                <button
-                  onClick={() => setShowSaveModal(false)}
-                  className="text-gray-500 hover:text-gray-700"
-                >
-                  <X className="w-5 h-5" />
-                </button>
-              </div>
-
-              {!isSaved ? (
-                <div className="space-y-4">
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">Recording Title</label>
-                    <input
-                      type="text"
-                      value={recordingTitle}
-                      onChange={(e) => setRecordingTitle(e.target.value)}
-                      className="w-full p-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                      placeholder="My Recording"
-                    />
-                  </div>
-
-                  <div className="flex justify-end space-x-3 pt-2">
-                    <button
-                      onClick={() => setShowSaveModal(false)}
-                      className="px-4 py-2 text-gray-600 hover:bg-gray-100 rounded-lg"
-                    >
-                      Discard
-                    </button>
-                    <button
-                      onClick={handleSaveRecording}
-                      disabled={isSaving}
-                      className="flex items-center px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50"
-                    >
-                      {isSaving ? (
-                        <>
-                          <Activity className="w-4 h-4 mr-2 animate-spin" />
-                          Saving...
-                        </>
-                      ) : (
-                        <>
-                          <Save className="w-4 h-4 mr-2" />
-                          Save Recording
-                        </>
-                      )}
-                    </button>
-                  </div>
+        {/* Live Transcription Block */}
+        <div className="w-full max-w-2xl bg-[#111218]/50 border border-white/5 rounded-2xl p-6 h-[250px] md:h-[300px] overflow-y-auto relative scrollbar-thin scrollbar-thumb-white/10 hover:scrollbar-thumb-white/20 transition-colors shadow-inner">
+          {transcript.length === 0 && !interimText ? (
+            <div className="h-full flex flex-col items-center justify-center text-[#BFC2CF]/30 space-y-3">
+              <Activity className="w-8 h-8 opacity-20" />
+              <p className="text-sm">Transcripts will appear here...</p>
+            </div>
+          ) : (
+            <div className="space-y-4">
+              {transcript.map((text, i) => (
+                <div key={i} className="animate-in fade-in slide-in-from-bottom-2 duration-300">
+                  <p className="text-[#E0E0E0] text-lg leading-relaxed">{text}</p>
                 </div>
-              ) : (
-                <div className="space-y-4">
-                  <div className="p-4 bg-green-50 text-green-700 rounded-lg flex items-center">
-                    <Check className="w-5 h-5 mr-2" />
-                    Recording saved successfully!
-                  </div>
-
-                  <div className="pt-2">
-                    <h4 className="text-sm font-medium text-gray-700 mb-2">Share this recording</h4>
-                    {!shareUrl ? (
-                      <button
-                        onClick={handleCreateShare}
-                        disabled={isSharing}
-                        className="w-full flex items-center justify-center px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50"
-                      >
-                        {isSharing ? (
-                          <Activity className="w-4 h-4 mr-2 animate-spin" />
-                        ) : (
-                          <Share2 className="w-4 h-4 mr-2" />
-                        )}
-                        Generate Share Link
-                      </button>
-                    ) : (
-                      <div className="flex items-center space-x-2">
-                        <input
-                          type="text"
-                          readOnly
-                          value={shareUrl}
-                          className="flex-1 p-2 text-sm bg-gray-50 border border-gray-300 rounded-lg"
-                        />
-                        <button
-                          onClick={() => {
-                            navigator.clipboard.writeText(shareUrl);
-                            alert("Copied to clipboard!");
-                          }}
-                          className="p-2 text-blue-600 hover:bg-blue-50 rounded-lg"
-                          title="Copy to clipboard"
-                        >
-                          <Copy className="w-5 h-5" />
-                        </button>
-                      </div>
-                    )}
-                  </div>
-
-                  <div className="flex justify-end pt-2">
-                    <button
-                      onClick={() => setShowSaveModal(false)}
-                      className="px-4 py-2 text-gray-600 hover:bg-gray-100 rounded-lg"
-                    >
-                      Close
-                    </button>
-                  </div>
+              ))}
+              {interimText && (
+                <div className="animate-pulse">
+                  <p className="text-[#A86CFF] text-lg leading-relaxed italic opacity-80">{interimText}</p>
                 </div>
               )}
+              <div ref={transcriptEndRef} />
             </div>
-          </div>
-        )
-      }
+          )}
+        </div>
 
-
-
-      <div className="flex items-center space-x-2 text-xs text-gray-400">
-        <Activity className="w-3 h-3" />
-        <span>Real-time Transcription</span>
       </div>
-    </div >
+    </div>
   );
 }

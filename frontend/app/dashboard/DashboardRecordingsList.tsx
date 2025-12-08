@@ -2,7 +2,7 @@
 
 import React, { useEffect, useState } from "react";
 import Link from "next/link";
-import { Play, Calendar, Clock, FileAudio } from "lucide-react";
+import { Play, Calendar, Clock, ChevronRight } from "lucide-react";
 import { API_BASE_URL } from "@/utils/config";
 
 interface Recording {
@@ -29,7 +29,6 @@ export default function DashboardRecordingsList({ token }: { token?: string }) {
                     return;
                 }
 
-                // Fetch only recent 5 recordings
                 const response = await fetch(`${API_BASE_URL}/api/recordings?token=${session.access_token}`);
                 if (!response.ok) {
                     throw new Error("Failed to fetch recordings");
@@ -67,41 +66,42 @@ export default function DashboardRecordingsList({ token }: { token?: string }) {
         return (
             <div className="flex justify-center py-8">
                 <div className="flex flex-col items-center space-y-3">
-                    <div className="animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-blue-500"></div>
-                    <p className="text-sm text-gray-500">Loading recordings... <span className="text-xs text-gray-400">(server may be waking up)</span></p>
+                    <div className="animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-[#A86CFF]"></div>
+                    <p className="text-sm text-[#BFC2CF]">Loading recordings...</p>
                 </div>
             </div>
         );
     }
 
     if (error) {
-        return <p className="text-red-500 text-sm">{error}</p>;
+        return <p className="text-[#FF6F61] text-sm">{error}</p>;
     }
 
     if (recordings.length === 0) {
         return (
-            <div className="bg-white rounded-xl shadow-sm p-8 text-center border border-gray-100">
-                <p className="text-gray-500">No recordings yet. Start your first one above!</p>
+            <div className="glass-card rounded-xl p-8 text-center">
+                <p className="text-[#BFC2CF]">No recordings yet. Start your first one above!</p>
             </div>
         );
     }
 
     return (
-        <div className="grid gap-3">
+        <div className="grid gap-4">
             {recordings.map((recording) => (
-                <div
+                <Link
                     key={recording.id}
-                    className="bg-white rounded-lg shadow-sm p-4 hover:shadow-md transition-shadow border border-gray-100 flex justify-between items-center"
+                    href={`/recordings/${recording.id}`}
+                    className="group glass-card rounded-xl p-5 hover:bg-white/5 transition-all duration-300 flex justify-between items-center border border-white/5 hover:border-[#A86CFF]/30"
                 >
-                    <div className="flex items-center space-x-3">
-                        <div className="p-2 bg-blue-50 rounded-lg text-blue-600">
-                            <Play className="w-4 h-4" />
+                    <div className="flex items-center space-x-4">
+                        <div className="p-3 bg-gradient-to-br from-[#181A20] to-[#252830] border border-white/10 rounded-full text-[#A86CFF] group-hover:text-white group-hover:bg-[#A86CFF] transition-all">
+                            <Play className="w-5 h-5 fill-current" />
                         </div>
                         <div>
-                            <h3 className="font-medium text-gray-900">
+                            <h3 className="font-semibold text-white group-hover:text-[#A86CFF] transition-colors">
                                 {recording.title || "Untitled Recording"}
                             </h3>
-                            <div className="flex items-center space-x-4 text-xs text-gray-500 mt-1">
+                            <div className="flex items-center space-x-4 text-xs text-[#666] mt-1 group-hover:text-[#BFC2CF] transition-colors">
                                 <div className="flex items-center">
                                     <Calendar className="w-3 h-3 mr-1" />
                                     {formatDate(recording.created_at)}
@@ -114,13 +114,10 @@ export default function DashboardRecordingsList({ token }: { token?: string }) {
                         </div>
                     </div>
 
-                    <Link
-                        href={`/recordings/${recording.id}`}
-                        className="px-3 py-1.5 text-xs font-medium text-blue-600 bg-blue-50 rounded-md hover:bg-blue-100 transition-colors"
-                    >
-                        View
-                    </Link>
-                </div>
+                    <div className="p-2 transition-transform duration-300 group-hover:translate-x-1">
+                        <ChevronRight className="w-5 h-5 text-[#666] group-hover:text-[#A86CFF]" />
+                    </div>
+                </Link>
             ))}
         </div>
     );
