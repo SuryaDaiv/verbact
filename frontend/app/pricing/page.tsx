@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
-import { Check, Loader2 } from 'lucide-react';
+import { Check, Loader2, Sparkles } from 'lucide-react';
 import { API_BASE_URL } from '@/utils/config';
 import { createClient } from '@/utils/supabase/client';
 import { useRouter } from 'next/navigation';
@@ -73,7 +73,8 @@ export default function PricingPage() {
             features: ['10 minutes of transcription', 'Real-time transcription', 'Basic support'],
             cta: 'Current Plan',
             current: currentTier === 'free',
-            id: 'free'
+            id: 'free',
+            highlight: false
         },
         {
             name: 'Pro',
@@ -94,76 +95,89 @@ export default function PricingPage() {
             features: ['Unlimited transcription', 'Highest priority', '24/7 Priority support', 'Advanced analytics'],
             cta: currentTier === 'unlimited' ? 'Current Plan' : 'Go Unlimited',
             current: currentTier === 'unlimited',
-            id: 'unlimited'
+            id: 'unlimited',
+            highlight: false
         },
     ];
 
     return (
-        <div className="min-h-screen bg-gray-50">
-            <div className="py-24 sm:py-32">
-                <div className="mx-auto max-w-7xl px-6 lg:px-8">
-                    <div className="mx-auto max-w-4xl text-center">
-                        <h2 className="text-base font-semibold leading-7 text-indigo-600">Pricing</h2>
-                        <p className="mt-2 text-4xl font-bold tracking-tight text-gray-900 sm:text-5xl">
-                            Choose the right plan for you
-                        </p>
+        <div className="min-h-screen bg-[#0E0E12] text-white py-24 sm:py-32 relative overflow-hidden">
+            {/* Background Effects */}
+            <div className="absolute top-0 left-1/2 -translate-x-1/2 w-full h-[600px] bg-gradient-to-b from-[#A86CFF]/10 to-transparent pointer-events-none" />
+
+            <div className="mx-auto max-w-7xl px-6 lg:px-8 relative z-10">
+                <div className="mx-auto max-w-4xl text-center mb-16">
+                    <div className="inline-flex items-center space-x-2 px-3 py-1 rounded-full bg-white/5 border border-white/10 mb-6">
+                        <Sparkles className="w-4 h-4 text-[#A86CFF]" />
+                        <span className="text-xs font-bold text-[#A86CFF] uppercase tracking-wider">Early Access Pricing</span>
                     </div>
-                    <p className="mx-auto mt-6 max-w-2xl text-center text-lg leading-8 text-gray-600">
+                    <h2 className="text-4xl font-bold tracking-tight sm:text-5xl mb-6">
+                        Choose the right plan for <span className="text-gradient hover:glow-text transition-all duration-300">you</span>
+                    </h2>
+                    <p className="text-lg leading-8 text-[#BFC2CF] max-w-2xl mx-auto">
                         Start for free, upgrade when you need more power. Cancel anytime.
                     </p>
+                </div>
 
-                    <div className="isolate mx-auto mt-16 grid max-w-md grid-cols-1 gap-y-8 sm:mt-20 lg:mx-0 lg:max-w-none lg:grid-cols-3 lg:gap-x-8">
-                        {tiers.map((tier) => (
-                            <div
-                                key={tier.name}
-                                className={`rounded-3xl p-8 ring-1 xl:p-10 ${tier.highlight
-                                    ? 'bg-gray-900 ring-gray-900 text-white shadow-2xl scale-105 z-10'
-                                    : 'bg-white ring-gray-200 text-gray-900 shadow-sm'
+                <div className="isolate mx-auto grid max-w-md grid-cols-1 gap-8 lg:mx-0 lg:max-w-none lg:grid-cols-3">
+                    {tiers.map((tier) => (
+                        <div
+                            key={tier.name}
+                            className={`relative rounded-[28px] p-8 transition-all duration-300 ${tier.highlight
+                                ? 'glass-card border-[#A86CFF]/50 shadow-[0_0_40px_rgba(168,108,255,0.15)] transform scale-105 z-10'
+                                : 'bg-white/5 border border-white/5 hover:bg-white/10 hover:border-white/10'
+                                }`}
+                        >
+                            {tier.highlight && (
+                                <div className="absolute -top-4 -right-4">
+                                    <span className="bg-[#A86CFF] text-white text-xs font-bold px-3 py-1 rounded-full shadow-lg">MOST POPULAR</span>
+                                </div>
+                            )}
+
+                            <div className="flex items-center justify-between gap-x-4">
+                                <h3 className="text-xl font-bold text-white">
+                                    {tier.name}
+                                </h3>
+                            </div>
+                            <p className="mt-4 text-sm leading-6 text-[#BFC2CF]">
+                                {tier.description}
+                            </p>
+                            <p className="mt-6 flex items-baseline gap-x-1">
+                                <span className="text-4xl font-bold tracking-tight text-white">{tier.price}</span>
+                                {tier.period && (
+                                    <span className="text-sm font-semibold leading-6 text-[#666]">
+                                        {tier.period}
+                                    </span>
+                                )}
+                            </p>
+                            <button
+                                onClick={() => !tier.current && handleUpgrade(tier.id)}
+                                disabled={tier.current || loading !== null}
+                                className={`mt-8 block w-full rounded-xl px-3 py-3 text-center text-sm font-bold shadow-sm transition-all duration-300 hover:scale-[1.02] ${tier.highlight
+                                    ? 'bg-gradient-brand text-white hover:shadow-[0_0_25px_rgba(168,108,255,0.4)]'
+                                    : tier.current
+                                        ? 'bg-white/10 text-[#666] cursor-default hover:scale-100'
+                                        : 'bg-white text-black hover:bg-gray-100'
                                     }`}
                             >
-                                <div className="flex items-center justify-between gap-x-4">
-                                    <h3 className={`text-lg font-semibold leading-8 ${tier.highlight ? 'text-white' : 'text-gray-900'}`}>
-                                        {tier.name}
-                                    </h3>
-                                </div>
-                                <p className={`mt-4 text-sm leading-6 ${tier.highlight ? 'text-gray-300' : 'text-gray-600'}`}>
-                                    {tier.description}
-                                </p>
-                                <p className="mt-6 flex items-baseline gap-x-1">
-                                    <span className="text-4xl font-bold tracking-tight">{tier.price}</span>
-                                    {tier.period && (
-                                        <span className={`text-sm font-semibold leading-6 ${tier.highlight ? 'text-gray-300' : 'text-gray-600'}`}>
-                                            {tier.period}
-                                        </span>
-                                    )}
-                                </p>
-                                <button
-                                    onClick={() => !tier.current && handleUpgrade(tier.id)}
-                                    disabled={tier.current || loading !== null}
-                                    className={`mt-6 block w-full rounded-md px-3 py-2 text-center text-sm font-semibold leading-6 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 disabled:opacity-50 disabled:cursor-not-allowed ${tier.highlight
-                                        ? 'bg-indigo-500 text-white hover:bg-indigo-400 focus-visible:outline-indigo-500'
-                                        : tier.current
-                                            ? 'bg-gray-100 text-gray-600 cursor-default'
-                                            : 'bg-indigo-600 text-white hover:bg-indigo-500 focus-visible:outline-indigo-600'
-                                        }`}
-                                >
-                                    {loading === tier.id ? (
-                                        <Loader2 className="w-5 h-5 animate-spin mx-auto" />
-                                    ) : (
-                                        tier.cta
-                                    )}
-                                </button>
-                                <ul role="list" className={`mt-8 space-y-3 text-sm leading-6 ${tier.highlight ? 'text-gray-300' : 'text-gray-600'}`}>
-                                    {tier.features.map((feature) => (
-                                        <li key={feature} className="flex gap-x-3">
-                                            <Check className={`h-6 w-5 flex-none ${tier.highlight ? 'text-indigo-400' : 'text-indigo-600'}`} aria-hidden="true" />
-                                            {feature}
-                                        </li>
-                                    ))}
-                                </ul>
-                            </div>
-                        ))}
-                    </div>
+                                {loading === tier.id ? (
+                                    <Loader2 className="w-5 h-5 animate-spin mx-auto" />
+                                ) : (
+                                    tier.cta
+                                )}
+                            </button>
+                            <ul role="list" className="mt-8 space-y-3 text-sm leading-6 text-[#BFC2CF]">
+                                {tier.features.map((feature) => (
+                                    <li key={feature} className="flex gap-x-3 items-center">
+                                        <div className={`flex-none rounded-full p-1 ${tier.highlight ? 'bg-[#A86CFF]/20' : 'bg-white/10'}`}>
+                                            <Check className={`h-3 w-3 ${tier.highlight ? 'text-[#A86CFF]' : 'text-white'}`} aria-hidden="true" />
+                                        </div>
+                                        {feature}
+                                    </li>
+                                ))}
+                            </ul>
+                        </div>
+                    ))}
                 </div>
             </div>
         </div>

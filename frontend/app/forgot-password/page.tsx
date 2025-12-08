@@ -3,6 +3,8 @@
 import { useState } from 'react';
 import { createClient } from '@/utils/supabase/client';
 import Link from 'next/link';
+import Image from 'next/image';
+import { Loader2, ArrowLeft } from 'lucide-react';
 
 export default function ForgotPassword() {
     const [email, setEmail] = useState('');
@@ -30,63 +32,72 @@ export default function ForgotPassword() {
     };
 
     return (
-        <div className="flex min-h-screen flex-col items-center justify-center py-2 bg-gray-50">
-            <div className="w-full max-w-md space-y-8 px-4 sm:px-6 bg-white p-8 rounded-xl shadow-lg">
-                <div className="text-center">
-                    <h2 className="mt-6 text-3xl font-bold tracking-tight text-gray-900">
+        <div className="flex min-h-screen flex-col items-center justify-center py-12 bg-[#0E0E12] relative overflow-hidden">
+            {/* Ambient Background */}
+            <div className="absolute top-[-20%] left-[-10%] w-[60%] h-[60%] bg-[#A86CFF]/10 blur-[120px] rounded-full pointer-events-none" />
+
+            <div className="relative z-10 w-full max-w-md px-4">
+                <div className="text-center mb-8">
+                    <div className="inline-block relative w-12 h-12 mb-4 opacity-80">
+                        <Image src="/logo.png" alt="Verbact" fill className="object-contain" />
+                    </div>
+                    <h2 className="text-2xl font-bold tracking-tight text-white mb-2">
                         Reset Password
                     </h2>
-                    <p className="mt-2 text-sm text-gray-600">
-                        Enter your email address and we'll send you a link to reset your password.
+                    <p className="text-[#BFC2CF] text-sm">
+                        Enter your email to receive recovery instructions
                     </p>
                 </div>
 
-                <form onSubmit={handleReset} className="mt-8 space-y-6">
-                    <div>
-                        <label htmlFor="email-address" className="sr-only">
-                            Email address
-                        </label>
-                        <input
-                            id="email-address"
-                            name="email"
-                            type="email"
-                            autoComplete="email"
-                            required
-                            className="relative block w-full rounded-md border-0 py-1.5 text-gray-900 ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:z-10 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6 px-3"
-                            placeholder="Email address"
-                            value={email}
-                            onChange={(e) => setEmail(e.target.value)}
-                        />
-                    </div>
-
-                    {message && (
-                        <div className="text-green-600 text-sm text-center bg-green-50 p-2 rounded">
-                            {message}
+                <div className="glass-card rounded-[24px] p-8 shadow-2xl backdrop-blur-xl border border-white/5">
+                    <form onSubmit={handleReset} className="space-y-6">
+                        <div>
+                            <label htmlFor="email-address" className="sr-only">
+                                Email address
+                            </label>
+                            <input
+                                id="email-address"
+                                name="email"
+                                type="email"
+                                autoComplete="email"
+                                required
+                                className="relative block w-full rounded-xl border border-white/10 bg-white/5 py-3 text-white placeholder:text-[#666] focus:border-[#A86CFF] focus:ring-[#A86CFF] focus:outline-none focus:ring-1 sm:text-sm sm:leading-6 px-4 transition-colors"
+                                placeholder="Email address"
+                                value={email}
+                                onChange={(e) => setEmail(e.target.value)}
+                            />
                         </div>
-                    )}
 
-                    {error && (
-                        <div className="text-red-500 text-sm text-center bg-red-50 p-2 rounded">
-                            {error}
+                        {message && (
+                            <div className="text-[#00C853] text-sm text-center bg-[#00C853]/10 border border-[#00C853]/20 p-3 rounded-lg animate-in fade-in">
+                                {message}
+                            </div>
+                        )}
+
+                        {error && (
+                            <div className="text-[#FF6F61] text-sm text-center bg-[#FF6F61]/10 border border-[#FF6F61]/20 p-3 rounded-lg animate-in fade-in">
+                                {error}
+                            </div>
+                        )}
+
+                        <div className="pt-2">
+                            <button
+                                type="submit"
+                                disabled={loading}
+                                className="group relative flex w-full justify-center items-center rounded-xl bg-gradient-brand px-3 py-3 text-sm font-bold text-white shadow-[0_0_20px_rgba(168,108,255,0.3)] hover:shadow-[0_0_30px_rgba(168,108,255,0.5)] hover:scale-[1.02] transition-all duration-300 disabled:opacity-50"
+                            >
+                                {loading ? <Loader2 className="w-5 h-5 animate-spin" /> : 'Send Reset Link'}
+                            </button>
                         </div>
-                    )}
 
-                    <div>
-                        <button
-                            type="submit"
-                            disabled={loading}
-                            className="group relative flex w-full justify-center rounded-md bg-indigo-600 px-3 py-2 text-sm font-semibold text-white hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600 disabled:opacity-50"
-                        >
-                            {loading ? 'Sending...' : 'Send Reset Link'}
-                        </button>
-                    </div>
-
-                    <div className="text-center text-sm">
-                        <Link href="/login" className="font-medium text-indigo-600 hover:text-indigo-500">
-                            Back to Login
-                        </Link>
-                    </div>
-                </form>
+                        <div className="text-center text-sm">
+                            <Link href="/login" className="flex items-center justify-center font-medium text-[#BFC2CF] hover:text-white transition-colors gap-2 group">
+                                <ArrowLeft className="w-4 h-4 transition-transform group-hover:-translate-x-1" />
+                                Back to Login
+                            </Link>
+                        </div>
+                    </form>
+                </div>
             </div>
         </div>
     );

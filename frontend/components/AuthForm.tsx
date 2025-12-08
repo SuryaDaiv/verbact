@@ -2,6 +2,7 @@
 import { createClient } from '@/utils/supabase/client'
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
+import { Loader2 } from 'lucide-react'
 
 export default function AuthForm() {
     const supabase = createClient()
@@ -68,10 +69,10 @@ export default function AuthForm() {
             <button
                 onClick={handleGoogleLogin}
                 disabled={loading}
-                className="flex w-full items-center justify-center gap-3 rounded-md bg-white px-3 py-2 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600 disabled:opacity-50"
+                className="flex w-full items-center justify-center gap-3 rounded-xl bg-white text-black px-3 py-3 text-sm font-semibold shadow-sm hover:bg-gray-100 transition-all duration-200 disabled:opacity-50"
             >
                 {loading ? (
-                    'Connecting...'
+                    <Loader2 className="h-5 w-5 animate-spin text-[#A86CFF]" />
                 ) : (
                     <>
                         <svg className="h-5 w-5" aria-hidden="true" viewBox="0 0 24 24">
@@ -92,23 +93,23 @@ export default function AuthForm() {
                                 fill="#EA4335"
                             />
                         </svg>
-                        <span className="text-sm font-semibold leading-6">Sign in with Google</span>
+                        <span className="text-sm font-bold leading-6">Sign in with Google</span>
                     </>
                 )}
             </button>
 
             <div className="relative">
                 <div className="absolute inset-0 flex items-center">
-                    <div className="w-full border-t border-gray-300" />
+                    <div className="w-full border-t border-white/10" />
                 </div>
                 <div className="relative flex justify-center text-sm">
-                    <span className="bg-white px-2 text-gray-500">Or continue with email</span>
+                    <span className="bg-[#0E0E12] px-2 text-[#666]">Or continue with email</span>
                 </div>
             </div>
 
             {/* Email Login Form */}
-            <form onSubmit={handleEmailLogin} className="space-y-6">
-                <div className="flex flex-col space-y-4 rounded-md shadow-sm">
+            <form onSubmit={handleEmailLogin} className="space-y-4">
+                <div className="space-y-4">
                     <div>
                         <label htmlFor="email-address" className="sr-only">
                             Email address
@@ -119,7 +120,7 @@ export default function AuthForm() {
                             type="email"
                             autoComplete="email"
                             required
-                            className="relative block w-full rounded-t-md border-0 py-1.5 text-gray-900 ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:z-10 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6 px-3"
+                            className="relative block w-full rounded-xl border border-white/10 bg-white/5 py-3 text-white placeholder:text-[#666] focus:border-[#A86CFF] focus:ring-[#A86CFF] focus:outline-none focus:ring-1 sm:text-sm sm:leading-6 px-4 transition-colors"
                             placeholder="Email address"
                             value={email}
                             onChange={(e) => setEmail(e.target.value)}
@@ -129,50 +130,52 @@ export default function AuthForm() {
                         <label htmlFor="password" className="sr-only">
                             Password
                         </label>
-                        <input
-                            id="password"
-                            name="password"
-                            type="password"
-                            autoComplete="current-password"
-                            required
-                            className="relative block w-full rounded-b-md border-0 py-1.5 text-gray-900 ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:z-10 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6 px-3"
-                            placeholder="Password"
-                            value={password}
-                            onChange={(e) => setPassword(e.target.value)}
-                        />
-                    </div>
-                    <div className="flex items-center justify-end">
-                        <div className="text-sm">
-                            <a href="/forgot-password" className="font-medium text-indigo-600 hover:text-indigo-500">
-                                Forgot your password?
-                            </a>
+                        <div className="relative">
+                            <input
+                                id="password"
+                                name="password"
+                                type="password"
+                                autoComplete="current-password"
+                                required
+                                className="relative block w-full rounded-xl border border-white/10 bg-white/5 py-3 text-white placeholder:text-[#666] focus:border-[#A86CFF] focus:ring-[#A86CFF] focus:outline-none focus:ring-1 sm:text-sm sm:leading-6 px-4 transition-colors"
+                                placeholder="Password"
+                                value={password}
+                                onChange={(e) => setPassword(e.target.value)}
+                            />
+                            <div className="text-right mt-2">
+                                <a href="/forgot-password" className="text-xs font-medium text-[#A86CFF] hover:text-[#FF6F61] transition-colors">
+                                    Forgot password?
+                                </a>
+                            </div>
                         </div>
                     </div>
                 </div>
 
                 {error && (
-                    <div className="text-red-500 text-sm text-center bg-red-50 p-2 rounded">{error}</div>
+                    <div className="text-[#FF6F61] text-sm text-center bg-[#FF6F61]/10 border border-[#FF6F61]/20 p-3 rounded-lg animate-in fade-in slide-in-from-top-1">
+                        {error}
+                    </div>
                 )}
 
                 <div>
                     <button
                         type="submit"
                         disabled={loading}
-                        className="group relative flex w-full justify-center rounded-md bg-indigo-600 px-3 py-2 text-sm font-semibold text-white hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600 disabled:opacity-50"
+                        className="group relative flex w-full justify-center items-center rounded-xl bg-gradient-brand px-3 py-3 text-sm font-bold text-white shadow-[0_0_20px_rgba(168,108,255,0.3)] hover:shadow-[0_0_30px_rgba(168,108,255,0.5)] hover:scale-[1.02] transition-all duration-300 disabled:opacity-50 disabled:hover:scale-100"
                     >
-                        {loading ? 'Processing...' : view === 'sign-in' ? 'Sign in' : 'Sign up'}
+                        {loading ? <Loader2 className="w-5 h-5 animate-spin" /> : (view === 'sign-in' ? 'Sign in' : 'Sign up')}
                     </button>
                 </div>
 
-                <div className="text-center text-sm">
+                <div className="text-center text-sm mt-6">
                     <button
                         type="button"
-                        className="font-medium text-indigo-600 hover:text-indigo-500"
+                        className="font-medium text-[#BFC2CF] hover:text-white transition-colors"
                         onClick={() => setView(view === 'sign-in' ? 'sign-up' : 'sign-in')}
                     >
                         {view === 'sign-in'
-                            ? "Don't have an account? Sign up"
-                            : 'Already have an account? Sign in'}
+                            ? <span>Don't have an account? <span className="text-[#A86CFF]">Sign up</span></span>
+                            : <span>Already have an account? <span className="text-[#A86CFF]">Sign in</span></span>}
                     </button>
                 </div>
             </form>
