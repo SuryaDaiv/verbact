@@ -81,12 +81,20 @@ export default function AudioRecorder() {
     }
   };
 
+  // Ref to hold the latest status for the auth listener to check without creating a dependency
+  const statusStateRef = useRef(status);
+  useEffect(() => {
+    statusStateRef.current = status;
+  }, [status]);
+
   const handleAuthChange = useCallback(async (event: string, session: any) => {
     console.log(`[Auth] Auth state changed: ${event}`);
     if (session) {
       setSessionToken(session.access_token);
       setAuthError(null);
-      if (status === "Auth Failed" || status === "Not Logged In") {
+      // Use ref to check current status to avoid dependency loop
+      const currentStatus = statusStateRef.current;
+      if (currentStatus === "Auth Failed" || currentStatus === "Not Logged In" || currentStatus === "Disconnected") {
         setStatus("Ready");
       }
       // Only fetch profile if we don't have the tier yet or just to be safe
@@ -96,7 +104,7 @@ export default function AudioRecorder() {
       setStatus("Not Logged In");
       setAuthError("Please log in to record.");
     }
-  }, [status]);
+  }, []); // No dependencies!
 
   const initAuth = async () => {
     setStatus("Authenticating...");
