@@ -1,8 +1,9 @@
 "use client";
 
-import React, { useState, useRef, useEffect } from "react";
+import React, { useState, useRef, useEffect, useCallback } from "react";
 import { Mic, Square, Activity, Save, Share2, X, Copy, Check, RefreshCw } from "lucide-react";
 import { API_BASE_URL, WS_BASE_URL } from "@/utils/config";
+import { createClient } from "@/utils/supabase/client";
 
 interface LogEntry {
   timestamp: string;
@@ -25,6 +26,9 @@ interface TranscriptSegment {
 }
 
 type SubscriptionTier = "free" | "pro" | "unlimited";
+
+// Tiny silent MP3 to keep the browser tab active in background
+const SILENT_AUDIO_URL = "data:audio/mp3;base64,SUQzBAAAAAAAI1RTU0UAAAAPAAADTGF2ZjU4Ljc2LjEwMAAAAAAAAAAAAAAA//OEAAAAAAAAAAAAAAAAAAAAAAAASW5mbwAAAA8AAAAEAAABIADAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMD//////////////////////////////////////////////////////////////////8AAAAATGF2YzU4LjEzAAAAAAAAAAAAAAAAJAAAAAAAAAAAASCcF8D7AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA//OEAAAAAAAAAAAAAAAAAAAAAAAAMGF1ZGlvL21wNQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA//84AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA";
 
 export default function AudioRecorder() {
   const [isRecording, setIsRecording] = useState(false);
@@ -51,73 +55,110 @@ export default function AudioRecorder() {
   const sessionLimitSeconds = tierLimits[subscriptionTier];
   const [authError, setAuthError] = useState<string | null>(null);
 
-  const getToken = async () => {
-    setStatus("Authenticating...");
-    setAuthError(null);
-    const startTime = performance.now();
-    console.log(`[Auth Debug] Starting session check at ${new Date().toISOString()}`);
+  // Wake Lock Ref
+  const wakeLockRef = useRef<WakeLockSentinel | null>(null);
 
+  // Silent Audio Ref for Workaround
+  const silentAudioRef = useRef<HTMLAudioElement | null>(null);
+
+  // Supabase client
+  const supabase = createClient();
+
+  const fetchProfile = async (userId: string) => {
     try {
-      const { createClient } = await import('@/utils/supabase/client');
-      const supabase = createClient();
+      const { data: profile, error } = await supabase
+        .from("profiles")
+        .select("subscription_tier")
+        .eq("id", userId)
+        .single();
 
-      const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
-      console.log(`[Auth Debug] Config: URL=${supabaseUrl ? supabaseUrl.substring(0, 15) + '...' : 'MISSING'}`);
-
-      const timeoutPromise = new Promise((_, reject) =>
-        setTimeout(() => reject(new Error("Auth check timed out (10s)")), 10000)
-      );
-
-      const sessionPromise = supabase.auth.getSession();
-
-      const result = await Promise.race([sessionPromise, timeoutPromise]) as { data: { session: any }, error: any };
-      const { data: { session }, error } = result;
-
-      const endTime = performance.now();
-      console.log(`[Auth Debug] Session check complete in ${(endTime - startTime).toFixed(2)}ms`);
-
-      if (error) {
-        console.error("[Auth Debug] Auth error:", error);
-        setStatus("Auth Failed");
-        setAuthError(error.message);
-        return;
+      if (error) console.error("Profile fetch error:", error);
+      if (profile?.subscription_tier) {
+        setSubscriptionTier(profile.subscription_tier as SubscriptionTier);
       }
+    } catch (err) {
+      console.error("Error fetching profile:", err);
+    }
+  };
 
-      if (session) {
-        console.log(`[Auth Debug] Session found for user ${session.user.id}`);
-        setSessionToken(session.access_token);
-
-        const { data: profile, error: profileError } = await supabase
-          .from("profiles")
-          .select("subscription_tier")
-          .eq("id", session.user.id)
-          .single();
-
-        if (profileError) {
-          console.error("[Auth Debug] Profile fetch error:", profileError);
-        } else if (profile?.subscription_tier) {
-          setSubscriptionTier(profile.subscription_tier as SubscriptionTier);
-        }
-      } else {
-        console.log("[Auth Debug] No session found (user not logged in)");
-        setStatus("Not Logged In");
-        setAuthError("Please log in to record.");
+  const handleAuthChange = useCallback(async (event: string, session: any) => {
+    console.log(`[Auth] Auth state changed: ${event}`);
+    if (session) {
+      setSessionToken(session.access_token);
+      setAuthError(null);
+      if (status === "Auth Failed" || status === "Not Logged In") {
+        setStatus("Ready");
       }
-    } catch (err: any) {
-      const endTime = performance.now();
-      console.error(`[Auth Debug] Error getting token after ${(endTime - startTime).toFixed(2)}ms:`, err);
-      setStatus("Connection Failed");
-      setAuthError(err.message || "Unknown error");
+      // Only fetch profile if we don't have the tier yet or just to be safe
+      fetchProfile(session.user.id);
+    } else {
+      setSessionToken(null);
+      setStatus("Not Logged In");
+      setAuthError("Please log in to record.");
+    }
+  }, [status]);
+
+  const initAuth = async () => {
+    setStatus("Authenticating...");
+    const { data: { session }, error } = await supabase.auth.getSession();
+
+    if (error) {
+      console.error("Initial auth error:", error);
+      setStatus("Auth Failed");
+      setAuthError(error.message);
+      return;
+    }
+
+    if (session) {
+      console.log("Initial session found");
+      setSessionToken(session.access_token);
+      fetchProfile(session.user.id);
+      setStatus("Ready");
+    } else {
+      setStatus("Not Logged In");
+      setAuthError("Please log in to record.");
     }
   };
 
   useEffect(() => {
     setMounted(true);
-    getToken();
-  }, []);
+    initAuth();
+
+    // Initialize the silent audio element
+    const audio = new Audio(SILENT_AUDIO_URL);
+    audio.loop = true;
+    audio.volume = 0.01; // Tiny volume just in case, though file is silent
+    silentAudioRef.current = audio;
+
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(handleAuthChange);
+
+    // Visibility Listener to refresh session when coming back to foreground
+    const handleVisibilityChange = () => {
+      if (!document.hidden) {
+        console.log("App foregrounded, checking session...");
+        supabase.auth.getSession().then(({ data: { session } }) => {
+          if (session) {
+            handleAuthChange("FOREGROUND_REFRESH", session);
+          }
+        });
+      }
+    };
+    document.addEventListener("visibilitychange", handleVisibilityChange);
+
+    return () => {
+      subscription.unsubscribe();
+      document.removeEventListener("visibilitychange", handleVisibilityChange);
+
+      // Cleanup silent audio
+      if (silentAudioRef.current) {
+        silentAudioRef.current.pause();
+        silentAudioRef.current = null;
+      }
+    };
+  }, [handleAuthChange]);
 
   const handleRetry = () => {
-    getToken();
+    initAuth();
   };
 
   // Save/Share state
@@ -222,8 +263,52 @@ export default function AudioRecorder() {
     }
   };
 
-  useEffect(() => {
+  // Wake Lock Helper
+  const requestWakeLock = async () => {
+    try {
+      if ('wakeLock' in navigator) {
+        const lock = await navigator.wakeLock.request('screen');
+        wakeLockRef.current = lock;
+        addLog("Wake Lock active", "info");
+
+        lock.addEventListener('release', () => {
+          console.log('Wake Lock released');
+          wakeLockRef.current = null;
+        });
+      }
+    } catch (err: any) {
+      console.error(`${err.name}, ${err.message}`);
+      addLog(`Wake Lock failed: ${err.message}`, "error");
+    }
+  };
+
+  const releaseWakeLock = async () => {
+    if (wakeLockRef.current !== null) {
+      await wakeLockRef.current.release();
+      wakeLockRef.current = null;
+      addLog("Wake Lock released", "info");
+    }
+  };
+
+  // Helpers for silent audio workaround
+  const startSilentAudio = () => {
+    if (silentAudioRef.current) {
+      silentAudioRef.current.play().catch(e => console.error("Silent audio play failed", e));
+      addLog("Silent background audio started", "info");
+    }
+  };
+
+  const stopSilentAudio = () => {
+    if (silentAudioRef.current) {
+      silentAudioRef.current.pause();
+      silentAudioRef.current.currentTime = 0;
+      addLog("Silent background audio stopped", "info");
+    }
+  };
+
+  const connectWebSocket = useCallback(() => {
     if (!sessionToken) return;
+    if (socketRef.current?.readyState === WebSocket.OPEN) return;
 
     const ws = new WebSocket(`${WS_BASE_URL}/ws/transcribe?token=${sessionToken}`);
 
@@ -300,8 +385,11 @@ export default function AudioRecorder() {
 
     ws.onerror = (error) => {
       console.error("WebSocket error:", error);
-      setStatus("WS Error");
-      addLog("WebSocket Error!", "error");
+      // Don't change status to "WS Error" permanently if we want to auto-reconnect
+      // But for visual feedback it's good.
+      if (statusRef.current === "Recording") {
+        addLog("WS Error - Attempting Reconnect...", "error");
+      }
     };
 
     ws.onclose = (event) => {
@@ -310,15 +398,40 @@ export default function AudioRecorder() {
         handleLimitReached("server-close");
         return;
       }
-      setStatus("Disconnected");
+
+      // Auto-reconnect logic if we are still supposed to be recording
+      if (statusRef.current === "Recording" && sessionToken) {
+        console.log("Unexpected close during recording, attempting reconnect...");
+        setTimeout(() => {
+          if (statusRef.current === "Recording") {
+            connectWebSocket();
+          }
+        }, 1000);
+      } else {
+        setStatus("Disconnected");
+      }
     };
 
     socketRef.current = ws;
+  }, [sessionToken, sessionLimitSeconds]);
+
+
+  useEffect(() => {
+    // Only connect WS if we are "Recording" or about to be? 
+    // Actually the previous logic connected WS on mount/token change. 
+    // Keeping it simple: connect if token exists to be "Ready"
+    if (sessionToken) {
+      // We generally want the socket open for "Ready" state?
+      // Original code connected immediately on mount/token.
+      connectWebSocket();
+    }
 
     return () => {
-      if (ws.readyState === WebSocket.OPEN) ws.close();
+      if (socketRef.current?.readyState === WebSocket.OPEN) {
+        socketRef.current.close();
+      }
     };
-  }, [sessionToken, sessionLimitSeconds, subscriptionTier]);
+  }, [sessionToken, connectWebSocket]);
 
   const visualize = () => {
     if (!analyserRef.current || statusRef.current !== "Recording") return;
@@ -337,6 +450,9 @@ export default function AudioRecorder() {
 
   const startRecording = async () => {
     try {
+      requestWakeLock();
+      startSilentAudio();
+
       const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
 
       const AudioContextClass =
@@ -390,14 +506,23 @@ export default function AudioRecorder() {
       mediaRecorder.start(1000);
       recordingStartTimeRef.current = performance.now();
 
+      // Ensure WebSocket is ready or reconnecting
+      if (!socketRef.current || socketRef.current.readyState !== WebSocket.OPEN) {
+        addLog("WS not ready, forcing connect...", "info");
+        connectWebSocket();
+        // We might miss the first few chunks if we send immediately, 
+        // but the processor loop handles that buffer flow often.
+        // Ideally we wait for open but async start is tricky.
+      }
+
+      // Wait a moment for socket if needed? 
+      // For now, let's just trigger config if it IS open.
       if (socketRef.current && socketRef.current.readyState === WebSocket.OPEN) {
         socketRef.current.send(JSON.stringify({
           type: "configure",
           recording_id: newRecordingId
         }));
         addLog(`Configured backend with ID: ${newRecordingId}`, "info");
-      } else {
-        addLog("WebSocket not ready for configuration", "error");
       }
 
       processor.onaudioprocess = (e) => {
@@ -477,6 +602,9 @@ export default function AudioRecorder() {
     setVolume(0);
     setWaitingForResponse(false);
     setInterimText("");
+
+    releaseWakeLock();
+    stopSilentAudio();
 
     if (socketRef.current && socketRef.current.readyState === WebSocket.OPEN) {
       socketRef.current.send(JSON.stringify({ type: "stop_recording" }));
@@ -737,7 +865,7 @@ export default function AudioRecorder() {
         <div className="relative z-10 mb-12 group">
           <button
             onClick={() => (isRecording ? stopRecording() : startRecording())}
-            disabled={status !== "Connected" && status !== "Recording..."}
+            disabled={status !== "Connected" && status !== "Recording..." && status !== "Ready"}
             className={`relative w-28 h-28 md:w-32 md:h-32 rounded-full flex items-center justify-center transition-all duration-500 transform hover:scale-105 focus:outline-none 
                     ${isRecording
                 ? 'shadow-[0_0_40px_rgba(255,111,97,0.4)]'
@@ -755,7 +883,7 @@ export default function AudioRecorder() {
               {isRecording ? (
                 <Square className="w-10 h-10 text-white fill-current animate-float" />
               ) : (
-                <Mic className={`w-10 h-10 transition-colors duration-300 ${status === "Connected" ? 'text-white' : 'text-gray-500'}`} />
+                <Mic className={`w-10 h-10 transition-colors duration-300 ${status === "Status" || status === "Connected" || status === "Ready" ? 'text-white' : 'text-gray-500'}`} />
               )}
             </div>
 
@@ -802,34 +930,41 @@ export default function AudioRecorder() {
             )}
           </div>
         )}
+      </div>
 
-        {/* Live Transcript Overlay */}
-        <div className="mt-8 w-full max-w-2xl h-48 overflow-y-auto no-scrollbar scroll-smooth relative mask-image-b">
-          <style jsx global>{`
-                .no-scrollbar::-webkit-scrollbar {
-                    display: none;
-                }
-                .no-scrollbar {
-                    -ms-overflow-style: none;
-                    scrollbar-width: none;
-                }
-            `}</style>
-          <div ref={transcriptEndRef} className="space-y-2 pb-10">
-            {transcript.map((text, i) => (
-              <p key={i} className="text-lg text-white/80 leading-snug animate-in fade-in slide-in-from-bottom-2">
-                {text}
-              </p>
+      {/* Transcript Area */}
+      <div className="w-full pt-8 pb-12">
+        {transcriptWithTimestamps.length === 0 && !interimText ? (
+          <div className="text-center text-[#BFC2CF]/40 text-sm py-12">
+            Transcript will appear here...
+          </div>
+        ) : (
+          <div className="space-y-6">
+            {transcriptWithTimestamps.map((segment, idx) => (
+              <div key={idx} className="flex gap-4 group hover:bg-white/5 p-4 rounded-xl transition-colors">
+                <div className="text-xs text-[#BFC2CF]/40 font-mono pt-1 min-w-[50px]">
+                  {formatTime(segment.start_time)}
+                </div>
+                <div className="text-[#BFC2CF] leading-relaxed">
+                  {segment.text}
+                </div>
+              </div>
             ))}
             {interimText && (
-              <p className="text-lg text-[#A86CFF] italic leading-snug animate-pulse">
-                {interimText}
-              </p>
+              <div className="flex gap-4 p-4 rounded-xl bg-white/5 animate-pulse">
+                <div className="text-xs text-[#393b44] font-mono pt-1 min-w-[50px]">
+                  ...
+                </div>
+                <div className="text-[#BFC2CF]/60 italic">
+                  {interimText}
+                </div>
+              </div>
             )}
             <div ref={transcriptEndRef} />
           </div>
-        </div>
-
+        )}
       </div>
+
     </div>
   );
 }
