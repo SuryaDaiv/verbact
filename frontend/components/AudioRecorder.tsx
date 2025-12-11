@@ -416,7 +416,7 @@ export default function AudioRecorder() {
             setInterimText("");
             addLog(`✓ Final: ${text.substring(0, 30)}${text.length > 30 ? '...' : ''}`, "receive");
 
-            const currentTime = (Date.now() - recordingStartTimeRef.current) / 1000;
+            const currentTime = (performance.now() - recordingStartTimeRef.current) / 1000;
             const segmentDuration = text.split(' ').length * 0.5;
             const transcriptSegment: TranscriptSegment = {
               text,
@@ -910,13 +910,13 @@ export default function AudioRecorder() {
       </div>
 
       {/* Fixed Bottom Control Deck */}
-      <div className="fixed bottom-0 left-0 right-0 p-6 bg-gradient-to-t from-[#0E0E12] via-[#0E0E12]/95 to-transparent z-40 flex items-center justify-center gap-6 pb-8 md:pb-10">
+      <div className="fixed bottom-0 left-0 right-0 px-4 py-4 bg-gradient-to-t from-[#0E0E12] via-[#0E0E12]/95 to-transparent z-40 flex items-center justify-center gap-6 pb-6 md:pb-8">
 
         {/* Share Button (Left) */}
         <button
           onClick={handleCreateShare}
           disabled={!isRecording && !savedRecordingId}
-          className={`w-12 h-12 rounded-full flex items-center justify-center border transition-all duration-300
+          className={`w-10 h-10 rounded-full flex items-center justify-center border transition-all duration-300
                 ${isRecording || savedRecordingId
               ? 'border-[#A86CFF]/30 bg-[#A86CFF]/10 text-[#A86CFF] hover:bg-[#A86CFF]/20 cursor-pointer'
               : 'border-white/5 bg-white/5 text-white/20 cursor-not-allowed'}`}
@@ -928,15 +928,15 @@ export default function AudioRecorder() {
         <button
           onClick={() => (isRecording ? stopRecording() : startRecording())}
           disabled={status !== "Connected" && status !== "Recording..." && status !== "Ready"}
-          className={`relative w-24 h-24 rounded-full flex items-center justify-center transition-all duration-300 transform hover:scale-105 focus:outline-none 
-                    ${isRecording ? 'shadow-[0_0_30px_rgba(255,111,97,0.4)]' : 'shadow-[0_0_30px_rgba(168,108,255,0.2)] hover:shadow-[0_0_50px_rgba(168,108,255,0.4)]'}`
+          className={`relative w-16 h-16 rounded-full flex items-center justify-center transition-all duration-300 transform hover:scale-105 focus:outline-none 
+                    ${isRecording ? 'shadow-[0_0_20px_rgba(255,111,97,0.4)]' : 'shadow-[0_0_20px_rgba(168,108,255,0.2)] hover:shadow-[0_0_30px_rgba(168,108,255,0.4)]'}`
           }
         >
           <div className={`absolute inset-0 rounded-full bg-gradient-to-br transition-all duration-500
                     ${isRecording ? 'from-[#FF6F61] to-[#FFB55A] animate-pulse-slow' : 'from-[#181A20] to-[#252830] border border-white/10'}`}
           />
           <div className="relative z-10">
-            {isRecording ? <Square className="w-8 h-8 text-white fill-current animate-float" /> : <Mic className="w-8 h-8 text-white" />}
+            {isRecording ? <Square className="w-6 h-6 text-white fill-current animate-float" /> : <Mic className="w-6 h-6 text-white" />}
           </div>
         </button>
 
@@ -949,7 +949,7 @@ export default function AudioRecorder() {
             }
           }}
           disabled={!shareUrl}
-          className={`w-12 h-12 rounded-full flex items-center justify-center border transition-all duration-300
+          className={`w-10 h-10 rounded-full flex items-center justify-center border transition-all duration-300
                 ${shareUrl
               ? 'border-[#A86CFF]/30 bg-[#A86CFF]/10 text-[#A86CFF] hover:bg-[#A86CFF]/20 cursor-pointer'
               : 'border-white/5 bg-white/5 text-white/20 cursor-not-allowed hidden'}`}
