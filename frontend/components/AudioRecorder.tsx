@@ -128,17 +128,42 @@ export default function AudioRecorder() {
     }
   };
 
+  // Navigation Guard & History Trap for Android Back Button
   useEffect(() => {
+    // 1. Handle Browser/Tab Close or Refresh
     const handleBeforeUnload = (e: BeforeUnloadEvent) => {
       if (isRecording) {
         e.preventDefault();
-        e.returnValue = ''; // Chrome requires this to be set
-        return ''; // Legacy support
+        e.returnValue = '';
+        return '';
       }
     };
 
-    window.addEventListener('beforeunload', handleBeforeUnload);
-    return () => window.removeEventListener('beforeunload', handleBeforeUnload);
+    // 2. Handle SPL (Single Page App) & Android Back Button
+    const handlePopState = (e: PopStateEvent) => {
+      if (isRecording) {
+        // Prevent navigation by pushing the state back immediately
+        window.history.pushState(null, '', window.location.href);
+        // Show alert to explain why
+        if (confirm("Recording in progress. Stop recording to leave?")) {
+          stopRecording("User Navigation");
+        }
+      }
+    };
+
+    if (isRecording) {
+      // Push a dummy state so the "Back" button has something to pop off
+      // without actually leaving the page first.
+      window.history.pushState(null, '', window.location.href);
+
+      window.addEventListener('beforeunload', handleBeforeUnload);
+      window.addEventListener('popstate', handlePopState);
+    }
+
+    return () => {
+      window.removeEventListener('beforeunload', handleBeforeUnload);
+      window.removeEventListener('popstate', handlePopState);
+    };
   }, [isRecording]);
 
   useEffect(() => {
@@ -435,8 +460,6 @@ export default function AudioRecorder() {
 
     ws.onerror = (error) => {
       console.error("WebSocket error:", error);
-      // Don't change status to "WS Error" permanently if we want to auto-reconnect
-      // But for visual feedback it's good.
       if (statusRef.current === "Recording") {
         addLog("WS Error - Attempting Reconnect...", "error");
       }
@@ -449,7 +472,7 @@ export default function AudioRecorder() {
         return;
       }
 
-      // Auto-reconnect logic if we are still supposed to be recording
+      // Auto-reconnect logic
       if (statusRef.current === "Recording" && sessionToken) {
         console.log("Unexpected close during recording, attempting reconnect...");
         setTimeout(() => {
@@ -467,12 +490,7 @@ export default function AudioRecorder() {
 
 
   useEffect(() => {
-    // Only connect WS if we are "Recording" or about to be? 
-    // Actually the previous logic connected WS on mount/token change. 
-    // Keeping it simple: connect if token exists to be "Ready"
     if (sessionToken) {
-      // We generally want the socket open for "Ready" state?
-      // Original code connected immediately on mount/token.
       connectWebSocket();
     }
 
@@ -560,13 +578,8 @@ export default function AudioRecorder() {
       if (!socketRef.current || socketRef.current.readyState !== WebSocket.OPEN) {
         addLog("WS not ready, forcing connect...", "info");
         connectWebSocket();
-        // We might miss the first few chunks if we send immediately, 
-        // but the processor loop handles that buffer flow often.
-        // Ideally we wait for open but async start is tricky.
       }
 
-      // Wait a moment for socket if needed? 
-      // For now, let's just trigger config if it IS open.
       if (socketRef.current && socketRef.current.readyState === WebSocket.OPEN) {
         socketRef.current.send(JSON.stringify({
           type: "configure",
@@ -821,204 +834,129 @@ export default function AudioRecorder() {
   if (!mounted) return null;
 
   return (
-    <div className="flex flex-col items-center justify-center min-h-[85vh] w-full max-w-4xl mx-auto px-4 pt-20">
+    <div className="flex flex-col h-[85vh] w-full max-w-4xl mx-auto px-4 relative">
 
       {/* Save Modal */}
       {showSaveModal && (
         <div className="fixed inset-0 bg-black/80 backdrop-blur-sm flex items-center justify-center z-50">
           <div className="bg-[#181A20] rounded-2xl border border-white/10 p-8 w-full max-w-md shadow-2xl glow-box">
+            {/* ...Modal Content (Similar to previous)... */}
             <div className="flex justify-between items-center mb-6">
               <h3 className="text-xl font-bold text-white tracking-tight">Save Recording</h3>
-              <button
-                onClick={() => setShowSaveModal(false)}
-                className="text-gray-400 hover:text-white transition-colors"
-              >
-                <X className="w-5 h-5" />
-              </button>
+              <button onClick={() => setShowSaveModal(false)} className="text-gray-400 hover:text-white"><X className="w-5 h-5" /></button>
             </div>
-
             {!isSaved ? (
               <div className="space-y-6">
                 <div>
                   <label className="block text-sm font-medium text-[#BFC2CF] mb-2">Title</label>
-                  <input
-                    type="text"
-                    value={recordingTitle}
-                    onChange={(e) => setRecordingTitle(e.target.value)}
-                    className="w-full bg-[#0E0E12] border border-white/10 rounded-lg p-3 text-white focus:outline-none focus:border-[#A86CFF] focus:ring-1 focus:ring-[#A86CFF] transition-all"
-                    placeholder="My Recording"
-                  />
+                  <input type="text" value={recordingTitle} onChange={(e) => setRecordingTitle(e.target.value)}
+                    className="w-full bg-[#0E0E12] border border-white/10 rounded-lg p-3 text-white focus:outline-none focus:border-[#A86CFF]" placeholder="My Recording" />
                 </div>
-
                 <div className="flex justify-end space-x-3 pt-2">
-                  <button
-                    onClick={() => setShowSaveModal(false)}
-                    className="px-4 py-2 text-[#BFC2CF] hover:text-white transition-colors"
-                  >
-                    Discard
-                  </button>
-                  <button
-                    onClick={handleSaveRecording}
-                    disabled={isSaving}
-                    className="flex items-center px-6 py-2 bg-gradient-to-r from-[#A86CFF] to-[#FF6F61] text-white rounded-lg hover:opacity-90 transition-opacity disabled:opacity-50 font-medium shadow-lg shadow-[#A86CFF]/20"
-                  >
-                    {isSaving ? (
-                      <>
-                        <Activity className="w-4 h-4 mr-2 animate-spin" />
-                        Saving...
-                      </>
-                    ) : (
-                      <>
-                        <Save className="w-4 h-4 mr-2" />
-                        Save Recording
-                      </>
-                    )}
+                  <button onClick={() => setShowSaveModal(false)} className="px-4 py-2 text-[#BFC2CF] hover:text-white">Discard</button>
+                  <button onClick={handleSaveRecording} disabled={isSaving} className="flex items-center px-6 py-2 bg-gradient-to-r from-[#A86CFF] to-[#FF6F61] text-white rounded-lg hover:opacity-90 disabled:opacity-50">
+                    {isSaving ? <><Activity className="w-4 h-4 mr-2 animate-spin" />Saving...</> : <><Save className="w-4 h-4 mr-2" />Save Recording</>}
                   </button>
                 </div>
               </div>
             ) : (
               <div className="text-center py-8">
-                <div className="w-16 h-16 bg-[#A86CFF]/10 rounded-full flex items-center justify-center mx-auto mb-4">
-                  <Check className="w-8 h-8 text-[#A86CFF]" />
-                </div>
+                <div className="w-16 h-16 bg-[#A86CFF]/10 rounded-full flex items-center justify-center mx-auto mb-4"><Check className="w-8 h-8 text-[#A86CFF]" /></div>
                 <h3 className="text-xl font-bold text-white mb-2">Saved Successfully!</h3>
-                <p className="text-[#BFC2CF] mb-6">Your recording is ready.</p>
-                <button
-                  onClick={() => window.location.href = `/recordings/${savedRecordingId}`}
-                  className="px-6 py-2 bg-[#A86CFF] text-white rounded-lg hover:bg-[#9755f5] transition-colors"
-                >
-                  View Recording
-                </button>
+                <button onClick={() => window.location.href = `/recordings/${savedRecordingId}`} className="px-6 py-2 bg-[#A86CFF] text-white rounded-lg hover:bg-[#9755f5]">View Recording</button>
               </div>
             )}
           </div>
         </div>
       )}
 
-      {/* Main Core Card */}
-      <div className="glass-card rounded-[28px] p-8 w-full relative overflow-hidden flex flex-col items-center">
-
-        {/* Subtle radial highlight background */}
-        <div className="absolute top-0 left-1/2 -translate-x-1/2 w-full h-1/2 bg-gradient-to-b from-[#A86CFF]/5 to-transparent pointer-events-none" />
-
-        {/* Top Section: Breadcrumb & Timestamp */}
-        <div className="w-full flex flex-col items-center mb-10 z-10 transition-all duration-500">
-          {/* Breadcrumb / Status */}
-          <div className="flex items-center space-x-3 mb-2">
-            <div className={`w-2 h-2 rounded-full ${isRecording ? 'bg-[#FF6F61] animate-pulse shadow-[0_0_8px_#FF6F61]' : 'bg-[#BFC2CF]/30'}`} />
-            <span className="text-sm uppercase tracking-widest text-[#BFC2CF] font-medium">
-              {isRecording ? 'Live Recording' : 'Ready to Record'}
-            </span>
-          </div>
-
-          {/* Large Timer */}
-          <div className={`text-6xl md:text-7xl font-bold font-mono tracking-wider tabular-nums transition-all duration-300 ${isRecording ? 'text-gradient scale-105 glow-text' : 'text-white/20'}`}>
-            {formatTime(elapsedTime)}
-          </div>
+      {/* Top Header: Timer & Status (Sticky) */}
+      <div className="sticky top-0 z-10 py-6 bg-[#0E0E12]/90 backdrop-blur-md flex flex-col items-center border-b border-white/5">
+        <div className="flex items-center space-x-3 mb-2">
+          <div className={`w-2 h-2 rounded-full ${isRecording ? 'bg-[#FF6F61] animate-pulse shadow-[0_0_8px_#FF6F61]' : 'bg-[#BFC2CF]/30'}`} />
+          <span className="text-sm uppercase tracking-widest text-[#BFC2CF] font-medium">
+            {isRecording ? 'Live Recording' : 'Ready'}
+          </span>
         </div>
-
-        {/* Center: Record Button */}
-        <div className="relative z-10 mb-12 group">
-          <button
-            onClick={() => (isRecording ? stopRecording() : startRecording())}
-            disabled={status !== "Connected" && status !== "Recording..." && status !== "Ready"}
-            className={`relative w-28 h-28 md:w-32 md:h-32 rounded-full flex items-center justify-center transition-all duration-500 transform hover:scale-105 focus:outline-none 
-                    ${isRecording
-                ? 'shadow-[0_0_40px_rgba(255,111,97,0.4)]'
-                : 'shadow-[0_0_40px_rgba(168,108,255,0.2)] hover:shadow-[0_0_60px_rgba(168,108,255,0.4)]'
-              }`
-            }
-          >
-            {/* Gradient Ring Background */}
-            <div className={`absolute inset-0 rounded-full bg-gradient-to-br transition-all duration-500
-                    ${isRecording ? 'from-[#FF6F61] to-[#FFB55A] animate-pulse-slow' : 'from-[#181A20] to-[#252830] border border-white/10 group-hover:border-[#A86CFF]/50'}`}
-            />
-
-            {/* Icon */}
-            <div className="relative z-10">
-              {isRecording ? (
-                <Square className="w-10 h-10 text-white fill-current animate-float" />
-              ) : (
-                <Mic className={`w-10 h-10 transition-colors duration-300 ${status === "Status" || status === "Connected" || status === "Ready" ? 'text-white' : 'text-gray-500'}`} />
-              )}
-            </div>
-
-            {/* Outer Glow Ring on Hover */}
-            {!isRecording && (
-              <div className="absolute -inset-1 rounded-full border border-[#A86CFF]/30 opacity-0 group-hover:opacity-100 group-hover:scale-110 transition-all duration-500" />
-            )}
-          </button>
-          <div className="mt-4 text-center h-6">
-            <p className="text-xs text-[#666]">{status}</p>
-            {authError &&
-              <button onClick={handleRetry} className="text-xs text-[#FF6F61] flex items-center justify-center mt-1 mx-auto hover:underline">
-                <RefreshCw className="w-3 h-3 mr-1" /> Retry
-              </button>
-            }
-          </div>
+        <div className={`text-5xl font-bold font-mono tracking-wider tabular-nums transition-all duration-300 ${isRecording ? 'text-gradient' : 'text-white/20'}`}>
+          {formatTime(elapsedTime)}
         </div>
-
-        {/* Share Link (Conditional) */}
-        {isRecording && (
-          <div className="mb-8 w-full max-w-sm animate-in fade-in slide-in-from-bottom-4 duration-700">
-            {!shareUrl ? (
-              <button
-                onClick={handleCreateShare}
-                className="w-full py-3 rounded-full border border-[#A86CFF]/30 bg-[#A86CFF]/5 text-[#A86CFF] text-sm font-medium hover:bg-[#A86CFF]/10 transition-colors flex items-center justify-center"
-              >
-                <Share2 className="w-4 h-4 mr-2" />
-                Create Live Public Link
-              </button>
-            ) : (
-              <div className="flex items-center space-x-2 bg-[#181A20]/80 border border-[#A86CFF]/30 rounded-full p-1 pl-4 relative overflow-hidden">
-                <div className="absolute inset-0 bg-gradient-to-r from-[#A86CFF]/5 to-transparent pointer-events-none" />
-                <span className="text-xs text-[#BFC2CF] truncate flex-1">{shareUrl}</span>
-                <button
-                  onClick={() => {
-                    navigator.clipboard.writeText(shareUrl || "");
-                    alert("Copied to clipboard!");
-                  }}
-                  className="bg-[#A86CFF] p-2 rounded-full text-white hover:bg-[#9755f5] transition-colors z-10"
-                >
-                  <Copy className="w-3 h-3" />
-                </button>
-              </div>
-            )}
-          </div>
-        )}
+        <p className="text-xs text-[#666] mt-1">{status}</p>
       </div>
 
-      {/* Transcript Area */}
-      <div className="w-full pt-8 pb-12">
+      {/* Scrollable Transcript Area */}
+      <div className="flex-1 overflow-y-auto w-full mask-linear-fade">
         {transcriptWithTimestamps.length === 0 && !interimText ? (
-          <div className="text-center text-[#BFC2CF]/40 text-sm py-12">
-            Transcript will appear here...
+          <div className="flex flex-col items-center justify-center h-48 text-[#BFC2CF]/40 text-sm">
+            <p>Transcript will appear here...</p>
           </div>
         ) : (
-          <div className="space-y-6">
+          <div className="space-y-4 py-4 pb-48"> {/* Added large bottom padding for scroll clearance */}
             {transcriptWithTimestamps.map((segment, idx) => (
-              <div key={idx} className="flex gap-4 group hover:bg-white/5 p-4 rounded-xl transition-colors">
-                <div className="text-xs text-[#BFC2CF]/40 font-mono pt-1 min-w-[50px]">
-                  {formatTime(segment.start_time)}
-                </div>
-                <div className="text-[#BFC2CF] leading-relaxed">
-                  {segment.text}
-                </div>
+              <div key={idx} className="flex gap-4 p-3 rounded-lg hover:bg-white/5 transition-colors">
+                <div className="text-[10px] text-[#BFC2CF]/40 font-mono pt-1 min-w-[45px]">{formatTime(segment.start_time)}</div>
+                <div className="text-sm text-[#BFC2CF] leading-relaxed">{segment.text}</div> {/* Smaller font */}
               </div>
             ))}
             {interimText && (
-              <div className="flex gap-4 p-4 rounded-xl bg-white/5 animate-pulse">
-                <div className="text-xs text-[#393b44] font-mono pt-1 min-w-[50px]">
-                  ...
-                </div>
-                <div className="text-[#BFC2CF]/60 italic">
-                  {interimText}
-                </div>
+              <div className="flex gap-4 p-3 rounded-lg bg-white/5 animate-pulse">
+                <div className="text-[10px] text-[#393b44] font-mono pt-1 min-w-[45px]">...</div>
+                <div className="text-sm text-[#BFC2CF]/60 italic">{interimText}</div>
               </div>
             )}
             <div ref={transcriptEndRef} />
           </div>
         )}
+      </div>
+
+      {/* Fixed Bottom Control Deck */}
+      <div className="fixed bottom-0 left-0 right-0 p-6 bg-gradient-to-t from-[#0E0E12] via-[#0E0E12]/95 to-transparent z-50 flex items-center justify-center gap-6 pb-8 md:pb-10">
+
+        {/* Share Button (Left) */}
+        <button
+          onClick={handleCreateShare}
+          disabled={!isRecording && !savedRecordingId}
+          className={`w-12 h-12 rounded-full flex items-center justify-center border transition-all duration-300
+                ${isRecording || savedRecordingId
+              ? 'border-[#A86CFF]/30 bg-[#A86CFF]/10 text-[#A86CFF] hover:bg-[#A86CFF]/20 cursor-pointer'
+              : 'border-white/5 bg-white/5 text-white/20 cursor-not-allowed'}`}
+        >
+          {shareUrl ? <Check className="w-5 h-5" /> : <Share2 className="w-5 h-5" />}
+        </button>
+
+        {/* Main Record Button (Center) */}
+        <button
+          onClick={() => (isRecording ? stopRecording() : startRecording())}
+          disabled={status !== "Connected" && status !== "Recording..." && status !== "Ready"}
+          className={`relative w-24 h-24 rounded-full flex items-center justify-center transition-all duration-300 transform hover:scale-105 focus:outline-none 
+                    ${isRecording ? 'shadow-[0_0_30px_rgba(255,111,97,0.4)]' : 'shadow-[0_0_30px_rgba(168,108,255,0.2)] hover:shadow-[0_0_50px_rgba(168,108,255,0.4)]'}`
+          }
+        >
+          <div className={`absolute inset-0 rounded-full bg-gradient-to-br transition-all duration-500
+                    ${isRecording ? 'from-[#FF6F61] to-[#FFB55A] animate-pulse-slow' : 'from-[#181A20] to-[#252830] border border-white/10'}`}
+          />
+          <div className="relative z-10">
+            {isRecording ? <Square className="w-8 h-8 text-white fill-current animate-float" /> : <Mic className="w-8 h-8 text-white" />}
+          </div>
+        </button>
+
+        {/* Copy Link / Action (Right placeholder or actual copy if link exists) */}
+        <button
+          onClick={() => {
+            if (shareUrl) {
+              navigator.clipboard.writeText(shareUrl);
+              alert("Link copied!");
+            }
+          }}
+          disabled={!shareUrl}
+          className={`w-12 h-12 rounded-full flex items-center justify-center border transition-all duration-300
+                ${shareUrl
+              ? 'border-[#A86CFF]/30 bg-[#A86CFF]/10 text-[#A86CFF] hover:bg-[#A86CFF]/20 cursor-pointer'
+              : 'border-white/5 bg-white/5 text-white/20 cursor-not-allowed hidden'}`}
+        >
+          <Copy className="w-5 h-5" />
+        </button>
+        {!shareUrl && <div className="w-12 h-12" />} {/* Spacer to balance layout if no link */}
       </div>
 
     </div>

@@ -115,7 +115,7 @@ export default function RecordingsPage() {
 
     return (
         <div className="min-h-screen bg-[#0E0E12] text-white">
-            <main className="mx-auto w-full max-w-5xl px-4 py-8 sm:px-6">
+            <main className="mx-auto w-full max-w-5xl px-4 py-8 pt-24 sm:px-6">
                 <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between mb-8">
                     <div>
                         <h1 className="text-3xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-white to-[#BFC2CF]">
