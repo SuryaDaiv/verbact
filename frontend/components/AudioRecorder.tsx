@@ -129,6 +129,19 @@ export default function AudioRecorder() {
   };
 
   useEffect(() => {
+    const handleBeforeUnload = (e: BeforeUnloadEvent) => {
+      if (isRecording) {
+        e.preventDefault();
+        e.returnValue = ''; // Chrome requires this to be set
+        return ''; // Legacy support
+      }
+    };
+
+    window.addEventListener('beforeunload', handleBeforeUnload);
+    return () => window.removeEventListener('beforeunload', handleBeforeUnload);
+  }, [isRecording]);
+
+  useEffect(() => {
     setMounted(true);
     initAuth();
 
@@ -295,6 +308,35 @@ export default function AudioRecorder() {
       await wakeLockRef.current.release();
       wakeLockRef.current = null;
       addLog("Wake Lock released", "info");
+    }
+  };
+
+  // Media Session Helper
+  const setupMediaSession = () => {
+    if ('mediaSession' in navigator) {
+      navigator.mediaSession.metadata = new MediaMetadata({
+        title: "Recording in Progress",
+        artist: "Verbact",
+        album: "Live Session",
+        artwork: [
+          { src: "/icon-192x192.png", sizes: "192x192", type: "image/png" },
+          { src: "/icon-512x512.png", sizes: "512x512", type: "image/png" }
+        ]
+      });
+
+      navigator.mediaSession.setActionHandler('pause', () => {
+        addLog("MediaSession Pause clicked (ignored)", "info");
+      });
+      navigator.mediaSession.setActionHandler('stop', () => {
+        stopRecording("Notification Stop");
+      });
+    }
+  };
+
+  const clearMediaSession = () => {
+    if ('mediaSession' in navigator) {
+      navigator.mediaSession.metadata = null;
+      navigator.mediaSession.playbackState = "none";
     }
   };
 
@@ -594,6 +636,11 @@ export default function AudioRecorder() {
       });
       latenciesRef.current = [];
 
+      setupMediaSession();
+      if ('mediaSession' in navigator) {
+        navigator.mediaSession.playbackState = "playing";
+      }
+
       visualize();
 
     } catch (err) {
@@ -613,6 +660,7 @@ export default function AudioRecorder() {
 
     releaseWakeLock();
     stopSilentAudio();
+    clearMediaSession();
 
     if (socketRef.current && socketRef.current.readyState === WebSocket.OPEN) {
       socketRef.current.send(JSON.stringify({ type: "stop_recording" }));
