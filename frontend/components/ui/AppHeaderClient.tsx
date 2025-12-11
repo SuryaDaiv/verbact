@@ -82,7 +82,7 @@ export default function AppHeaderClient({
   };
 
   return (
-    <header className="fixed top-0 z-50 w-full bg-transparent p-6">
+    <header className="fixed top-0 z-50 w-full bg-[#0E0E12]/90 backdrop-blur-md border-b border-white/5 p-6">
       <div className="mx-auto flex items-center justify-between">
 
         {/* Left: Brand Monogram */}

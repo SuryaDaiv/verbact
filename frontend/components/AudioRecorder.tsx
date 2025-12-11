@@ -834,7 +834,7 @@ export default function AudioRecorder() {
   if (!mounted) return null;
 
   return (
-    <div className="flex flex-col h-[85vh] w-full max-w-4xl mx-auto px-4 relative">
+    <div className="flex flex-col h-full w-full relative">
 
       {/* Save Modal */}
       {showSaveModal && (
@@ -910,7 +910,7 @@ export default function AudioRecorder() {
       </div>
 
       {/* Fixed Bottom Control Deck */}
-      <div className="fixed bottom-0 left-0 right-0 p-6 bg-gradient-to-t from-[#0E0E12] via-[#0E0E12]/95 to-transparent z-50 flex items-center justify-center gap-6 pb-8 md:pb-10">
+      <div className="fixed bottom-0 left-0 right-0 p-6 bg-gradient-to-t from-[#0E0E12] via-[#0E0E12]/95 to-transparent z-40 flex items-center justify-center gap-6 pb-8 md:pb-10">
 
         {/* Share Button (Left) */}
         <button
