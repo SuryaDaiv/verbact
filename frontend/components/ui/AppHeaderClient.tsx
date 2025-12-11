@@ -86,8 +86,8 @@ export default function AppHeaderClient({
       <div className="mx-auto flex items-center justify-between">
 
         {/* Left: Brand Monogram */}
-        <Link href="/" className="group relative flex items-center justify-center p-2 rounded-xl hover:bg-white/5 transition-colors">
-          <div className="relative h-10 w-10 overflow-hidden">
+        <Link href="/" className="group relative flex items-center justify-center p-1 rounded-xl hover:bg-white/5 transition-colors">
+          <div className="relative h-12 w-12 overflow-hidden">
             <Image
               src="/logo.png"
               alt="Verbact Logo"
