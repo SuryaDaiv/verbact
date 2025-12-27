@@ -594,6 +594,23 @@ async def delete_recording(recording_id: str, token: str):
 async def create_share(share_data: LiveShareCreate, token: str):
     """Create a live share link"""
     try:
+        # Verify user and get ID
+        async with httpx.AsyncClient() as client:
+            user_response = await client.get(
+                f"{SUPABASE_URL}/auth/v1/user",
+                headers={
+                    "Authorization": f"Bearer {token}",
+                    "apikey": SUPABASE_KEY
+                }
+            )
+            
+            if user_response.status_code != 200:
+                print(f"Auth failed in create_share: {user_response.text}")
+                raise HTTPException(status_code=401, detail="Invalid token")
+            
+            user_data = user_response.json()
+            user_id = user_data["id"]
+
         # Generate unique share token
         share_token = secrets.token_urlsafe(16)
         share_id = str(uuid.uuid4())
@@ -605,18 +622,22 @@ async def create_share(share_data: LiveShareCreate, token: str):
         async with await get_supabase_client(token) as supabase_client:
             share_record = {
                 "id": share_id,
+                "user_id": user_id,  # ADDED: Required for RLS
                 "recording_id": str(share_data.recording_id),
                 "share_token": share_token,
                 "is_active": True,
                 "expires_at": expires_at.isoformat() if expires_at else None
             }
             
+            print(f"Creating share for user {user_id} recording {share_data.recording_id}")
+
             response = await supabase_client.post(
                 "/rest/v1/live_shares",
                 json=share_record
             )
             
             if response.status_code not in [200, 201]:
+                print(f"Supabase insert failed: {response.text}")
                 raise HTTPException(status_code=500, detail=f"Failed to create share: {response.text}")
         
         # Initialize empty connections list for this share
@@ -984,6 +1005,7 @@ async def websocket_endpoint(websocket: WebSocket):
 
             async def enforce_time_limit():
                 """Hard-stop the session when the per-tier limit is reached."""
+                nonlocal session_start_time, total_recorded_seconds
                 if session_limit_seconds is None:
                     return
                 try:

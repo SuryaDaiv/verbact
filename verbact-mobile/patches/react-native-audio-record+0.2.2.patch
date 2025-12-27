@@ -1,0 +1,12 @@
+diff --git a/node_modules/react-native-audio-record/android/build.gradle b/node_modules/react-native-audio-record/android/build.gradle
+index d926725..e7592cf 100644
+--- a/node_modules/react-native-audio-record/android/build.gradle
++++ b/node_modules/react-native-audio-record/android/build.gradle
+@@ -10,6 +10,7 @@ def safeExtGet(prop, fallback) {
+ }
+ 
+ android {
++    namespace "com.goodatlas.audiorecord"
+     compileSdkVersion safeExtGet("compileSdkVersion", DEFAULT_COMPILE_SDK_VERSION)
+     buildToolsVersion safeExtGet("buildToolsVersion", DEFAULT_BUILD_TOOLS_VERSION)
+ 
