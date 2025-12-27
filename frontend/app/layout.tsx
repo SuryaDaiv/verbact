@@ -16,6 +16,9 @@ const geistMono = Geist_Mono({
 export const metadata: Metadata = {
   title: "Verbact | Real-time transcription",
   description: "Fast, accurate, shareable live transcription.",
+  icons: {
+    icon: "/logo.png",
+  },
 };
 
 import { AutoLogoutProvider } from "@/components/AutoLogoutProvider";
