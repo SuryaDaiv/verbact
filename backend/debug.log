@@ -1339,3 +1339,953 @@
 [2025-12-02T10:22:34.052080]   avg_latency_ms: 122.53
 [2025-12-02T10:22:34.053098]   min_latency_ms: 29.32
 [2025-12-02T10:22:34.053098]   max_latency_ms: 195.64
+[2025-12-25T18:18:10.557155] [18:18:10.557] 🔌 Client connected [a2f0f247-9e2d-4b53-8ad6-40f36f315c24]
+[2025-12-25T18:18:11.075615] [a2f0f247-9e2d-4b53-8ad6-40f36f315c24] 👤 Authenticated as: valorousveera@gmail.com (83da6eb2-efd2-484b-94d2-9bea46959fde)
+[2025-12-25T18:18:11.678042] [a2f0f247-9e2d-4b53-8ad6-40f36f315c24] Using tier 'pro' with session cap: 72000s
+[2025-12-25T18:18:12.020006] [18:18:12.020] ✅ Connected to Deepgram
+[2025-12-25T18:18:12.020006] [a2f0f247-9e2d-4b53-8ad6-40f36f315c24] 📩 Received text message: {"type":"configure","recording_id":"b365a441-20c7-4572-b523-494e3cde3148"}
+[2025-12-25T18:18:12.021344] [a2f0f247-9e2d-4b53-8ad6-40f36f315c24] 🎥 Configured for recording: b365a441-20c7-4572-b523-494e3cde3148
+[2025-12-25T18:18:12.879403] [a2f0f247-9e2d-4b53-8ad6-40f36f315c24] 📨 Received 1280 bytes (seq: 50)
+[2025-12-25T18:18:12.931434] [18:18:12.929] 📝 Hey.
+[2025-12-25T18:18:13.017624] [a2f0f247-9e2d-4b53-8ad6-40f36f315c24] Error in limit monitor: cannot access local variable 'session_start_time' where it is not associated with a value
+[2025-12-25T18:18:14.030306] [a2f0f247-9e2d-4b53-8ad6-40f36f315c24] Error in limit monitor: cannot access local variable 'session_start_time' where it is not associated with a value
+[2025-12-25T18:18:14.884229] [a2f0f247-9e2d-4b53-8ad6-40f36f315c24] 📨 Received 1280 bytes (seq: 100)
+[2025-12-25T18:18:15.035069] [a2f0f247-9e2d-4b53-8ad6-40f36f315c24] Error in limit monitor: cannot access local variable 'session_start_time' where it is not associated with a value
+[2025-12-25T18:18:16.033638] [a2f0f247-9e2d-4b53-8ad6-40f36f315c24] Error in limit monitor: cannot access local variable 'session_start_time' where it is not associated with a value
+[2025-12-25T18:18:16.977230] [a2f0f247-9e2d-4b53-8ad6-40f36f315c24] 📨 Received 1280 bytes (seq: 150)
+[2025-12-25T18:18:17.020536] [18:18:17.020] 💓 Keepalive #1 sent
+[2025-12-25T18:18:17.021812] [a2f0f247-9e2d-4b53-8ad6-40f36f315c24] Error in limit monitor: cannot access local variable 'session_start_time' where it is not associated with a value
+[2025-12-25T18:18:17.111860] [18:18:17.111] 📝 Testing whatever I'm talking now, is it working fine? Let me actually see if it can generate
+[2025-12-25T18:18:18.023962] [a2f0f247-9e2d-4b53-8ad6-40f36f315c24] Error in limit monitor: cannot access local variable 'session_start_time' where it is not associated with a value
+[2025-12-25T18:18:18.841055] [a2f0f247-9e2d-4b53-8ad6-40f36f315c24] 📨 Received 1280 bytes (seq: 200)
+[2025-12-25T18:18:19.026278] [a2f0f247-9e2d-4b53-8ad6-40f36f315c24] Error in limit monitor: cannot access local variable 'session_start_time' where it is not associated with a value
+[2025-12-25T18:18:20.030478] [a2f0f247-9e2d-4b53-8ad6-40f36f315c24] Error in limit monitor: cannot access local variable 'session_start_time' where it is not associated with a value
+[2025-12-25T18:18:20.857085] [a2f0f247-9e2d-4b53-8ad6-40f36f315c24] 📨 Received 1280 bytes (seq: 250)
+[2025-12-25T18:18:21.049650] [a2f0f247-9e2d-4b53-8ad6-40f36f315c24] Error in limit monitor: cannot access local variable 'session_start_time' where it is not associated with a value
+[2025-12-25T18:18:22.016083] [18:18:22.016] 💓 Keepalive #2 sent
+[2025-12-25T18:18:22.058065] [a2f0f247-9e2d-4b53-8ad6-40f36f315c24] Error in limit monitor: cannot access local variable 'session_start_time' where it is not associated with a value
+[2025-12-25T18:18:22.068955] [18:18:22.067] 📝 generate the link. And now I have generated the link. So it looks like this
+[2025-12-25T18:18:22.870934] [a2f0f247-9e2d-4b53-8ad6-40f36f315c24] 📨 Received 1280 bytes (seq: 300)
+[2025-12-25T18:18:23.065273] [a2f0f247-9e2d-4b53-8ad6-40f36f315c24] Error in limit monitor: cannot access local variable 'session_start_time' where it is not associated with a value
+[2025-12-25T18:18:24.071912] [a2f0f247-9e2d-4b53-8ad6-40f36f315c24] Error in limit monitor: cannot access local variable 'session_start_time' where it is not associated with a value
+[2025-12-25T18:18:24.840897] [a2f0f247-9e2d-4b53-8ad6-40f36f315c24] 📨 Received 1280 bytes (seq: 350)
+[2025-12-25T18:18:24.890992] [18:18:24.890] 📝 link is working fine. Now I will be sending this link to the
+[2025-12-25T18:18:25.065284] [a2f0f247-9e2d-4b53-8ad6-40f36f315c24] Error in limit monitor: cannot access local variable 'session_start_time' where it is not associated with a value
+[2025-12-25T18:18:26.063475] [a2f0f247-9e2d-4b53-8ad6-40f36f315c24] Error in limit monitor: cannot access local variable 'session_start_time' where it is not associated with a value
+[2025-12-25T18:18:26.834929] [a2f0f247-9e2d-4b53-8ad6-40f36f315c24] 📨 Received 1280 bytes (seq: 400)
+[2025-12-25T18:18:27.015323] [18:18:27.015] 💓 Keepalive #3 sent
+[2025-12-25T18:18:27.065334] [a2f0f247-9e2d-4b53-8ad6-40f36f315c24] Error in limit monitor: cannot access local variable 'session_start_time' where it is not associated with a value
+[2025-12-25T18:18:28.076275] [a2f0f247-9e2d-4b53-8ad6-40f36f315c24] Error in limit monitor: cannot access local variable 'session_start_time' where it is not associated with a value
+[2025-12-25T18:18:28.553736] [18:18:28.553] 📝 Arjun email so I can see that on the browser.
+[2025-12-25T18:18:28.882484] [a2f0f247-9e2d-4b53-8ad6-40f36f315c24] 📨 Received 1280 bytes (seq: 450)
+[2025-12-25T18:18:29.113472] [a2f0f247-9e2d-4b53-8ad6-40f36f315c24] Error in limit monitor: cannot access local variable 'session_start_time' where it is not associated with a value
+[2025-12-25T18:18:30.133620] [a2f0f247-9e2d-4b53-8ad6-40f36f315c24] Error in limit monitor: cannot access local variable 'session_start_time' where it is not associated with a value
+[2025-12-25T18:18:30.835070] [a2f0f247-9e2d-4b53-8ad6-40f36f315c24] 📨 Received 1280 bytes (seq: 500)
+[2025-12-25T18:18:31.156378] [a2f0f247-9e2d-4b53-8ad6-40f36f315c24] Error in limit monitor: cannot access local variable 'session_start_time' where it is not associated with a value
+[2025-12-25T18:18:32.036150] [18:18:32.036] 💓 Keepalive #4 sent
+[2025-12-25T18:18:32.144554] [a2f0f247-9e2d-4b53-8ad6-40f36f315c24] Error in limit monitor: cannot access local variable 'session_start_time' where it is not associated with a value
+[2025-12-25T18:18:32.851365] [a2f0f247-9e2d-4b53-8ad6-40f36f315c24] 📨 Received 1280 bytes (seq: 550)
+[2025-12-25T18:18:33.156288] [a2f0f247-9e2d-4b53-8ad6-40f36f315c24] Error in limit monitor: cannot access local variable 'session_start_time' where it is not associated with a value
+[2025-12-25T18:18:33.574088] [18:18:33.573] 📝 So, particularly, I have generated the link, and I came back. And looks like throughout the
+[2025-12-25T18:18:34.145146] [a2f0f247-9e2d-4b53-8ad6-40f36f315c24] Error in limit monitor: cannot access local variable 'session_start_time' where it is not associated with a value
+[2025-12-25T18:18:34.346487] [18:18:34.346] 📝 time,
+[2025-12-25T18:18:34.881893] [a2f0f247-9e2d-4b53-8ad6-40f36f315c24] 📨 Received 1280 bytes (seq: 600)
+[2025-12-25T18:18:35.171213] [a2f0f247-9e2d-4b53-8ad6-40f36f315c24] Error in limit monitor: cannot access local variable 'session_start_time' where it is not associated with a value
+[2025-12-25T18:18:36.205952] [a2f0f247-9e2d-4b53-8ad6-40f36f315c24] Error in limit monitor: cannot access local variable 'session_start_time' where it is not associated with a value
+[2025-12-25T18:18:36.846245] [a2f0f247-9e2d-4b53-8ad6-40f36f315c24] 📨 Received 1280 bytes (seq: 650)
+[2025-12-25T18:18:37.044903] [18:18:37.044] 💓 Keepalive #5 sent
+[2025-12-25T18:18:37.216109] [a2f0f247-9e2d-4b53-8ad6-40f36f315c24] Error in limit monitor: cannot access local variable 'session_start_time' where it is not associated with a value
+[2025-12-25T18:18:37.251608] [18:18:37.251] 📝 was able to get that, data.
+[2025-12-25T18:18:38.208270] [a2f0f247-9e2d-4b53-8ad6-40f36f315c24] Error in limit monitor: cannot access local variable 'session_start_time' where it is not associated with a value
+[2025-12-25T18:18:38.853407] [a2f0f247-9e2d-4b53-8ad6-40f36f315c24] 📨 Received 1280 bytes (seq: 700)
+[2025-12-25T18:18:39.209991] [a2f0f247-9e2d-4b53-8ad6-40f36f315c24] Error in limit monitor: cannot access local variable 'session_start_time' where it is not associated with a value
+[2025-12-25T18:18:40.196347] [a2f0f247-9e2d-4b53-8ad6-40f36f315c24] Error in limit monitor: cannot access local variable 'session_start_time' where it is not associated with a value
+[2025-12-25T18:18:40.854796] [a2f0f247-9e2d-4b53-8ad6-40f36f315c24] 📨 Received 1280 bytes (seq: 750)
+[2025-12-25T18:18:41.053233] [18:18:41.053] 📝 So now I will try to see if there is any option here
+[2025-12-25T18:18:41.197024] [a2f0f247-9e2d-4b53-8ad6-40f36f315c24] Error in limit monitor: cannot access local variable 'session_start_time' where it is not associated with a value
+[2025-12-25T18:18:42.026525] [18:18:42.026] 💓 Keepalive #6 sent
+[2025-12-25T18:18:42.217978] [a2f0f247-9e2d-4b53-8ad6-40f36f315c24] Error in limit monitor: cannot access local variable 'session_start_time' where it is not associated with a value
+[2025-12-25T18:18:42.841466] [a2f0f247-9e2d-4b53-8ad6-40f36f315c24] 📨 Received 1280 bytes (seq: 800)
+[2025-12-25T18:18:43.235194] [a2f0f247-9e2d-4b53-8ad6-40f36f315c24] Error in limit monitor: cannot access local variable 'session_start_time' where it is not associated with a value
+[2025-12-25T18:18:44.226779] [a2f0f247-9e2d-4b53-8ad6-40f36f315c24] Error in limit monitor: cannot access local variable 'session_start_time' where it is not associated with a value
+[2025-12-25T18:18:44.847013] [a2f0f247-9e2d-4b53-8ad6-40f36f315c24] 📨 Received 1280 bytes (seq: 850)
+[2025-12-25T18:18:45.240800] [a2f0f247-9e2d-4b53-8ad6-40f36f315c24] Error in limit monitor: cannot access local variable 'session_start_time' where it is not associated with a value
+[2025-12-25T18:18:46.056991] [18:18:46.056] 📝 So I tried to check the back end share link. So looks
+[2025-12-25T18:18:46.277191] [a2f0f247-9e2d-4b53-8ad6-40f36f315c24] Error in limit monitor: cannot access local variable 'session_start_time' where it is not associated with a value
+[2025-12-25T18:18:46.866633] [a2f0f247-9e2d-4b53-8ad6-40f36f315c24] 📨 Received 1280 bytes (seq: 900)
+[2025-12-25T18:18:47.017668] [18:18:47.017] 💓 Keepalive #7 sent
+[2025-12-25T18:18:47.276931] [a2f0f247-9e2d-4b53-8ad6-40f36f315c24] Error in limit monitor: cannot access local variable 'session_start_time' where it is not associated with a value
+[2025-12-25T18:18:47.844712] [18:18:47.844] 📝 like that share link is not working fine.
+[2025-12-25T18:18:48.303713] [a2f0f247-9e2d-4b53-8ad6-40f36f315c24] Error in limit monitor: cannot access local variable 'session_start_time' where it is not associated with a value
+[2025-12-25T18:18:48.845750] [a2f0f247-9e2d-4b53-8ad6-40f36f315c24] 📨 Received 1280 bytes (seq: 950)
+[2025-12-25T18:18:49.361871] [a2f0f247-9e2d-4b53-8ad6-40f36f315c24] Error in limit monitor: cannot access local variable 'session_start_time' where it is not associated with a value
+[2025-12-25T18:18:50.359274] [a2f0f247-9e2d-4b53-8ad6-40f36f315c24] Error in limit monitor: cannot access local variable 'session_start_time' where it is not associated with a value
+[2025-12-25T18:18:50.857096] [a2f0f247-9e2d-4b53-8ad6-40f36f315c24] 📨 Received 1280 bytes (seq: 1000)
+[2025-12-25T18:18:50.940969] [18:18:50.940] 📝 And it's not reachable.
+[2025-12-25T18:18:51.364747] [a2f0f247-9e2d-4b53-8ad6-40f36f315c24] Error in limit monitor: cannot access local variable 'session_start_time' where it is not associated with a value
+[2025-12-25T18:18:52.022488] [18:18:52.022] 💓 Keepalive #8 sent
+[2025-12-25T18:18:52.379737] [a2f0f247-9e2d-4b53-8ad6-40f36f315c24] Error in limit monitor: cannot access local variable 'session_start_time' where it is not associated with a value
+[2025-12-25T18:18:52.881236] [a2f0f247-9e2d-4b53-8ad6-40f36f315c24] 📨 Received 1280 bytes (seq: 1050)
+[2025-12-25T18:18:53.399900] [a2f0f247-9e2d-4b53-8ad6-40f36f315c24] Error in limit monitor: cannot access local variable 'session_start_time' where it is not associated with a value
+[2025-12-25T18:18:54.396540] [a2f0f247-9e2d-4b53-8ad6-40f36f315c24] Error in limit monitor: cannot access local variable 'session_start_time' where it is not associated with a value
+[2025-12-25T18:18:54.867821] [a2f0f247-9e2d-4b53-8ad6-40f36f315c24] 📨 Received 1280 bytes (seq: 1100)
+[2025-12-25T18:18:55.386023] [18:18:55.384] 📝 Not exactly sure if that's, for what reason it happened.
+[2025-12-25T18:18:55.417924] [a2f0f247-9e2d-4b53-8ad6-40f36f315c24] Error in limit monitor: cannot access local variable 'session_start_time' where it is not associated with a value
+[2025-12-25T18:18:56.439094] [a2f0f247-9e2d-4b53-8ad6-40f36f315c24] Error in limit monitor: cannot access local variable 'session_start_time' where it is not associated with a value
+[2025-12-25T18:18:56.857829] [a2f0f247-9e2d-4b53-8ad6-40f36f315c24] 📨 Received 1280 bytes (seq: 1150)
+[2025-12-25T18:18:57.043142] [18:18:57.042] 💓 Keepalive #9 sent
+[2025-12-25T18:18:57.447403] [a2f0f247-9e2d-4b53-8ad6-40f36f315c24] Error in limit monitor: cannot access local variable 'session_start_time' where it is not associated with a value
+[2025-12-25T18:18:58.519953] [a2f0f247-9e2d-4b53-8ad6-40f36f315c24] Error in limit monitor: cannot access local variable 'session_start_time' where it is not associated with a value
+[2025-12-25T18:18:58.930140] [a2f0f247-9e2d-4b53-8ad6-40f36f315c24] 📨 Received 1280 bytes (seq: 1200)
+[2025-12-25T18:18:59.539620] [a2f0f247-9e2d-4b53-8ad6-40f36f315c24] Error in limit monitor: cannot access local variable 'session_start_time' where it is not associated with a value
+[2025-12-25T18:19:00.620951] [a2f0f247-9e2d-4b53-8ad6-40f36f315c24] Error in limit monitor: cannot access local variable 'session_start_time' where it is not associated with a value
+[2025-12-25T18:19:00.876892] [a2f0f247-9e2d-4b53-8ad6-40f36f315c24] 📨 Received 1280 bytes (seq: 1250)
+[2025-12-25T18:19:01.594688] [a2f0f247-9e2d-4b53-8ad6-40f36f315c24] Error in limit monitor: cannot access local variable 'session_start_time' where it is not associated with a value
+[2025-12-25T18:19:02.037036] [18:19:02.037] 💓 Keepalive #10 sent
+[2025-12-25T18:19:02.526800] [18:19:02.526] 📝 But, glad that I was able to share.
+[2025-12-25T18:19:02.593931] [a2f0f247-9e2d-4b53-8ad6-40f36f315c24] Error in limit monitor: cannot access local variable 'session_start_time' where it is not associated with a value
+[2025-12-25T18:19:02.880666] [a2f0f247-9e2d-4b53-8ad6-40f36f315c24] 📨 Received 1280 bytes (seq: 1300)
+[2025-12-25T18:19:03.657016] [a2f0f247-9e2d-4b53-8ad6-40f36f315c24] Error in limit monitor: cannot access local variable 'session_start_time' where it is not associated with a value
+[2025-12-25T18:19:04.653299] [a2f0f247-9e2d-4b53-8ad6-40f36f315c24] Error in limit monitor: cannot access local variable 'session_start_time' where it is not associated with a value
+[2025-12-25T18:19:04.855674] [a2f0f247-9e2d-4b53-8ad6-40f36f315c24] 📨 Received 1280 bytes (seq: 1350)
+[2025-12-25T18:19:05.643838] [a2f0f247-9e2d-4b53-8ad6-40f36f315c24] Error in limit monitor: cannot access local variable 'session_start_time' where it is not associated with a value
+[2025-12-25T18:19:06.660693] [a2f0f247-9e2d-4b53-8ad6-40f36f315c24] Error in limit monitor: cannot access local variable 'session_start_time' where it is not associated with a value
+[2025-12-25T18:19:06.845327] [a2f0f247-9e2d-4b53-8ad6-40f36f315c24] 📨 Received 1280 bytes (seq: 1400)
+[2025-12-25T18:19:07.039743] [18:19:07.039] 💓 Keepalive #11 sent
+[2025-12-25T18:19:07.681892] [a2f0f247-9e2d-4b53-8ad6-40f36f315c24] Error in limit monitor: cannot access local variable 'session_start_time' where it is not associated with a value
+[2025-12-25T18:19:08.678960] [a2f0f247-9e2d-4b53-8ad6-40f36f315c24] Error in limit monitor: cannot access local variable 'session_start_time' where it is not associated with a value
+[2025-12-25T18:19:08.881189] [a2f0f247-9e2d-4b53-8ad6-40f36f315c24] 📨 Received 1280 bytes (seq: 1450)
+[2025-12-25T18:19:09.689312] [a2f0f247-9e2d-4b53-8ad6-40f36f315c24] Error in limit monitor: cannot access local variable 'session_start_time' where it is not associated with a value
+[2025-12-25T18:19:10.712339] [a2f0f247-9e2d-4b53-8ad6-40f36f315c24] Error in limit monitor: cannot access local variable 'session_start_time' where it is not associated with a value
+[2025-12-25T18:19:10.861850] [a2f0f247-9e2d-4b53-8ad6-40f36f315c24] 📨 Received 1280 bytes (seq: 1500)
+[2025-12-25T18:19:11.719043] [a2f0f247-9e2d-4b53-8ad6-40f36f315c24] Error in limit monitor: cannot access local variable 'session_start_time' where it is not associated with a value
+[2025-12-25T18:19:12.025501] [18:19:12.025] 💓 Keepalive #12 sent
+[2025-12-25T18:19:12.508849] [18:19:12.508] 📝 Now I'm running going to run this in the background. So there is, like, one two, three, four, five, six, seven, eight, nine, 10, 11, 12, 13,
+[2025-12-25T18:19:12.754808] [a2f0f247-9e2d-4b53-8ad6-40f36f315c24] Error in limit monitor: cannot access local variable 'session_start_time' where it is not associated with a value
+[2025-12-25T18:19:12.857372] [a2f0f247-9e2d-4b53-8ad6-40f36f315c24] 📨 Received 1280 bytes (seq: 1550)
+[2025-12-25T18:19:13.508883] [18:19:13.508] 📝 14, 15, 16, 17.
+[2025-12-25T18:19:13.779405] [a2f0f247-9e2d-4b53-8ad6-40f36f315c24] Error in limit monitor: cannot access local variable 'session_start_time' where it is not associated with a value
+[2025-12-25T18:19:14.819912] [a2f0f247-9e2d-4b53-8ad6-40f36f315c24] Error in limit monitor: cannot access local variable 'session_start_time' where it is not associated with a value
+[2025-12-25T18:19:14.876427] [a2f0f247-9e2d-4b53-8ad6-40f36f315c24] 📨 Received 1280 bytes (seq: 1600)
+[2025-12-25T18:19:15.831767] [a2f0f247-9e2d-4b53-8ad6-40f36f315c24] Error in limit monitor: cannot access local variable 'session_start_time' where it is not associated with a value
+[2025-12-25T18:19:16.845814] [a2f0f247-9e2d-4b53-8ad6-40f36f315c24] Error in limit monitor: cannot access local variable 'session_start_time' where it is not associated with a value
+[2025-12-25T18:19:16.845814] [a2f0f247-9e2d-4b53-8ad6-40f36f315c24] 📨 Received 1280 bytes (seq: 1650)
+[2025-12-25T18:19:17.027640] [18:19:17.027] 💓 Keepalive #13 sent
+[2025-12-25T18:19:17.851738] [a2f0f247-9e2d-4b53-8ad6-40f36f315c24] Error in limit monitor: cannot access local variable 'session_start_time' where it is not associated with a value
+[2025-12-25T18:19:18.839878] [a2f0f247-9e2d-4b53-8ad6-40f36f315c24] 📨 Received 1280 bytes (seq: 1700)
+[2025-12-25T18:19:18.879610] [a2f0f247-9e2d-4b53-8ad6-40f36f315c24] Error in limit monitor: cannot access local variable 'session_start_time' where it is not associated with a value
+[2025-12-25T18:19:19.875285] [a2f0f247-9e2d-4b53-8ad6-40f36f315c24] Error in limit monitor: cannot access local variable 'session_start_time' where it is not associated with a value
+[2025-12-25T18:19:20.846792] [a2f0f247-9e2d-4b53-8ad6-40f36f315c24] 📨 Received 1280 bytes (seq: 1750)
+[2025-12-25T18:19:20.880010] [a2f0f247-9e2d-4b53-8ad6-40f36f315c24] Error in limit monitor: cannot access local variable 'session_start_time' where it is not associated with a value
+[2025-12-25T18:19:21.673891] [18:19:21.673] 📝 18, 19, 20, 21, 22, 23, 24, 25, twenty twenty seven, 28, 29, 28, 29, 29, 29, 30, 31, 32, 33, 34, 35, 36.
+[2025-12-25T18:19:21.878620] [a2f0f247-9e2d-4b53-8ad6-40f36f315c24] Error in limit monitor: cannot access local variable 'session_start_time' where it is not associated with a value
+[2025-12-25T18:19:22.022698] [18:19:22.022] 💓 Keepalive #14 sent
+[2025-12-25T18:19:22.886222] [a2f0f247-9e2d-4b53-8ad6-40f36f315c24] Error in limit monitor: cannot access local variable 'session_start_time' where it is not associated with a value
+[2025-12-25T18:19:22.886222] [a2f0f247-9e2d-4b53-8ad6-40f36f315c24] 📨 Received 1280 bytes (seq: 1800)
+[2025-12-25T18:19:23.877980] [a2f0f247-9e2d-4b53-8ad6-40f36f315c24] Error in limit monitor: cannot access local variable 'session_start_time' where it is not associated with a value
+[2025-12-25T18:19:24.861389] [a2f0f247-9e2d-4b53-8ad6-40f36f315c24] 📨 Received 1280 bytes (seq: 1850)
+[2025-12-25T18:19:24.884823] [a2f0f247-9e2d-4b53-8ad6-40f36f315c24] Error in limit monitor: cannot access local variable 'session_start_time' where it is not associated with a value
+[2025-12-25T18:19:25.918841] [a2f0f247-9e2d-4b53-8ad6-40f36f315c24] Error in limit monitor: cannot access local variable 'session_start_time' where it is not associated with a value
+[2025-12-25T18:19:26.673604] [18:19:26.672] 📝 38, 39, 40, 41, 42, 43, 44, 44, 45, 46, 47, 48,
+[2025-12-25T18:19:26.839640] [a2f0f247-9e2d-4b53-8ad6-40f36f315c24] 📨 Received 1280 bytes (seq: 1900)
+[2025-12-25T18:19:26.930134] [a2f0f247-9e2d-4b53-8ad6-40f36f315c24] Error in limit monitor: cannot access local variable 'session_start_time' where it is not associated with a value
+[2025-12-25T18:19:27.037827] [18:19:27.037] 💓 Keepalive #15 sent
+[2025-12-25T18:19:27.946322] [a2f0f247-9e2d-4b53-8ad6-40f36f315c24] Error in limit monitor: cannot access local variable 'session_start_time' where it is not associated with a value
+[2025-12-25T18:19:28.868993] [a2f0f247-9e2d-4b53-8ad6-40f36f315c24] 📨 Received 1280 bytes (seq: 1950)
+[2025-12-25T18:19:28.957771] [a2f0f247-9e2d-4b53-8ad6-40f36f315c24] Error in limit monitor: cannot access local variable 'session_start_time' where it is not associated with a value
+[2025-12-25T18:19:29.952772] [a2f0f247-9e2d-4b53-8ad6-40f36f315c24] Error in limit monitor: cannot access local variable 'session_start_time' where it is not associated with a value
+[2025-12-25T18:19:30.867561] [a2f0f247-9e2d-4b53-8ad6-40f36f315c24] 📨 Received 1280 bytes (seq: 2000)
+[2025-12-25T18:19:30.957966] [a2f0f247-9e2d-4b53-8ad6-40f36f315c24] Error in limit monitor: cannot access local variable 'session_start_time' where it is not associated with a value
+[2025-12-25T18:19:31.628613] [18:19:31.628] 📝 49, 50, 51, 52,
+[2025-12-25T18:19:31.961926] [a2f0f247-9e2d-4b53-8ad6-40f36f315c24] Error in limit monitor: cannot access local variable 'session_start_time' where it is not associated with a value
+[2025-12-25T18:19:32.017723] [18:19:32.017] 📝 53, 54, 55, 56,
+[2025-12-25T18:19:32.019372] [18:19:32.019] 💓 Keepalive #16 sent
+[2025-12-25T18:19:32.839731] [a2f0f247-9e2d-4b53-8ad6-40f36f315c24] 📨 Received 1280 bytes (seq: 2050)
+[2025-12-25T18:19:32.960237] [a2f0f247-9e2d-4b53-8ad6-40f36f315c24] Error in limit monitor: cannot access local variable 'session_start_time' where it is not associated with a value
+[2025-12-25T18:19:33.958262] [a2f0f247-9e2d-4b53-8ad6-40f36f315c24] Error in limit monitor: cannot access local variable 'session_start_time' where it is not associated with a value
+[2025-12-25T18:19:34.883364] [a2f0f247-9e2d-4b53-8ad6-40f36f315c24] 📨 Received 1280 bytes (seq: 2100)
+[2025-12-25T18:19:34.968932] [a2f0f247-9e2d-4b53-8ad6-40f36f315c24] Error in limit monitor: cannot access local variable 'session_start_time' where it is not associated with a value
+[2025-12-25T18:19:35.983860] [a2f0f247-9e2d-4b53-8ad6-40f36f315c24] Error in limit monitor: cannot access local variable 'session_start_time' where it is not associated with a value
+[2025-12-25T18:19:36.870653] [a2f0f247-9e2d-4b53-8ad6-40f36f315c24] 📨 Received 1280 bytes (seq: 2150)
+[2025-12-25T18:19:36.970198] [a2f0f247-9e2d-4b53-8ad6-40f36f315c24] Error in limit monitor: cannot access local variable 'session_start_time' where it is not associated with a value
+[2025-12-25T18:19:37.035457] [18:19:37.035] 💓 Keepalive #17 sent
+[2025-12-25T18:19:37.981528] [a2f0f247-9e2d-4b53-8ad6-40f36f315c24] Error in limit monitor: cannot access local variable 'session_start_time' where it is not associated with a value
+[2025-12-25T18:19:38.841165] [a2f0f247-9e2d-4b53-8ad6-40f36f315c24] 📨 Received 1280 bytes (seq: 2200)
+[2025-12-25T18:19:38.989363] [a2f0f247-9e2d-4b53-8ad6-40f36f315c24] Error in limit monitor: cannot access local variable 'session_start_time' where it is not associated with a value
+[2025-12-25T18:19:40.001480] [a2f0f247-9e2d-4b53-8ad6-40f36f315c24] Error in limit monitor: cannot access local variable 'session_start_time' where it is not associated with a value
+[2025-12-25T18:19:40.444710] [18:19:40.443] 📝 57, 58, 59, 62, 61, 62, 63, 64, sixty sixty five, 66, 67, 68, 69, 70, 71, 72.
+[2025-12-25T18:19:40.849198] [a2f0f247-9e2d-4b53-8ad6-40f36f315c24] 📨 Received 1280 bytes (seq: 2250)
+[2025-12-25T18:19:41.003063] [a2f0f247-9e2d-4b53-8ad6-40f36f315c24] Error in limit monitor: cannot access local variable 'session_start_time' where it is not associated with a value
+[2025-12-25T18:19:42.008776] [a2f0f247-9e2d-4b53-8ad6-40f36f315c24] Error in limit monitor: cannot access local variable 'session_start_time' where it is not associated with a value
+[2025-12-25T18:19:42.044809] [18:19:42.044] 💓 Keepalive #18 sent
+[2025-12-25T18:19:42.846738] [a2f0f247-9e2d-4b53-8ad6-40f36f315c24] 📨 Received 1280 bytes (seq: 2300)
+[2025-12-25T18:19:43.034866] [a2f0f247-9e2d-4b53-8ad6-40f36f315c24] Error in limit monitor: cannot access local variable 'session_start_time' where it is not associated with a value
+[2025-12-25T18:19:44.044437] [a2f0f247-9e2d-4b53-8ad6-40f36f315c24] Error in limit monitor: cannot access local variable 'session_start_time' where it is not associated with a value
+[2025-12-25T18:19:44.722425] [18:19:44.721] 📝 73, 74, 75, 76, 77, 78, 79.
+[2025-12-25T18:19:44.886102] [a2f0f247-9e2d-4b53-8ad6-40f36f315c24] 📨 Received 1280 bytes (seq: 2350)
+[2025-12-25T18:19:45.078213] [a2f0f247-9e2d-4b53-8ad6-40f36f315c24] Error in limit monitor: cannot access local variable 'session_start_time' where it is not associated with a value
+[2025-12-25T18:19:46.068969] [a2f0f247-9e2d-4b53-8ad6-40f36f315c24] Error in limit monitor: cannot access local variable 'session_start_time' where it is not associated with a value
+[2025-12-25T18:19:46.853595] [a2f0f247-9e2d-4b53-8ad6-40f36f315c24] 📨 Received 1280 bytes (seq: 2400)
+[2025-12-25T18:19:47.016761] [18:19:47.016] 💓 Keepalive #19 sent
+[2025-12-25T18:19:47.090999] [a2f0f247-9e2d-4b53-8ad6-40f36f315c24] Error in limit monitor: cannot access local variable 'session_start_time' where it is not associated with a value
+[2025-12-25T18:19:48.106733] [a2f0f247-9e2d-4b53-8ad6-40f36f315c24] Error in limit monitor: cannot access local variable 'session_start_time' where it is not associated with a value
+[2025-12-25T18:19:48.878266] [a2f0f247-9e2d-4b53-8ad6-40f36f315c24] 📨 Received 1280 bytes (seq: 2450)
+[2025-12-25T18:19:49.131010] [a2f0f247-9e2d-4b53-8ad6-40f36f315c24] Error in limit monitor: cannot access local variable 'session_start_time' where it is not associated with a value
+[2025-12-25T18:19:49.706084] [18:19:49.705] 📝 80, 81, 82, 83, 84, 85, 86, 87,
+[2025-12-25T18:19:50.138003] [a2f0f247-9e2d-4b53-8ad6-40f36f315c24] Error in limit monitor: cannot access local variable 'session_start_time' where it is not associated with a value
+[2025-12-25T18:19:50.875470] [a2f0f247-9e2d-4b53-8ad6-40f36f315c24] 📨 Received 1280 bytes (seq: 2500)
+[2025-12-25T18:19:51.083514] [18:19:51.083] 📝 88, 89, 90.
+[2025-12-25T18:19:51.163624] [a2f0f247-9e2d-4b53-8ad6-40f36f315c24] Error in limit monitor: cannot access local variable 'session_start_time' where it is not associated with a value
+[2025-12-25T18:19:52.036322] [18:19:52.035] 💓 Keepalive #20 sent
+[2025-12-25T18:19:52.205625] [a2f0f247-9e2d-4b53-8ad6-40f36f315c24] Error in limit monitor: cannot access local variable 'session_start_time' where it is not associated with a value
+[2025-12-25T18:19:52.835822] [a2f0f247-9e2d-4b53-8ad6-40f36f315c24] 📨 Received 1280 bytes (seq: 2550)
+[2025-12-25T18:19:53.195794] [a2f0f247-9e2d-4b53-8ad6-40f36f315c24] Error in limit monitor: cannot access local variable 'session_start_time' where it is not associated with a value
+[2025-12-25T18:19:54.202913] [a2f0f247-9e2d-4b53-8ad6-40f36f315c24] Error in limit monitor: cannot access local variable 'session_start_time' where it is not associated with a value
+[2025-12-25T18:19:54.419149] [18:19:54.419] 📝 91, 92, 93, 94, 95.
+[2025-12-25T18:19:54.857505] [a2f0f247-9e2d-4b53-8ad6-40f36f315c24] 📨 Received 1280 bytes (seq: 2600)
+[2025-12-25T18:19:55.193221] [a2f0f247-9e2d-4b53-8ad6-40f36f315c24] Error in limit monitor: cannot access local variable 'session_start_time' where it is not associated with a value
+[2025-12-25T18:19:56.201708] [a2f0f247-9e2d-4b53-8ad6-40f36f315c24] Error in limit monitor: cannot access local variable 'session_start_time' where it is not associated with a value
+[2025-12-25T18:19:56.843941] [a2f0f247-9e2d-4b53-8ad6-40f36f315c24] 📨 Received 1280 bytes (seq: 2650)
+[2025-12-25T18:19:57.040883] [18:19:57.039] 💓 Keepalive #21 sent
+[2025-12-25T18:19:57.199388] [a2f0f247-9e2d-4b53-8ad6-40f36f315c24] Error in limit monitor: cannot access local variable 'session_start_time' where it is not associated with a value
+[2025-12-25T18:19:58.206780] [a2f0f247-9e2d-4b53-8ad6-40f36f315c24] Error in limit monitor: cannot access local variable 'session_start_time' where it is not associated with a value
+[2025-12-25T18:19:58.831229] [18:19:58.830] ⚠️ Client loop error: Cannot call "receive" once a disconnect message has been received.
+[2025-12-25T18:19:58.832245] 
+[18:19:58.831] 🔌 Closing connection
+[2025-12-25T18:19:58.833259] [18:19:58.832] 📊 FINAL STATS:
+[2025-12-25T18:19:58.833824]   runtime_seconds: 107.2
+[2025-12-25T18:19:58.833824]   chunks_sent: 2698
+[2025-12-25T18:19:58.833824]   transcripts_received: 119
+[2025-12-25T18:19:58.834875]   total_bytes: 3453440
+[2025-12-25T18:19:58.834875]   chunks_per_sec: 25.11
+[2025-12-25T18:19:58.834875]   avg_latency_ms: 35.94
+[2025-12-25T18:19:58.834875]   min_latency_ms: 3.02
+[2025-12-25T18:19:58.834875]   max_latency_ms: 76.42
+[2025-12-25T18:19:59.658143] [a2f0f247-9e2d-4b53-8ad6-40f36f315c24] 📈 Updated usage: +106s (Total: 11545s)
+[2025-12-25T18:20:07.221604] [18:20:07.220] 🔌 Client connected [7a1b3eea-a846-4095-b6fa-31253be88aeb]
+[2025-12-25T18:20:08.207320] [7a1b3eea-a846-4095-b6fa-31253be88aeb] 👤 Authenticated as: valorousveera@gmail.com (83da6eb2-efd2-484b-94d2-9bea46959fde)
+[2025-12-25T18:20:08.296042] [7a1b3eea-a846-4095-b6fa-31253be88aeb] Using tier 'pro' with session cap: 72000s
+[2025-12-25T18:20:08.742105] [18:20:08.742] ✅ Connected to Deepgram
+[2025-12-25T18:20:08.743613] [7a1b3eea-a846-4095-b6fa-31253be88aeb] 📩 Received text message: {"type":"configure","recording_id":"f7e31f67-80cb-4942-802b-f27b0255b882"}
+[2025-12-25T18:20:08.744719] [7a1b3eea-a846-4095-b6fa-31253be88aeb] 🎥 Configured for recording: f7e31f67-80cb-4942-802b-f27b0255b882
+[2025-12-25T18:20:09.831354] [7a1b3eea-a846-4095-b6fa-31253be88aeb] 📩 Received text message: {"type":"stop_recording"}
+[2025-12-25T18:20:09.831943] [7a1b3eea-a846-4095-b6fa-31253be88aeb] Recording stop received; session timer reset
+[2025-12-25T18:20:10.113566] [18:20:10.112] ⚠️ Client loop error: Cannot call "receive" once a disconnect message has been received.
+[2025-12-25T18:20:10.116076] 
+[18:20:10.116] 🔌 Closing connection
+[2025-12-25T18:20:10.117076] [18:20:10.117] 📊 FINAL STATS:
+[2025-12-25T18:20:10.117741]   runtime_seconds: 1.8
+[2025-12-25T18:20:10.118248]   chunks_sent: 43
+[2025-12-25T18:20:10.119762]   transcripts_received: 0
+[2025-12-25T18:20:10.120274]   total_bytes: 55040
+[2025-12-25T18:20:10.121285]   chunks_per_sec: 44.88
+[2025-12-25T18:20:10.122282]   avg_latency_ms: 0
+[2025-12-25T18:20:10.122789]   min_latency_ms: 0
+[2025-12-25T18:20:10.123381]   max_latency_ms: 0
+[2025-12-25T18:20:10.956366] [7a1b3eea-a846-4095-b6fa-31253be88aeb] 📈 Updated usage: +1s (Total: 11546s)
+[2025-12-25T19:31:21.704803] [19:31:21.703] 🔌 Client connected [8088962f-412a-4fa6-9551-587622fec5b7]
+[2025-12-25T19:31:22.296655] [8088962f-412a-4fa6-9551-587622fec5b7] 👤 Authenticated as: valorousveera@gmail.com (83da6eb2-efd2-484b-94d2-9bea46959fde)
+[2025-12-25T19:31:22.989994] [8088962f-412a-4fa6-9551-587622fec5b7] Using tier 'pro' with session cap: 72000s
+[2025-12-25T19:31:23.378074] [19:31:23.378] ✅ Connected to Deepgram
+[2025-12-25T19:31:23.379183] [8088962f-412a-4fa6-9551-587622fec5b7] 📩 Received text message: {"type":"configure","recording_id":"6fb8704f-5792-41f0-bd9e-63623ee84de5"}
+[2025-12-25T19:31:23.379183] [8088962f-412a-4fa6-9551-587622fec5b7] 🎥 Configured for recording: 6fb8704f-5792-41f0-bd9e-63623ee84de5
+[2025-12-25T19:31:24.023988] [8088962f-412a-4fa6-9551-587622fec5b7] 📨 Received 1280 bytes (seq: 50)
+[2025-12-25T19:31:26.057353] [8088962f-412a-4fa6-9551-587622fec5b7] 📨 Received 1280 bytes (seq: 100)
+[2025-12-25T19:31:26.078763] [19:31:26.078] 📝 Testing now.
+[2025-12-25T19:31:27.647766] [19:31:27.647] 📝 Generated a link.
+[2025-12-25T19:31:28.039381] [8088962f-412a-4fa6-9551-587622fec5b7] 📨 Received 1280 bytes (seq: 150)
+[2025-12-25T19:31:28.375282] [19:31:28.374] 💓 Keepalive #1 sent
+[2025-12-25T19:31:30.030057] [8088962f-412a-4fa6-9551-587622fec5b7] 📨 Received 1280 bytes (seq: 200)
+[2025-12-25T19:31:30.587663] [19:31:30.587] 📝 And going to share that.
+[2025-12-25T19:31:32.001466] [8088962f-412a-4fa6-9551-587622fec5b7] 📨 Received 1280 bytes (seq: 250)
+[2025-12-25T19:31:33.386367] [19:31:33.385] 💓 Keepalive #2 sent
+[2025-12-25T19:31:34.032442] [8088962f-412a-4fa6-9551-587622fec5b7] 📨 Received 1280 bytes (seq: 300)
+[2025-12-25T19:31:36.040403] [8088962f-412a-4fa6-9551-587622fec5b7] 📨 Received 1280 bytes (seq: 350)
+[2025-12-25T19:31:38.004567] [8088962f-412a-4fa6-9551-587622fec5b7] 📨 Received 1280 bytes (seq: 400)
+[2025-12-25T19:31:38.390664] [19:31:38.390] 💓 Keepalive #3 sent
+[2025-12-25T19:31:40.036360] [8088962f-412a-4fa6-9551-587622fec5b7] 📨 Received 1280 bytes (seq: 450)
+[2025-12-25T19:31:41.149461] [19:31:41.149] 📝 Open that link.
+[2025-12-25T19:31:42.034477] [8088962f-412a-4fa6-9551-587622fec5b7] 📨 Received 1280 bytes (seq: 500)
+[2025-12-25T19:31:43.402890] [19:31:43.402] 💓 Keepalive #4 sent
+[2025-12-25T19:31:44.036105] [8088962f-412a-4fa6-9551-587622fec5b7] 📨 Received 1280 bytes (seq: 550)
+[2025-12-25T19:31:46.020391] [8088962f-412a-4fa6-9551-587622fec5b7] 📨 Received 1280 bytes (seq: 600)
+[2025-12-25T19:31:48.040655] [8088962f-412a-4fa6-9551-587622fec5b7] 📨 Received 1280 bytes (seq: 650)
+[2025-12-25T19:31:48.406878] [19:31:48.406] 💓 Keepalive #5 sent
+[2025-12-25T19:31:50.011868] [8088962f-412a-4fa6-9551-587622fec5b7] 📨 Received 1280 bytes (seq: 700)
+[2025-12-25T19:31:52.002724] [8088962f-412a-4fa6-9551-587622fec5b7] 📨 Received 1280 bytes (seq: 750)
+[2025-12-25T19:31:53.424078] [19:31:53.424] 💓 Keepalive #6 sent
+[2025-12-25T19:31:54.004492] [8088962f-412a-4fa6-9551-587622fec5b7] 📨 Received 1280 bytes (seq: 800)
+[2025-12-25T19:31:55.809634] [19:31:55.809] 📝 So let's actually see if it is working or not.
+[2025-12-25T19:31:56.032054] [8088962f-412a-4fa6-9551-587622fec5b7] 📨 Received 1280 bytes (seq: 850)
+[2025-12-25T19:31:57.994529] [8088962f-412a-4fa6-9551-587622fec5b7] 📨 Received 1280 bytes (seq: 900)
+[2025-12-25T19:31:58.423593] [19:31:58.423] 💓 Keepalive #7 sent
+[2025-12-25T19:31:59.577311] [19:31:59.576] 📝 I'm trying to speak, and I'm able to see the text that I'm talking.
+[2025-12-25T19:32:00.000015] [8088962f-412a-4fa6-9551-587622fec5b7] 📨 Received 1280 bytes (seq: 950)
+[2025-12-25T19:32:02.010899] [8088962f-412a-4fa6-9551-587622fec5b7] 📨 Received 1280 bytes (seq: 1000)
+[2025-12-25T19:32:02.681149] [19:32:02.681] 📝 But on your side, it is not showing even a single word.
+[2025-12-25T19:32:03.434157] [19:32:03.434] 💓 Keepalive #8 sent
+[2025-12-25T19:32:04.038285] [8088962f-412a-4fa6-9551-587622fec5b7] 📨 Received 1280 bytes (seq: 1050)
+[2025-12-25T19:32:05.995178] [8088962f-412a-4fa6-9551-587622fec5b7] 📨 Received 1280 bytes (seq: 1100)
+[2025-12-25T19:32:08.012066] [8088962f-412a-4fa6-9551-587622fec5b7] 📨 Received 1280 bytes (seq: 1150)
+[2025-12-25T19:32:08.440489] [19:32:08.439] 💓 Keepalive #9 sent
+[2025-12-25T19:32:10.001489] [8088962f-412a-4fa6-9551-587622fec5b7] 📨 Received 1280 bytes (seq: 1200)
+[2025-12-25T19:32:12.011031] [8088962f-412a-4fa6-9551-587622fec5b7] 📨 Received 1280 bytes (seq: 1250)
+[2025-12-25T19:32:12.197466] [19:32:12.195] 📝 Let me actually open that link in the browser and see if it works or not.
+[2025-12-25T19:32:13.452551] [19:32:13.451] 💓 Keepalive #10 sent
+[2025-12-25T19:32:13.996509] [8088962f-412a-4fa6-9551-587622fec5b7] 📨 Received 1280 bytes (seq: 1300)
+[2025-12-25T19:32:16.034975] [8088962f-412a-4fa6-9551-587622fec5b7] 📨 Received 1280 bytes (seq: 1350)
+[2025-12-25T19:32:17.214971] [19:32:17.213] 📝 But,
+[2025-12-25T19:32:17.998631] [8088962f-412a-4fa6-9551-587622fec5b7] 📨 Received 1280 bytes (seq: 1400)
+[2025-12-25T19:32:18.446850] [19:32:18.446] 💓 Keepalive #11 sent
+[2025-12-25T19:32:18.626286] [19:32:18.626] 📝 let me actually show you that
+[2025-12-25T19:32:20.015089] [8088962f-412a-4fa6-9551-587622fec5b7] 📨 Received 1280 bytes (seq: 1450)
+[2025-12-25T19:32:21.664947] [19:32:21.663] 📝 it is working in the background also.
+[2025-12-25T19:32:22.036448] [8088962f-412a-4fa6-9551-587622fec5b7] 📨 Received 1280 bytes (seq: 1500)
+[2025-12-25T19:32:23.440361] [19:32:23.440] 💓 Keepalive #12 sent
+[2025-12-25T19:32:24.007135] [8088962f-412a-4fa6-9551-587622fec5b7] 📨 Received 1280 bytes (seq: 1550)
+[2025-12-25T19:32:24.751498] [19:32:24.751] 📝 For now, I will open this link in the browser.
+[2025-12-25T19:32:26.012041] [8088962f-412a-4fa6-9551-587622fec5b7] 📨 Received 1280 bytes (seq: 1600)
+[2025-12-25T19:32:28.021135] [8088962f-412a-4fa6-9551-587622fec5b7] 📨 Received 1280 bytes (seq: 1650)
+[2025-12-25T19:32:28.449562] [19:32:28.448] 💓 Keepalive #13 sent
+[2025-12-25T19:32:29.642861] [19:32:29.642] 📝 And, from what we are seeing, we are not able to see anything. It's
+[2025-12-25T19:32:30.011912] [8088962f-412a-4fa6-9551-587622fec5b7] 📨 Received 1280 bytes (seq: 1700)
+[2025-12-25T19:32:30.034595] [19:32:30.034] 📝 just saying waiting for the speech.
+[2025-12-25T19:32:32.000482] [8088962f-412a-4fa6-9551-587622fec5b7] 📨 Received 1280 bytes (seq: 1750)
+[2025-12-25T19:32:33.438570] [19:32:33.438] 💓 Keepalive #14 sent
+[2025-12-25T19:32:33.996172] [8088962f-412a-4fa6-9551-587622fec5b7] 📨 Received 1280 bytes (seq: 1800)
+[2025-12-25T19:32:35.049873] [19:32:35.049] 📝 And it's able to show all the text that I'm speaking.
+[2025-12-25T19:32:35.997009] [8088962f-412a-4fa6-9551-587622fec5b7] 📨 Received 1280 bytes (seq: 1850)
+[2025-12-25T19:32:38.046677] [8088962f-412a-4fa6-9551-587622fec5b7] 📨 Received 1280 bytes (seq: 1900)
+[2025-12-25T19:32:38.134658] [19:32:38.134] 📝 Now I will drop it in the background. So from the time I said
+[2025-12-25T19:32:38.458956] [19:32:38.458] 💓 Keepalive #15 sent
+[2025-12-25T19:32:40.034696] [8088962f-412a-4fa6-9551-587622fec5b7] 📨 Received 1280 bytes (seq: 1950)
+[2025-12-25T19:32:42.029161] [8088962f-412a-4fa6-9551-587622fec5b7] 📨 Received 1280 bytes (seq: 2000)
+[2025-12-25T19:32:42.714118] [19:32:42.714] 📝 now I will drop it in the background, it is actually running in the background, and we are still able to see the text.
+[2025-12-25T19:32:43.474087] [19:32:43.473] 💓 Keepalive #16 sent
+[2025-12-25T19:32:44.010811] [8088962f-412a-4fa6-9551-587622fec5b7] 📨 Received 1280 bytes (seq: 2050)
+[2025-12-25T19:32:45.772402] [19:32:45.772] 📝 So this is, like, less than one minute.
+[2025-12-25T19:32:46.035787] [8088962f-412a-4fa6-9551-587622fec5b7] 📨 Received 1280 bytes (seq: 2100)
+[2025-12-25T19:32:48.023510] [8088962f-412a-4fa6-9551-587622fec5b7] 📨 Received 1280 bytes (seq: 2150)
+[2025-12-25T19:32:48.481525] [19:32:48.481] 💓 Keepalive #17 sent
+[2025-12-25T19:32:49.610801] [19:32:49.610] 📝 Because, see, where I said now,
+[2025-12-25T19:32:50.036211] [8088962f-412a-4fa6-9551-587622fec5b7] 📨 Received 1280 bytes (seq: 2200)
+[2025-12-25T19:32:51.028001] [19:32:51.028] 📝 I am
+[2025-12-25T19:32:52.040948] [8088962f-412a-4fa6-9551-587622fec5b7] 📨 Received 1280 bytes (seq: 2250)
+[2025-12-25T19:32:52.338994] [19:32:52.338] 📝 doing
+[2025-12-25T19:32:53.489709] [19:32:53.489] 💓 Keepalive #18 sent
+[2025-12-25T19:32:54.037082] [8088962f-412a-4fa6-9551-587622fec5b7] 📨 Received 1280 bytes (seq: 2300)
+[2025-12-25T19:32:56.034747] [8088962f-412a-4fa6-9551-587622fec5b7] 📨 Received 1280 bytes (seq: 2350)
+[2025-12-25T19:32:56.721430] [19:32:56.721] 📝 So this is actually, like, twenty nine or something like that, and this is, like, 42.
+[2025-12-25T19:32:58.011321] [8088962f-412a-4fa6-9551-587622fec5b7] 📨 Received 1280 bytes (seq: 2400)
+[2025-12-25T19:32:58.491216] [19:32:58.491] 💓 Keepalive #19 sent
+[2025-12-25T19:32:59.107831] [19:32:59.107] 📝 This is, like, 38, and this is 42.
+[2025-12-25T19:33:00.034788] [8088962f-412a-4fa6-9551-587622fec5b7] 📨 Received 1280 bytes (seq: 2450)
+[2025-12-25T19:33:00.782178] [19:33:00.782] 📝 And
+[2025-12-25T19:33:01.992715] [8088962f-412a-4fa6-9551-587622fec5b7] 📨 Received 1280 bytes (seq: 2500)
+[2025-12-25T19:33:02.557358] [19:33:02.557] 📝 even after a few minutes,
+[2025-12-25T19:33:03.475381] [19:33:03.475] 💓 Keepalive #20 sent
+[2025-12-25T19:33:04.051346] [8088962f-412a-4fa6-9551-587622fec5b7] 📨 Received 1280 bytes (seq: 2550)
+[2025-12-25T19:33:05.992755] [8088962f-412a-4fa6-9551-587622fec5b7] 📨 Received 1280 bytes (seq: 2600)
+[2025-12-25T19:33:06.015574] [19:33:06.015] 📝 like, nineteen thirty two, we are still able to see.
+[2025-12-25T19:33:07.853461] [19:33:07.853] 📝 Now it is, like, nineteen thirty three.
+[2025-12-25T19:33:08.010827] [8088962f-412a-4fa6-9551-587622fec5b7] 📨 Received 1280 bytes (seq: 2650)
+[2025-12-25T19:33:08.485080] [19:33:08.485] 💓 Keepalive #21 sent
+[2025-12-25T19:33:10.051029] [8088962f-412a-4fa6-9551-587622fec5b7] 📨 Received 1280 bytes (seq: 2700)
+[2025-12-25T19:33:10.075798] [19:33:10.074] 📝 And we are still able to see the text.
+[2025-12-25T19:33:11.726734] [19:33:11.726] 📝 These are all like the logs
+[2025-12-25T19:33:12.007158] [8088962f-412a-4fa6-9551-587622fec5b7] 📨 Received 1280 bytes (seq: 2750)
+[2025-12-25T19:33:13.475710] [19:33:13.475] 💓 Keepalive #22 sent
+[2025-12-25T19:33:14.029753] [8088962f-412a-4fa6-9551-587622fec5b7] 📨 Received 1280 bytes (seq: 2800)
+[2025-12-25T19:33:14.517775] [19:33:14.516] 📝 we will have to remove when the application goes into the live.
+[2025-12-25T19:33:15.943621] [19:33:15.942] 📝 So
+[2025-12-25T19:33:16.009184] [8088962f-412a-4fa6-9551-587622fec5b7] 📨 Received 1280 bytes (seq: 2850)
+[2025-12-25T19:33:18.030060] [8088962f-412a-4fa6-9551-587622fec5b7] 📨 Received 1280 bytes (seq: 2900)
+[2025-12-25T19:33:18.486335] [19:33:18.486] 💓 Keepalive #23 sent
+[2025-12-25T19:33:19.394900] [19:33:19.394] 📝 particularly, it worked for almost three minutes.
+[2025-12-25T19:33:20.033245] [8088962f-412a-4fa6-9551-587622fec5b7] 📨 Received 1280 bytes (seq: 2950)
+[2025-12-25T19:33:22.033194] [8088962f-412a-4fa6-9551-587622fec5b7] 📨 Received 1280 bytes (seq: 3000)
+[2025-12-25T19:33:23.500662] [19:33:23.500] 💓 Keepalive #24 sent
+[2025-12-25T19:33:24.016844] [8088962f-412a-4fa6-9551-587622fec5b7] 📨 Received 1280 bytes (seq: 3050)
+[2025-12-25T19:33:26.001260] [8088962f-412a-4fa6-9551-587622fec5b7] 📨 Received 1280 bytes (seq: 3100)
+[2025-12-25T19:33:27.993436] [8088962f-412a-4fa6-9551-587622fec5b7] 📨 Received 1280 bytes (seq: 3150)
+[2025-12-25T19:33:28.525473] [19:33:28.524] 💓 Keepalive #25 sent
+[2025-12-25T19:33:28.526476] [19:33:28.526] 📝 We can keep it running this way.
+[2025-12-25T19:33:30.014902] [8088962f-412a-4fa6-9551-587622fec5b7] 📨 Received 1280 bytes (seq: 3200)
+[2025-12-25T19:33:32.002712] [8088962f-412a-4fa6-9551-587622fec5b7] 📨 Received 1280 bytes (seq: 3250)
+[2025-12-25T19:33:33.531820] [19:33:33.531] 💓 Keepalive #26 sent
+[2025-12-25T19:33:34.004089] [8088962f-412a-4fa6-9551-587622fec5b7] 📨 Received 1280 bytes (seq: 3300)
+[2025-12-25T19:33:35.992991] [8088962f-412a-4fa6-9551-587622fec5b7] 📨 Received 1280 bytes (seq: 3350)
+[2025-12-25T19:33:38.005294] [8088962f-412a-4fa6-9551-587622fec5b7] 📨 Received 1280 bytes (seq: 3400)
+[2025-12-25T19:33:38.543975] [19:33:38.543] 💓 Keepalive #27 sent
+[2025-12-25T19:33:39.997556] [8088962f-412a-4fa6-9551-587622fec5b7] 📨 Received 1280 bytes (seq: 3450)
+[2025-12-25T19:33:41.999443] [8088962f-412a-4fa6-9551-587622fec5b7] 📨 Received 1280 bytes (seq: 3500)
+[2025-12-25T19:33:43.545338] [19:33:43.545] 💓 Keepalive #28 sent
+[2025-12-25T19:33:44.006750] [8088962f-412a-4fa6-9551-587622fec5b7] 📨 Received 1280 bytes (seq: 3550)
+[2025-12-25T19:33:46.024012] [8088962f-412a-4fa6-9551-587622fec5b7] 📨 Received 1280 bytes (seq: 3600)
+[2025-12-25T19:33:48.034702] [8088962f-412a-4fa6-9551-587622fec5b7] 📨 Received 1280 bytes (seq: 3650)
+[2025-12-25T19:33:48.542299] [19:33:48.542] 💓 Keepalive #29 sent
+[2025-12-25T19:33:49.999749] [8088962f-412a-4fa6-9551-587622fec5b7] 📨 Received 1280 bytes (seq: 3700)
+[2025-12-25T19:33:51.832130] [19:33:51.832] 📝 Now it is going to show the text that I am talking.
+[2025-12-25T19:33:52.002700] [8088962f-412a-4fa6-9551-587622fec5b7] 📨 Received 1280 bytes (seq: 3750)
+[2025-12-25T19:33:53.523850] [19:33:53.523] 💓 Keepalive #30 sent
+[2025-12-25T19:33:53.999103] [8088962f-412a-4fa6-9551-587622fec5b7] 📨 Received 1280 bytes (seq: 3800)
+[2025-12-25T19:33:56.009303] [8088962f-412a-4fa6-9551-587622fec5b7] 📨 Received 1280 bytes (seq: 3850)
+[2025-12-25T19:33:58.035148] [8088962f-412a-4fa6-9551-587622fec5b7] 📨 Received 1280 bytes (seq: 3900)
+[2025-12-25T19:33:58.524004] [19:33:58.524] 💓 Keepalive #31 sent
+[2025-12-25T19:34:00.003037] [8088962f-412a-4fa6-9551-587622fec5b7] 📨 Received 1280 bytes (seq: 3950)
+[2025-12-25T19:34:02.015059] [8088962f-412a-4fa6-9551-587622fec5b7] 📨 Received 1280 bytes (seq: 4000)
+[2025-12-25T19:34:03.526545] [19:34:03.526] 💓 Keepalive #32 sent
+[2025-12-25T19:34:04.031899] [8088962f-412a-4fa6-9551-587622fec5b7] 📨 Received 1280 bytes (seq: 4050)
+[2025-12-25T19:34:05.995092] [8088962f-412a-4fa6-9551-587622fec5b7] 📨 Received 1280 bytes (seq: 4100)
+[2025-12-25T19:34:08.000706] [8088962f-412a-4fa6-9551-587622fec5b7] 📨 Received 1280 bytes (seq: 4150)
+[2025-12-25T19:34:08.530333] [19:34:08.529] 💓 Keepalive #33 sent
+[2025-12-25T19:34:10.003030] [8088962f-412a-4fa6-9551-587622fec5b7] 📨 Received 1280 bytes (seq: 4200)
+[2025-12-25T19:34:12.051520] [8088962f-412a-4fa6-9551-587622fec5b7] 📨 Received 1280 bytes (seq: 4250)
+[2025-12-25T19:34:13.526300] [19:34:13.526] 💓 Keepalive #34 sent
+[2025-12-25T19:34:14.032053] [8088962f-412a-4fa6-9551-587622fec5b7] 📨 Received 1280 bytes (seq: 4300)
+[2025-12-25T19:34:16.037411] [8088962f-412a-4fa6-9551-587622fec5b7] 📨 Received 1280 bytes (seq: 4350)
+[2025-12-25T19:34:18.006752] [8088962f-412a-4fa6-9551-587622fec5b7] 📨 Received 1280 bytes (seq: 4400)
+[2025-12-25T19:34:18.541358] [19:34:18.541] 💓 Keepalive #35 sent
+[2025-12-25T19:34:20.026672] [8088962f-412a-4fa6-9551-587622fec5b7] 📨 Received 1280 bytes (seq: 4450)
+[2025-12-25T19:34:22.039563] [8088962f-412a-4fa6-9551-587622fec5b7] 📨 Received 1280 bytes (seq: 4500)
+[2025-12-25T19:34:23.553326] [19:34:23.552] 💓 Keepalive #36 sent
+[2025-12-25T19:34:24.045438] [8088962f-412a-4fa6-9551-587622fec5b7] 📨 Received 1280 bytes (seq: 4550)
+[2025-12-25T19:34:25.995136] [8088962f-412a-4fa6-9551-587622fec5b7] 📨 Received 1280 bytes (seq: 4600)
+[2025-12-25T19:34:27.995170] [8088962f-412a-4fa6-9551-587622fec5b7] 📨 Received 1280 bytes (seq: 4650)
+[2025-12-25T19:34:28.562890] [19:34:28.562] 💓 Keepalive #37 sent
+[2025-12-25T19:34:30.003082] [8088962f-412a-4fa6-9551-587622fec5b7] 📨 Received 1280 bytes (seq: 4700)
+[2025-12-25T19:34:32.033317] [8088962f-412a-4fa6-9551-587622fec5b7] 📨 Received 1280 bytes (seq: 4750)
+[2025-12-25T19:34:33.564058] [19:34:33.564] 💓 Keepalive #38 sent
+[2025-12-25T19:34:33.995474] [8088962f-412a-4fa6-9551-587622fec5b7] 📨 Received 1280 bytes (seq: 4800)
+[2025-12-25T19:34:36.037227] [8088962f-412a-4fa6-9551-587622fec5b7] 📨 Received 1280 bytes (seq: 4850)
+[2025-12-25T19:34:38.016879] [8088962f-412a-4fa6-9551-587622fec5b7] 📨 Received 1280 bytes (seq: 4900)
+[2025-12-25T19:34:38.575564] [19:34:38.575] 💓 Keepalive #39 sent
+[2025-12-25T19:34:40.041046] [8088962f-412a-4fa6-9551-587622fec5b7] 📨 Received 1280 bytes (seq: 4950)
+[2025-12-25T19:34:41.341129] [19:34:41.341] 📝 It is like
+[2025-12-25T19:34:42.001708] [8088962f-412a-4fa6-9551-587622fec5b7] 📨 Received 1280 bytes (seq: 5000)
+[2025-12-25T19:34:42.961114] [19:34:42.961] 📝 almost
+[2025-12-25T19:34:43.574040] [19:34:43.574] 💓 Keepalive #40 sent
+[2025-12-25T19:34:43.993878] [8088962f-412a-4fa6-9551-587622fec5b7] 📨 Received 1280 bytes (seq: 5050)
+[2025-12-25T19:34:44.316405] [19:34:44.316] 📝 yeah,
+[2025-12-25T19:34:46.033813] [8088962f-412a-4fa6-9551-587622fec5b7] 📨 Received 1280 bytes (seq: 5100)
+[2025-12-25T19:34:48.019982] [8088962f-412a-4fa6-9551-587622fec5b7] 📨 Received 1280 bytes (seq: 5150)
+[2025-12-25T19:34:48.462021] [19:34:48.462] 📝 Let's actually see whether it showed all the text that we were speaking.
+[2025-12-25T19:34:48.570565] [19:34:48.569] 💓 Keepalive #41 sent
+[2025-12-25T19:34:49.875811] [19:34:49.874] 📝 If you see,
+[2025-12-25T19:34:50.001404] [8088962f-412a-4fa6-9551-587622fec5b7] 📨 Received 1280 bytes (seq: 5200)
+[2025-12-25T19:34:51.993986] [8088962f-412a-4fa6-9551-587622fec5b7] 📨 Received 1280 bytes (seq: 5250)
+[2025-12-25T19:34:52.676512] [19:34:52.676] 📝 it showed everything.
+[2025-12-25T19:34:53.575494] [19:34:53.575] 💓 Keepalive #42 sent
+[2025-12-25T19:34:54.033543] [8088962f-412a-4fa6-9551-587622fec5b7] 📨 Received 1280 bytes (seq: 5300)
+[2025-12-25T19:34:56.011194] [8088962f-412a-4fa6-9551-587622fec5b7] 📨 Received 1280 bytes (seq: 5350)
+[2025-12-25T19:34:58.011282] [8088962f-412a-4fa6-9551-587622fec5b7] 📨 Received 1280 bytes (seq: 5400)
+[2025-12-25T19:34:58.576281] [19:34:58.576] 💓 Keepalive #43 sent
+[2025-12-25T19:35:00.017449] [8088962f-412a-4fa6-9551-587622fec5b7] 📨 Received 1280 bytes (seq: 5450)
+[2025-12-25T19:35:02.007428] [8088962f-412a-4fa6-9551-587622fec5b7] 📨 Received 1280 bytes (seq: 5500)
+[2025-12-25T19:35:03.578998] [19:35:03.578] 💓 Keepalive #44 sent
+[2025-12-25T19:35:03.999786] [8088962f-412a-4fa6-9551-587622fec5b7] 📨 Received 1280 bytes (seq: 5550)
+[2025-12-25T19:35:05.998377] [8088962f-412a-4fa6-9551-587622fec5b7] 📨 Received 1280 bytes (seq: 5600)
+[2025-12-25T19:35:08.034025] [8088962f-412a-4fa6-9551-587622fec5b7] 📨 Received 1280 bytes (seq: 5650)
+[2025-12-25T19:35:08.591939] [19:35:08.591] 💓 Keepalive #45 sent
+[2025-12-25T19:35:10.047727] [8088962f-412a-4fa6-9551-587622fec5b7] 📨 Received 1280 bytes (seq: 5700)
+[2025-12-25T19:35:11.991910] [8088962f-412a-4fa6-9551-587622fec5b7] 📨 Received 1280 bytes (seq: 5750)
+[2025-12-25T19:35:13.585091] [19:35:13.585] 💓 Keepalive #46 sent
+[2025-12-25T19:35:14.033838] [8088962f-412a-4fa6-9551-587622fec5b7] 📨 Received 1280 bytes (seq: 5800)
+[2025-12-25T19:35:16.007863] [8088962f-412a-4fa6-9551-587622fec5b7] 📨 Received 1280 bytes (seq: 5850)
+[2025-12-25T19:35:18.025116] [8088962f-412a-4fa6-9551-587622fec5b7] 📨 Received 1280 bytes (seq: 5900)
+[2025-12-25T19:35:18.591624] [19:35:18.591] 💓 Keepalive #47 sent
+[2025-12-25T19:35:20.033826] [8088962f-412a-4fa6-9551-587622fec5b7] 📨 Received 1280 bytes (seq: 5950)
+[2025-12-25T19:35:21.993908] [8088962f-412a-4fa6-9551-587622fec5b7] 📨 Received 1280 bytes (seq: 6000)
+[2025-12-25T19:35:23.594817] [19:35:23.594] 💓 Keepalive #48 sent
+[2025-12-25T19:35:24.033521] [8088962f-412a-4fa6-9551-587622fec5b7] 📨 Received 1280 bytes (seq: 6050)
+[2025-12-25T19:35:26.031509] [8088962f-412a-4fa6-9551-587622fec5b7] 📨 Received 1280 bytes (seq: 6100)
+[2025-12-25T19:35:28.027675] [8088962f-412a-4fa6-9551-587622fec5b7] 📨 Received 1280 bytes (seq: 6150)
+[2025-12-25T19:35:28.614154] [19:35:28.613] 💓 Keepalive #49 sent
+[2025-12-25T19:35:30.009423] [8088962f-412a-4fa6-9551-587622fec5b7] 📨 Received 1280 bytes (seq: 6200)
+[2025-12-25T19:35:31.858263] [8088962f-412a-4fa6-9551-587622fec5b7] 📩 Received text message: {"type":"stop_recording"}
+[2025-12-25T19:35:31.858263] [8088962f-412a-4fa6-9551-587622fec5b7] Recording stop received; session timer reset
+[2025-12-25T19:35:31.924292] [19:35:31.924] ⚠️ Client loop error: Cannot call "receive" once a disconnect message has been received.
+[2025-12-25T19:35:31.925295] 
+[19:35:31.925] 🔌 Closing connection
+[2025-12-25T19:35:31.925802] [19:35:31.925] 📊 FINAL STATS:
+[2025-12-25T19:35:31.926307]   runtime_seconds: 248.9
+[2025-12-25T19:35:31.926307]   chunks_sent: 6242
+[2025-12-25T19:35:31.926307]   transcripts_received: 128
+[2025-12-25T19:35:31.926307]   total_bytes: 7989760
+[2025-12-25T19:35:31.926307]   chunks_per_sec: 24.94
+[2025-12-25T19:35:31.927942]   avg_latency_ms: 28.51
+[2025-12-25T19:35:31.927942]   min_latency_ms: 3.8
+[2025-12-25T19:35:31.927942]   max_latency_ms: 78.02
+[2025-12-25T19:35:32.575344] [8088962f-412a-4fa6-9551-587622fec5b7] 📈 Updated usage: +248s (Total: 11794s)
+[2025-12-25T20:39:46.523972] [20:39:46.522] 🔌 Client connected [4b753d4b-1828-40ad-b2f8-6b13bf60ea21]
+[2025-12-25T20:39:47.634958] [4b753d4b-1828-40ad-b2f8-6b13bf60ea21] 👤 Authenticated as: valorousveera@gmail.com (83da6eb2-efd2-484b-94d2-9bea46959fde)
+[2025-12-25T20:39:48.158808] [4b753d4b-1828-40ad-b2f8-6b13bf60ea21] Using tier 'pro' with session cap: 72000s
+[2025-12-25T20:39:48.534192] [20:39:48.534] ✅ Connected to Deepgram
+[2025-12-25T20:39:53.541030] [20:39:53.541] 💓 Keepalive #1 sent
+[2025-12-25T20:39:58.553923] [20:39:58.553] 💓 Keepalive #2 sent
+[2025-12-25T20:40:03.572402] [20:40:03.572] 💓 Keepalive #3 sent
+[2025-12-25T20:40:08.572143] [20:40:08.572] 💓 Keepalive #4 sent
+[2025-12-25T20:40:13.585192] [20:40:13.585] 💓 Keepalive #5 sent
+[2025-12-25T20:40:18.596322] [20:40:18.596] 💓 Keepalive #6 sent
+[2025-12-25T20:40:23.622629] [20:40:23.622] 💓 Keepalive #7 sent
+[2025-12-25T20:40:28.628181] [20:40:28.628] 💓 Keepalive #8 sent
+[2025-12-25T20:40:33.633637] [20:40:33.633] 💓 Keepalive #9 sent
+[2025-12-25T20:40:38.647872] [20:40:38.647] 💓 Keepalive #10 sent
+[2025-12-25T20:40:43.647574] [20:40:43.647] 💓 Keepalive #11 sent
+[2025-12-25T20:40:48.667383] [20:40:48.667] 💓 Keepalive #12 sent
+[2025-12-25T20:40:53.645938] [20:40:53.645] 💓 Keepalive #13 sent
+[2025-12-25T20:40:58.646821] [20:40:58.646] 💓 Keepalive #14 sent
+[2025-12-25T20:41:03.660833] [20:41:03.660] 💓 Keepalive #15 sent
+[2025-12-25T20:41:08.647427] [20:41:08.646] 💓 Keepalive #16 sent
+[2025-12-25T20:41:13.646129] [20:41:13.645] 💓 Keepalive #17 sent
+[2025-12-25T20:41:18.655213] [20:41:18.655] 💓 Keepalive #18 sent
+[2025-12-25T20:41:23.669171] [20:41:23.668] 💓 Keepalive #19 sent
+[2025-12-25T20:41:28.667907] [20:41:28.667] 💓 Keepalive #20 sent
+[2025-12-25T20:41:33.679719] [20:41:33.679] 💓 Keepalive #21 sent
+[2025-12-25T20:41:38.697233] [20:41:38.696] 💓 Keepalive #22 sent
+[2025-12-25T20:41:43.707658] [20:41:43.707] 💓 Keepalive #23 sent
+[2025-12-25T20:41:48.715912] [20:41:48.715] 💓 Keepalive #24 sent
+[2025-12-25T20:41:53.709211] [20:41:53.709] 💓 Keepalive #25 sent
+[2025-12-25T20:41:58.714123] [20:41:58.714] 💓 Keepalive #26 sent
+[2025-12-25T20:42:03.695724] [20:42:03.695] 💓 Keepalive #27 sent
+[2025-12-25T20:42:08.688877] [20:42:08.688] 💓 Keepalive #28 sent
+[2025-12-25T20:42:13.695822] [20:42:13.695] 💓 Keepalive #29 sent
+[2025-12-25T20:42:18.695406] [20:42:18.694] 💓 Keepalive #30 sent
+[2025-12-25T20:42:23.696937] [20:42:23.696] 💓 Keepalive #31 sent
+[2025-12-25T20:42:28.699576] [20:42:28.699] 💓 Keepalive #32 sent
+[2025-12-25T20:42:33.707138] [20:42:33.707] 💓 Keepalive #33 sent
+[2025-12-25T20:42:38.715708] [20:42:38.715] 💓 Keepalive #34 sent
+[2025-12-25T20:42:43.714314] [20:42:43.713] 💓 Keepalive #35 sent
+[2025-12-25T20:42:43.753506] [20:42:43.753] ⚠️ Client loop error: Cannot call "receive" once a disconnect message has been received.
+[2025-12-25T20:42:43.753506] 
+[20:42:43.753] 🔌 Closing connection
+[2025-12-25T20:42:43.754510] [20:42:43.754] 📊 FINAL STATS:
+[2025-12-25T20:42:43.755891]   runtime_seconds: 175.6
+[2025-12-25T20:42:43.756404]   chunks_sent: 0
+[2025-12-25T20:42:43.756404]   transcripts_received: 0
+[2025-12-25T20:42:43.756946]   total_bytes: 0
+[2025-12-25T20:42:43.756946]   chunks_per_sec: 0
+[2025-12-25T20:42:43.756946]   avg_latency_ms: 0
+[2025-12-25T20:42:43.756946]   min_latency_ms: 0
+[2025-12-25T20:42:43.756946]   max_latency_ms: 0
+[2025-12-25T20:42:44.517492] [4b753d4b-1828-40ad-b2f8-6b13bf60ea21] 📈 Updated usage: +175s (Total: 11969s)
+[2025-12-25T20:43:09.032176] [20:43:09.032] 🔌 Client connected [b244822a-8290-424b-acdb-00bc937e00cf]
+[2025-12-25T20:43:09.425279] [b244822a-8290-424b-acdb-00bc937e00cf] 👤 Authenticated as: valorousveera@gmail.com (83da6eb2-efd2-484b-94d2-9bea46959fde)
+[2025-12-25T20:43:09.540845] [b244822a-8290-424b-acdb-00bc937e00cf] Using tier 'pro' with session cap: 72000s
+[2025-12-25T20:43:09.843783] [20:43:09.843] ✅ Connected to Deepgram
+[2025-12-25T20:43:09.844786] [b244822a-8290-424b-acdb-00bc937e00cf] 📩 Received text message: {"type":"configure","recording_id":"1d9c26e5-07a3-4d62-b195-ab861f200851"}
+[2025-12-25T20:43:09.845301] [b244822a-8290-424b-acdb-00bc937e00cf] 🎥 Configured for recording: 1d9c26e5-07a3-4d62-b195-ab861f200851
+[2025-12-25T20:43:11.217973] [b244822a-8290-424b-acdb-00bc937e00cf] 📨 Received 1280 bytes (seq: 50)
+[2025-12-25T20:43:11.296514] [20:43:11.296] 📝 Testing it now.
+[2025-12-25T20:43:12.330248] Error in create_share: 500: Failed to create share: {"code":"42501","details":null,"hint":null,"message":"new row violates row-level security policy for table \"live_shares\""}
+[2025-12-25T20:43:13.229755] [b244822a-8290-424b-acdb-00bc937e00cf] 📨 Received 1280 bytes (seq: 100)
+[2025-12-25T20:43:13.953257] [20:43:13.953] 📝 And trying to see if the text actually appears.
+[2025-12-25T20:43:14.853064] [20:43:14.853] 💓 Keepalive #1 sent
+[2025-12-25T20:43:15.237364] [b244822a-8290-424b-acdb-00bc937e00cf] 📨 Received 1280 bytes (seq: 150)
+[2025-12-25T20:43:17.252284] [b244822a-8290-424b-acdb-00bc937e00cf] 📨 Received 1280 bytes (seq: 200)
+[2025-12-25T20:43:18.927856] [20:43:18.926] 📝 Looks like it failed to create the share
+[2025-12-25T20:43:19.209741] [b244822a-8290-424b-acdb-00bc937e00cf] 📨 Received 1280 bytes (seq: 250)
+[2025-12-25T20:43:19.466021] [20:43:19.466] 📝 link.
+[2025-12-25T20:43:19.852100] [20:43:19.852] 💓 Keepalive #2 sent
+[2025-12-25T20:43:21.252982] [b244822a-8290-424b-acdb-00bc937e00cf] 📨 Received 1280 bytes (seq: 300)
+[2025-12-25T20:43:23.227806] [b244822a-8290-424b-acdb-00bc937e00cf] 📨 Received 1280 bytes (seq: 350)
+[2025-12-25T20:43:24.865967] [20:43:24.864] 💓 Keepalive #3 sent
+[2025-12-25T20:43:25.210217] [b244822a-8290-424b-acdb-00bc937e00cf] 📨 Received 1280 bytes (seq: 400)
+[2025-12-25T20:43:27.250035] [b244822a-8290-424b-acdb-00bc937e00cf] 📨 Received 1280 bytes (seq: 450)
+[2025-12-25T20:43:28.406984] [20:43:28.406] 📝 It failed to create the shared link.
+[2025-12-25T20:43:29.236574] [b244822a-8290-424b-acdb-00bc937e00cf] 📨 Received 1280 bytes (seq: 500)
+[2025-12-25T20:43:29.855903] [20:43:29.855] 💓 Keepalive #4 sent
+[2025-12-25T20:43:30.161110] [20:43:30.161] 📝 And gave me a pop up.
+[2025-12-25T20:43:31.230063] [b244822a-8290-424b-acdb-00bc937e00cf] 📨 Received 1280 bytes (seq: 550)
+[2025-12-25T20:43:33.252467] [b244822a-8290-424b-acdb-00bc937e00cf] 📨 Received 1280 bytes (seq: 600)
+[2025-12-25T20:43:34.864168] [20:43:34.863] 💓 Keepalive #5 sent
+[2025-12-25T20:43:35.251853] [b244822a-8290-424b-acdb-00bc937e00cf] 📨 Received 1280 bytes (seq: 650)
+[2025-12-25T20:43:37.257881] [b244822a-8290-424b-acdb-00bc937e00cf] 📨 Received 1280 bytes (seq: 700)
+[2025-12-25T20:43:39.224168] [b244822a-8290-424b-acdb-00bc937e00cf] 📨 Received 1280 bytes (seq: 750)
+[2025-12-25T20:43:39.856855] [20:43:39.856] 💓 Keepalive #6 sent
+[2025-12-25T20:43:41.228200] [b244822a-8290-424b-acdb-00bc937e00cf] 📨 Received 1280 bytes (seq: 800)
+[2025-12-25T20:43:43.259434] [b244822a-8290-424b-acdb-00bc937e00cf] 📨 Received 1280 bytes (seq: 850)
+[2025-12-25T20:43:44.850402] [20:43:44.849] 💓 Keepalive #7 sent
+[2025-12-25T20:43:45.228074] [b244822a-8290-424b-acdb-00bc937e00cf] 📨 Received 1280 bytes (seq: 900)
+[2025-12-25T20:43:47.261785] [b244822a-8290-424b-acdb-00bc937e00cf] 📨 Received 1280 bytes (seq: 950)
+[2025-12-25T20:43:49.247693] [b244822a-8290-424b-acdb-00bc937e00cf] 📨 Received 1280 bytes (seq: 1000)
+[2025-12-25T20:43:49.848256] [20:43:49.847] 💓 Keepalive #8 sent
+[2025-12-25T20:43:51.247436] [b244822a-8290-424b-acdb-00bc937e00cf] 📨 Received 1280 bytes (seq: 1050)
+[2025-12-25T20:43:53.226217] [b244822a-8290-424b-acdb-00bc937e00cf] 📨 Received 1280 bytes (seq: 1100)
+[2025-12-25T20:43:54.862064] [20:43:54.862] 💓 Keepalive #9 sent
+[2025-12-25T20:43:55.223991] [b244822a-8290-424b-acdb-00bc937e00cf] 📨 Received 1280 bytes (seq: 1150)
+[2025-12-25T20:43:57.239770] [b244822a-8290-424b-acdb-00bc937e00cf] 📨 Received 1280 bytes (seq: 1200)
+[2025-12-25T20:43:59.209564] [b244822a-8290-424b-acdb-00bc937e00cf] 📨 Received 1280 bytes (seq: 1250)
+[2025-12-25T20:43:59.847707] [20:43:59.846] 💓 Keepalive #10 sent
+[2025-12-25T20:44:01.245974] [b244822a-8290-424b-acdb-00bc937e00cf] 📨 Received 1280 bytes (seq: 1300)
+[2025-12-25T20:44:03.244088] [b244822a-8290-424b-acdb-00bc937e00cf] 📨 Received 1280 bytes (seq: 1350)
+[2025-12-25T20:44:04.860555] [20:44:04.859] 💓 Keepalive #11 sent
+[2025-12-25T20:44:05.208146] [b244822a-8290-424b-acdb-00bc937e00cf] 📨 Received 1280 bytes (seq: 1400)
+[2025-12-25T20:44:05.668599] [20:44:05.668] 📝 Oh my god. What is
+[2025-12-25T20:44:06.265047] [20:44:06.265] 📝 that?
+[2025-12-25T20:44:07.216431] [b244822a-8290-424b-acdb-00bc937e00cf] 📨 Received 1280 bytes (seq: 1450)
+[2025-12-25T20:44:09.248199] [b244822a-8290-424b-acdb-00bc937e00cf] 📨 Received 1280 bytes (seq: 1500)
+[2025-12-25T20:44:09.848884] [20:44:09.848] 💓 Keepalive #12 sent
+[2025-12-25T20:44:11.246960] [b244822a-8290-424b-acdb-00bc937e00cf] 📨 Received 1280 bytes (seq: 1550)
+[2025-12-25T20:44:13.228133] [b244822a-8290-424b-acdb-00bc937e00cf] 📨 Received 1280 bytes (seq: 1600)
+[2025-12-25T20:44:14.852043] [20:44:14.852] 💓 Keepalive #13 sent
+[2025-12-25T20:44:15.230447] [b244822a-8290-424b-acdb-00bc937e00cf] 📨 Received 1280 bytes (seq: 1650)
+[2025-12-25T20:44:17.250515] [b244822a-8290-424b-acdb-00bc937e00cf] 📨 Received 1280 bytes (seq: 1700)
+[2025-12-25T20:44:19.232766] [b244822a-8290-424b-acdb-00bc937e00cf] 📨 Received 1280 bytes (seq: 1750)
+[2025-12-25T20:44:19.868902] [20:44:19.868] 💓 Keepalive #14 sent
+[2025-12-25T20:44:21.226398] [b244822a-8290-424b-acdb-00bc937e00cf] 📨 Received 1280 bytes (seq: 1800)
+[2025-12-25T20:44:23.211996] [b244822a-8290-424b-acdb-00bc937e00cf] 📨 Received 1280 bytes (seq: 1850)
+[2025-12-25T20:44:24.850984] [20:44:24.850] 💓 Keepalive #15 sent
+[2025-12-25T20:44:25.208325] [b244822a-8290-424b-acdb-00bc937e00cf] 📨 Received 1280 bytes (seq: 1900)
+[2025-12-25T20:44:27.208091] [b244822a-8290-424b-acdb-00bc937e00cf] 📨 Received 1280 bytes (seq: 1950)
+[2025-12-25T20:44:29.216071] [b244822a-8290-424b-acdb-00bc937e00cf] 📨 Received 1280 bytes (seq: 2000)
+[2025-12-25T20:44:29.859361] [20:44:29.859] 💓 Keepalive #16 sent
+[2025-12-25T20:44:31.246322] [b244822a-8290-424b-acdb-00bc937e00cf] 📨 Received 1280 bytes (seq: 2050)
+[2025-12-25T20:44:33.218775] [b244822a-8290-424b-acdb-00bc937e00cf] 📨 Received 1280 bytes (seq: 2100)
+[2025-12-25T20:44:34.866714] [20:44:34.866] 💓 Keepalive #17 sent
+[2025-12-25T20:44:35.242124] [b244822a-8290-424b-acdb-00bc937e00cf] 📨 Received 1280 bytes (seq: 2150)
+[2025-12-25T20:44:37.262072] [b244822a-8290-424b-acdb-00bc937e00cf] 📨 Received 1280 bytes (seq: 2200)
+[2025-12-25T20:44:39.232253] [b244822a-8290-424b-acdb-00bc937e00cf] 📨 Received 1280 bytes (seq: 2250)
+[2025-12-25T20:44:39.880445] [20:44:39.879] 💓 Keepalive #18 sent
+[2025-12-25T20:44:41.240082] [b244822a-8290-424b-acdb-00bc937e00cf] 📨 Received 1280 bytes (seq: 2300)
+[2025-12-25T20:44:43.254561] [b244822a-8290-424b-acdb-00bc937e00cf] 📨 Received 1280 bytes (seq: 2350)
+[2025-12-25T20:44:44.875234] [20:44:44.875] 💓 Keepalive #19 sent
+[2025-12-25T20:44:45.207969] [b244822a-8290-424b-acdb-00bc937e00cf] 📨 Received 1280 bytes (seq: 2400)
+[2025-12-25T20:44:47.232380] [b244822a-8290-424b-acdb-00bc937e00cf] 📨 Received 1280 bytes (seq: 2450)
+[2025-12-25T20:44:49.261992] [b244822a-8290-424b-acdb-00bc937e00cf] 📨 Received 1280 bytes (seq: 2500)
+[2025-12-25T20:44:49.889892] [20:44:49.889] 💓 Keepalive #20 sent
+[2025-12-25T20:44:51.206348] [b244822a-8290-424b-acdb-00bc937e00cf] 📨 Received 1280 bytes (seq: 2550)
+[2025-12-25T20:44:53.255553] [b244822a-8290-424b-acdb-00bc937e00cf] 📨 Received 1280 bytes (seq: 2600)
+[2025-12-25T20:44:54.876631] [20:44:54.876] 💓 Keepalive #21 sent
+[2025-12-25T20:44:55.220237] [b244822a-8290-424b-acdb-00bc937e00cf] 📨 Received 1280 bytes (seq: 2650)
+[2025-12-25T20:44:57.206264] [b244822a-8290-424b-acdb-00bc937e00cf] 📨 Received 1280 bytes (seq: 2700)
+[2025-12-25T20:44:59.248474] [b244822a-8290-424b-acdb-00bc937e00cf] 📨 Received 1280 bytes (seq: 2750)
+[2025-12-25T20:44:59.890997] [20:44:59.890] 💓 Keepalive #22 sent
+[2025-12-25T20:45:01.209561] [b244822a-8290-424b-acdb-00bc937e00cf] 📨 Received 1280 bytes (seq: 2800)
+[2025-12-25T20:45:03.240245] [b244822a-8290-424b-acdb-00bc937e00cf] 📨 Received 1280 bytes (seq: 2850)
+[2025-12-25T20:45:04.904623] [20:45:04.904] 💓 Keepalive #23 sent
+[2025-12-25T20:45:05.266355] [b244822a-8290-424b-acdb-00bc937e00cf] 📨 Received 1280 bytes (seq: 2900)
+[2025-12-25T20:45:07.248362] [b244822a-8290-424b-acdb-00bc937e00cf] 📨 Received 1280 bytes (seq: 2950)
+[2025-12-25T20:45:09.257214] [b244822a-8290-424b-acdb-00bc937e00cf] 📨 Received 1280 bytes (seq: 3000)
+[2025-12-25T20:45:09.895403] [20:45:09.895] 💓 Keepalive #24 sent
+[2025-12-25T20:45:11.208601] [b244822a-8290-424b-acdb-00bc937e00cf] 📨 Received 1280 bytes (seq: 3050)
+[2025-12-25T20:45:13.220405] [b244822a-8290-424b-acdb-00bc937e00cf] 📨 Received 1280 bytes (seq: 3100)
+[2025-12-25T20:45:14.899974] [20:45:14.899] 💓 Keepalive #25 sent
+[2025-12-25T20:45:15.211243] [b244822a-8290-424b-acdb-00bc937e00cf] 📨 Received 1280 bytes (seq: 3150)
+[2025-12-25T20:45:17.232243] [b244822a-8290-424b-acdb-00bc937e00cf] 📨 Received 1280 bytes (seq: 3200)
+[2025-12-25T20:45:19.230244] [b244822a-8290-424b-acdb-00bc937e00cf] 📨 Received 1280 bytes (seq: 3250)
+[2025-12-25T20:45:19.908584] [20:45:19.907] 💓 Keepalive #26 sent
+[2025-12-25T20:45:21.242240] [b244822a-8290-424b-acdb-00bc937e00cf] 📨 Received 1280 bytes (seq: 3300)
+[2025-12-25T20:45:23.248402] [b244822a-8290-424b-acdb-00bc937e00cf] 📨 Received 1280 bytes (seq: 3350)
+[2025-12-25T20:45:24.894485] [20:45:24.894] 💓 Keepalive #27 sent
+[2025-12-25T20:45:25.214063] [b244822a-8290-424b-acdb-00bc937e00cf] 📨 Received 1280 bytes (seq: 3400)
+[2025-12-25T20:45:27.208375] [b244822a-8290-424b-acdb-00bc937e00cf] 📨 Received 1280 bytes (seq: 3450)
+[2025-12-25T20:45:29.230831] [b244822a-8290-424b-acdb-00bc937e00cf] 📨 Received 1280 bytes (seq: 3500)
+[2025-12-25T20:45:29.895010] [20:45:29.895] 💓 Keepalive #28 sent
+[2025-12-25T20:45:31.240381] [b244822a-8290-424b-acdb-00bc937e00cf] 📨 Received 1280 bytes (seq: 3550)
+[2025-12-25T20:45:33.217413] [b244822a-8290-424b-acdb-00bc937e00cf] 📨 Received 1280 bytes (seq: 3600)
+[2025-12-25T20:45:34.913337] [20:45:34.913] 💓 Keepalive #29 sent
+[2025-12-25T20:45:35.214402] [b244822a-8290-424b-acdb-00bc937e00cf] 📨 Received 1280 bytes (seq: 3650)
+[2025-12-25T20:45:37.238437] [b244822a-8290-424b-acdb-00bc937e00cf] 📨 Received 1280 bytes (seq: 3700)
+[2025-12-25T20:45:39.208391] [b244822a-8290-424b-acdb-00bc937e00cf] 📨 Received 1280 bytes (seq: 3750)
+[2025-12-25T20:45:39.916454] [20:45:39.916] 💓 Keepalive #30 sent
+[2025-12-25T20:45:41.230409] [b244822a-8290-424b-acdb-00bc937e00cf] 📨 Received 1280 bytes (seq: 3800)
+[2025-12-25T20:45:43.208439] [b244822a-8290-424b-acdb-00bc937e00cf] 📨 Received 1280 bytes (seq: 3850)
+[2025-12-25T20:45:44.892014] [20:45:44.892] 💓 Keepalive #31 sent
+[2025-12-25T20:45:45.264425] [b244822a-8290-424b-acdb-00bc937e00cf] 📨 Received 1280 bytes (seq: 3900)
+[2025-12-25T20:45:47.222294] [b244822a-8290-424b-acdb-00bc937e00cf] 📨 Received 1280 bytes (seq: 3950)
+[2025-12-25T20:45:49.224167] [b244822a-8290-424b-acdb-00bc937e00cf] 📨 Received 1280 bytes (seq: 4000)
+[2025-12-25T20:45:49.899106] [20:45:49.899] 💓 Keepalive #32 sent
+[2025-12-25T20:45:51.211981] [b244822a-8290-424b-acdb-00bc937e00cf] 📨 Received 1280 bytes (seq: 4050)
+[2025-12-25T20:45:53.228537] [b244822a-8290-424b-acdb-00bc937e00cf] 📨 Received 1280 bytes (seq: 4100)
+[2025-12-25T20:45:54.894342] [20:45:54.894] 💓 Keepalive #33 sent
+[2025-12-25T20:45:55.226322] [b244822a-8290-424b-acdb-00bc937e00cf] 📨 Received 1280 bytes (seq: 4150)
+[2025-12-25T20:45:57.232510] [b244822a-8290-424b-acdb-00bc937e00cf] 📨 Received 1280 bytes (seq: 4200)
+[2025-12-25T20:45:59.241959] [b244822a-8290-424b-acdb-00bc937e00cf] 📨 Received 1280 bytes (seq: 4250)
+[2025-12-25T20:45:59.904373] [20:45:59.904] 💓 Keepalive #34 sent
+[2025-12-25T20:46:01.228511] [b244822a-8290-424b-acdb-00bc937e00cf] 📨 Received 1280 bytes (seq: 4300)
+[2025-12-25T20:46:03.248697] [b244822a-8290-424b-acdb-00bc937e00cf] 📨 Received 1280 bytes (seq: 4350)
+[2025-12-25T20:46:04.892015] [20:46:04.892] 💓 Keepalive #35 sent
+[2025-12-25T20:46:05.248572] [b244822a-8290-424b-acdb-00bc937e00cf] 📨 Received 1280 bytes (seq: 4400)
+[2025-12-25T20:46:07.242602] [b244822a-8290-424b-acdb-00bc937e00cf] 📨 Received 1280 bytes (seq: 4450)
+[2025-12-25T20:46:09.248683] [b244822a-8290-424b-acdb-00bc937e00cf] 📨 Received 1280 bytes (seq: 4500)
+[2025-12-25T20:46:09.891978] [20:46:09.891] 💓 Keepalive #36 sent
+[2025-12-25T20:46:11.246700] [b244822a-8290-424b-acdb-00bc937e00cf] 📨 Received 1280 bytes (seq: 4550)
+[2025-12-25T20:46:11.915056] [20:46:11.915] 📝 Where rooms available, guys? Yes, ma'am.
+[2025-12-25T20:46:13.234588] [b244822a-8290-424b-acdb-00bc937e00cf] 📨 Received 1280 bytes (seq: 4600)
+[2025-12-25T20:46:14.890517] [20:46:14.890] 💓 Keepalive #37 sent
+[2025-12-25T20:46:15.217681] [b244822a-8290-424b-acdb-00bc937e00cf] 📨 Received 1280 bytes (seq: 4650)
+[2025-12-25T20:46:17.222457] [b244822a-8290-424b-acdb-00bc937e00cf] 📨 Received 1280 bytes (seq: 4700)
+[2025-12-25T20:46:19.228599] [b244822a-8290-424b-acdb-00bc937e00cf] 📨 Received 1280 bytes (seq: 4750)
+[2025-12-25T20:46:19.903982] [20:46:19.903] 💓 Keepalive #38 sent
+[2025-12-25T20:46:21.208621] [b244822a-8290-424b-acdb-00bc937e00cf] 📨 Received 1280 bytes (seq: 4800)
+[2025-12-25T20:46:23.206870] [b244822a-8290-424b-acdb-00bc937e00cf] 📨 Received 1280 bytes (seq: 4850)
+[2025-12-25T20:46:24.903977] [20:46:24.903] 💓 Keepalive #39 sent
+[2025-12-25T20:46:25.230310] [b244822a-8290-424b-acdb-00bc937e00cf] 📨 Received 1280 bytes (seq: 4900)
+[2025-12-25T20:46:27.246838] [b244822a-8290-424b-acdb-00bc937e00cf] 📨 Received 1280 bytes (seq: 4950)
+[2025-12-25T20:46:29.207046] [b244822a-8290-424b-acdb-00bc937e00cf] 📨 Received 1280 bytes (seq: 5000)
+[2025-12-25T20:46:29.891677] [20:46:29.890] 💓 Keepalive #40 sent
+[2025-12-25T20:46:31.094510] [20:46:31.094] 📝 Climate Wow. Very nice ring.
+[2025-12-25T20:46:31.230879] [b244822a-8290-424b-acdb-00bc937e00cf] 📨 Received 1280 bytes (seq: 5050)
+[2025-12-25T20:46:33.269136] [b244822a-8290-424b-acdb-00bc937e00cf] 📨 Received 1280 bytes (seq: 5100)
+[2025-12-25T20:46:34.910038] [20:46:34.909] 💓 Keepalive #41 sent
+[2025-12-25T20:46:35.210783] [b244822a-8290-424b-acdb-00bc937e00cf] 📨 Received 1280 bytes (seq: 5150)
+[2025-12-25T20:46:37.246752] [b244822a-8290-424b-acdb-00bc937e00cf] 📨 Received 1280 bytes (seq: 5200)
+[2025-12-25T20:46:39.220683] [b244822a-8290-424b-acdb-00bc937e00cf] 📨 Received 1280 bytes (seq: 5250)
+[2025-12-25T20:46:39.673943] [20:46:39.673] 📝 Husband
+[2025-12-25T20:46:39.897243] [20:46:39.897] 💓 Keepalive #42 sent
+[2025-12-25T20:46:41.231928] [b244822a-8290-424b-acdb-00bc937e00cf] 📨 Received 1280 bytes (seq: 5300)
+[2025-12-25T20:46:43.206790] [b244822a-8290-424b-acdb-00bc937e00cf] 📨 Received 1280 bytes (seq: 5350)
+[2025-12-25T20:46:44.913953] [20:46:44.913] 💓 Keepalive #43 sent
+[2025-12-25T20:46:45.259208] [b244822a-8290-424b-acdb-00bc937e00cf] 📨 Received 1280 bytes (seq: 5400)
+[2025-12-25T20:46:47.206546] [b244822a-8290-424b-acdb-00bc937e00cf] 📨 Received 1280 bytes (seq: 5450)
+[2025-12-25T20:46:49.212024] [b244822a-8290-424b-acdb-00bc937e00cf] 📨 Received 1280 bytes (seq: 5500)
+[2025-12-25T20:46:49.922159] [20:46:49.922] 💓 Keepalive #44 sent
+[2025-12-25T20:46:51.248399] [b244822a-8290-424b-acdb-00bc937e00cf] 📨 Received 1280 bytes (seq: 5550)
+[2025-12-25T20:46:53.219197] [b244822a-8290-424b-acdb-00bc937e00cf] 📨 Received 1280 bytes (seq: 5600)
+[2025-12-25T20:46:54.926697] [20:46:54.926] 💓 Keepalive #45 sent
+[2025-12-25T20:46:55.226626] [b244822a-8290-424b-acdb-00bc937e00cf] 📨 Received 1280 bytes (seq: 5650)
+[2025-12-25T20:46:57.218950] [b244822a-8290-424b-acdb-00bc937e00cf] 📨 Received 1280 bytes (seq: 5700)
+[2025-12-25T20:46:59.245322] [b244822a-8290-424b-acdb-00bc937e00cf] 📨 Received 1280 bytes (seq: 5750)
+[2025-12-25T20:46:59.927722] [20:46:59.927] 💓 Keepalive #46 sent
+[2025-12-25T20:47:01.211492] [b244822a-8290-424b-acdb-00bc937e00cf] 📨 Received 1280 bytes (seq: 5800)
+[2025-12-25T20:47:03.226325] [b244822a-8290-424b-acdb-00bc937e00cf] 📨 Received 1280 bytes (seq: 5850)
+[2025-12-25T20:47:04.943244] [20:47:04.943] 💓 Keepalive #47 sent
+[2025-12-25T20:47:05.208769] [b244822a-8290-424b-acdb-00bc937e00cf] 📨 Received 1280 bytes (seq: 5900)
+[2025-12-25T20:47:07.225342] [b244822a-8290-424b-acdb-00bc937e00cf] 📨 Received 1280 bytes (seq: 5950)
+[2025-12-25T20:47:09.222028] [b244822a-8290-424b-acdb-00bc937e00cf] 📨 Received 1280 bytes (seq: 6000)
+[2025-12-25T20:47:09.951771] [20:47:09.951] 💓 Keepalive #48 sent
+[2025-12-25T20:47:11.220883] [b244822a-8290-424b-acdb-00bc937e00cf] 📨 Received 1280 bytes (seq: 6050)
+[2025-12-25T20:47:13.208880] [b244822a-8290-424b-acdb-00bc937e00cf] 📨 Received 1280 bytes (seq: 6100)
+[2025-12-25T20:47:14.954581] [20:47:14.954] 💓 Keepalive #49 sent
+[2025-12-25T20:47:15.207165] [b244822a-8290-424b-acdb-00bc937e00cf] 📨 Received 1280 bytes (seq: 6150)
+[2025-12-25T20:47:17.207102] [b244822a-8290-424b-acdb-00bc937e00cf] 📨 Received 1280 bytes (seq: 6200)
+[2025-12-25T20:47:19.208992] [b244822a-8290-424b-acdb-00bc937e00cf] 📨 Received 1280 bytes (seq: 6250)
+[2025-12-25T20:47:19.949586] [20:47:19.949] 💓 Keepalive #50 sent
+[2025-12-25T20:47:21.235401] [b244822a-8290-424b-acdb-00bc937e00cf] 📨 Received 1280 bytes (seq: 6300)
+[2025-12-25T20:47:23.226849] [b244822a-8290-424b-acdb-00bc937e00cf] 📨 Received 1280 bytes (seq: 6350)
+[2025-12-25T20:47:24.955523] [20:47:24.955] 💓 Keepalive #51 sent
+[2025-12-25T20:47:25.252992] [b244822a-8290-424b-acdb-00bc937e00cf] 📨 Received 1280 bytes (seq: 6400)
+[2025-12-25T20:47:27.228201] [b244822a-8290-424b-acdb-00bc937e00cf] 📨 Received 1280 bytes (seq: 6450)
+[2025-12-25T20:47:29.239745] [b244822a-8290-424b-acdb-00bc937e00cf] 📨 Received 1280 bytes (seq: 6500)
+[2025-12-25T20:47:29.972625] [20:47:29.972] 💓 Keepalive #52 sent
+[2025-12-25T20:47:31.251438] [b244822a-8290-424b-acdb-00bc937e00cf] 📨 Received 1280 bytes (seq: 6550)
+[2025-12-25T20:47:33.222309] [b244822a-8290-424b-acdb-00bc937e00cf] 📨 Received 1280 bytes (seq: 6600)
+[2025-12-25T20:47:34.984237] [20:47:34.984] 💓 Keepalive #53 sent
+[2025-12-25T20:47:35.238950] [b244822a-8290-424b-acdb-00bc937e00cf] 📨 Received 1280 bytes (seq: 6650)
+[2025-12-25T20:47:37.247162] [b244822a-8290-424b-acdb-00bc937e00cf] 📨 Received 1280 bytes (seq: 6700)
+[2025-12-25T20:47:39.204543] [b244822a-8290-424b-acdb-00bc937e00cf] 📨 Received 1280 bytes (seq: 6750)
+[2025-12-25T20:47:39.971976] [20:47:39.971] 💓 Keepalive #54 sent
+[2025-12-25T20:47:41.247024] [b244822a-8290-424b-acdb-00bc937e00cf] 📨 Received 1280 bytes (seq: 6800)
+[2025-12-25T20:47:43.234906] [b244822a-8290-424b-acdb-00bc937e00cf] 📨 Received 1280 bytes (seq: 6850)
+[2025-12-25T20:47:44.972595] [20:47:44.972] 💓 Keepalive #55 sent
+[2025-12-25T20:47:45.231053] [b244822a-8290-424b-acdb-00bc937e00cf] 📨 Received 1280 bytes (seq: 6900)
+[2025-12-25T20:47:47.237256] [b244822a-8290-424b-acdb-00bc937e00cf] 📨 Received 1280 bytes (seq: 6950)
+[2025-12-25T20:47:49.230013] [b244822a-8290-424b-acdb-00bc937e00cf] 📨 Received 1280 bytes (seq: 7000)
+[2025-12-25T20:47:49.981863] [20:47:49.981] 💓 Keepalive #56 sent
+[2025-12-25T20:47:51.224433] [b244822a-8290-424b-acdb-00bc937e00cf] 📨 Received 1280 bytes (seq: 7050)
+[2025-12-25T20:47:53.244893] [b244822a-8290-424b-acdb-00bc937e00cf] 📨 Received 1280 bytes (seq: 7100)
+[2025-12-25T20:47:54.978727] [20:47:54.978] 💓 Keepalive #57 sent
+[2025-12-25T20:47:55.239069] [b244822a-8290-424b-acdb-00bc937e00cf] 📨 Received 1280 bytes (seq: 7150)
+[2025-12-25T20:47:57.226642] [b244822a-8290-424b-acdb-00bc937e00cf] 📨 Received 1280 bytes (seq: 7200)
+[2025-12-25T20:47:59.225430] [b244822a-8290-424b-acdb-00bc937e00cf] 📨 Received 1280 bytes (seq: 7250)
+[2025-12-25T20:47:59.973777] [20:47:59.973] 💓 Keepalive #58 sent
+[2025-12-25T20:48:01.234884] [b244822a-8290-424b-acdb-00bc937e00cf] 📨 Received 1280 bytes (seq: 7300)
+[2025-12-25T20:48:03.211350] [b244822a-8290-424b-acdb-00bc937e00cf] 📨 Received 1280 bytes (seq: 7350)
+[2025-12-25T20:48:04.977926] [20:48:04.977] 💓 Keepalive #59 sent
+[2025-12-25T20:48:05.245593] [b244822a-8290-424b-acdb-00bc937e00cf] 📨 Received 1280 bytes (seq: 7400)
+[2025-12-25T20:48:07.205498] [b244822a-8290-424b-acdb-00bc937e00cf] 📨 Received 1280 bytes (seq: 7450)
+[2025-12-25T20:48:09.222132] [b244822a-8290-424b-acdb-00bc937e00cf] 📨 Received 1280 bytes (seq: 7500)
+[2025-12-25T20:48:09.994841] [20:48:09.994] 💓 Keepalive #60 sent
+[2025-12-25T20:48:11.207219] [b244822a-8290-424b-acdb-00bc937e00cf] 📨 Received 1280 bytes (seq: 7550)
+[2025-12-25T20:48:13.247354] [b244822a-8290-424b-acdb-00bc937e00cf] 📨 Received 1280 bytes (seq: 7600)
+[2025-12-25T20:48:14.980224] [20:48:14.980] 💓 Keepalive #61 sent
+[2025-12-25T20:48:15.217105] [b244822a-8290-424b-acdb-00bc937e00cf] 📨 Received 1280 bytes (seq: 7650)
+[2025-12-25T20:48:17.244954] [b244822a-8290-424b-acdb-00bc937e00cf] 📨 Received 1280 bytes (seq: 7700)
+[2025-12-25T20:48:19.227150] [b244822a-8290-424b-acdb-00bc937e00cf] 📨 Received 1280 bytes (seq: 7750)
+[2025-12-25T20:48:19.997468] [20:48:19.997] 💓 Keepalive #62 sent
+[2025-12-25T20:48:21.209149] [b244822a-8290-424b-acdb-00bc937e00cf] 📨 Received 1280 bytes (seq: 7800)
+[2025-12-25T20:48:23.259068] [b244822a-8290-424b-acdb-00bc937e00cf] 📨 Received 1280 bytes (seq: 7850)
+[2025-12-25T20:48:25.008134] [20:48:25.008] 💓 Keepalive #63 sent
+[2025-12-25T20:48:25.209265] [b244822a-8290-424b-acdb-00bc937e00cf] 📨 Received 1280 bytes (seq: 7900)
+[2025-12-25T20:48:27.215464] [b244822a-8290-424b-acdb-00bc937e00cf] 📨 Received 1280 bytes (seq: 7950)
+[2025-12-25T20:48:29.223736] [b244822a-8290-424b-acdb-00bc937e00cf] 📨 Received 1280 bytes (seq: 8000)
+[2025-12-25T20:48:30.004641] [20:48:30.004] 💓 Keepalive #64 sent
+[2025-12-25T20:48:31.205341] [b244822a-8290-424b-acdb-00bc937e00cf] 📨 Received 1280 bytes (seq: 8050)
+[2025-12-25T20:48:33.211621] [b244822a-8290-424b-acdb-00bc937e00cf] 📨 Received 1280 bytes (seq: 8100)
+[2025-12-25T20:48:35.024221] [20:48:35.023] 💓 Keepalive #65 sent
+[2025-12-25T20:48:35.207241] [b244822a-8290-424b-acdb-00bc937e00cf] 📨 Received 1280 bytes (seq: 8150)
+[2025-12-25T20:48:37.234837] [b244822a-8290-424b-acdb-00bc937e00cf] 📨 Received 1280 bytes (seq: 8200)
+[2025-12-25T20:48:39.261789] [b244822a-8290-424b-acdb-00bc937e00cf] 📨 Received 1280 bytes (seq: 8250)
+[2025-12-25T20:48:40.039598] [20:48:40.039] 💓 Keepalive #66 sent
+[2025-12-25T20:48:41.210952] [b244822a-8290-424b-acdb-00bc937e00cf] 📨 Received 1280 bytes (seq: 8300)
+[2025-12-25T20:48:43.217841] [b244822a-8290-424b-acdb-00bc937e00cf] 📨 Received 1280 bytes (seq: 8350)
+[2025-12-25T20:48:45.021977] [20:48:45.021] 💓 Keepalive #67 sent
+[2025-12-25T20:48:45.243745] [b244822a-8290-424b-acdb-00bc937e00cf] 📨 Received 1280 bytes (seq: 8400)
+[2025-12-25T20:48:47.245825] [b244822a-8290-424b-acdb-00bc937e00cf] 📨 Received 1280 bytes (seq: 8450)
+[2025-12-25T20:48:49.233592] [b244822a-8290-424b-acdb-00bc937e00cf] 📨 Received 1280 bytes (seq: 8500)
+[2025-12-25T20:48:50.031915] [20:48:50.031] 💓 Keepalive #68 sent
+[2025-12-25T20:48:51.216454] [b244822a-8290-424b-acdb-00bc937e00cf] 📨 Received 1280 bytes (seq: 8550)
+[2025-12-25T20:48:53.233755] [b244822a-8290-424b-acdb-00bc937e00cf] 📨 Received 1280 bytes (seq: 8600)
+[2025-12-25T20:48:55.041800] [20:48:55.041] 💓 Keepalive #69 sent
+[2025-12-25T20:48:55.243303] [b244822a-8290-424b-acdb-00bc937e00cf] 📨 Received 1280 bytes (seq: 8650)
+[2025-12-25T20:48:57.213292] [b244822a-8290-424b-acdb-00bc937e00cf] 📨 Received 1280 bytes (seq: 8700)
+[2025-12-25T20:48:59.215329] [b244822a-8290-424b-acdb-00bc937e00cf] 📨 Received 1280 bytes (seq: 8750)
+[2025-12-25T20:49:00.027662] [20:49:00.027] 💓 Keepalive #70 sent
+[2025-12-25T20:49:01.210982] [b244822a-8290-424b-acdb-00bc937e00cf] 📨 Received 1280 bytes (seq: 8800)
+[2025-12-25T20:49:03.221336] [b244822a-8290-424b-acdb-00bc937e00cf] 📨 Received 1280 bytes (seq: 8850)
+[2025-12-25T20:49:05.038575] [20:49:05.037] 💓 Keepalive #71 sent
+[2025-12-25T20:49:05.247591] [b244822a-8290-424b-acdb-00bc937e00cf] 📨 Received 1280 bytes (seq: 8900)
+[2025-12-25T20:49:07.259733] [b244822a-8290-424b-acdb-00bc937e00cf] 📨 Received 1280 bytes (seq: 8950)
+[2025-12-25T20:49:09.257572] [b244822a-8290-424b-acdb-00bc937e00cf] 📨 Received 1280 bytes (seq: 9000)
+[2025-12-25T20:49:10.024114] [20:49:10.024] 💓 Keepalive #72 sent
+[2025-12-25T20:49:11.234371] [b244822a-8290-424b-acdb-00bc937e00cf] 📨 Received 1280 bytes (seq: 9050)
+[2025-12-25T20:49:13.210898] [b244822a-8290-424b-acdb-00bc937e00cf] 📨 Received 1280 bytes (seq: 9100)
+[2025-12-25T20:49:15.019381] [20:49:15.019] 💓 Keepalive #73 sent
+[2025-12-25T20:49:15.211900] [b244822a-8290-424b-acdb-00bc937e00cf] 📨 Received 1280 bytes (seq: 9150)
+[2025-12-25T20:49:17.233808] [b244822a-8290-424b-acdb-00bc937e00cf] 📨 Received 1280 bytes (seq: 9200)
+[2025-12-25T20:49:19.212278] [b244822a-8290-424b-acdb-00bc937e00cf] 📨 Received 1280 bytes (seq: 9250)
+[2025-12-25T20:49:20.032361] [20:49:20.032] 💓 Keepalive #74 sent
+[2025-12-25T20:49:20.140655] [20:49:20.139] 📝 Shiva
+[2025-12-25T20:49:21.225316] [b244822a-8290-424b-acdb-00bc937e00cf] 📨 Received 1280 bytes (seq: 9300)
+[2025-12-25T20:49:23.223896] [b244822a-8290-424b-acdb-00bc937e00cf] 📨 Received 1280 bytes (seq: 9350)
+[2025-12-25T20:49:25.019238] [20:49:25.019] 💓 Keepalive #75 sent
+[2025-12-25T20:49:25.215543] [b244822a-8290-424b-acdb-00bc937e00cf] 📨 Received 1280 bytes (seq: 9400)
+[2025-12-25T20:49:27.240088] [b244822a-8290-424b-acdb-00bc937e00cf] 📨 Received 1280 bytes (seq: 9450)
+[2025-12-25T20:49:29.245180] [b244822a-8290-424b-acdb-00bc937e00cf] 📨 Received 1280 bytes (seq: 9500)
+[2025-12-25T20:49:30.044070] [20:49:30.044] 💓 Keepalive #76 sent
+[2025-12-25T20:49:31.232193] [b244822a-8290-424b-acdb-00bc937e00cf] 📨 Received 1280 bytes (seq: 9550)
+[2025-12-25T20:49:33.248484] [b244822a-8290-424b-acdb-00bc937e00cf] 📨 Received 1280 bytes (seq: 9600)
+[2025-12-25T20:49:35.017534] [20:49:35.017] 💓 Keepalive #77 sent
+[2025-12-25T20:49:35.120011] [20:49:35.118] 📝 experience.
+[2025-12-25T20:49:35.225447] [b244822a-8290-424b-acdb-00bc937e00cf] 📨 Received 1280 bytes (seq: 9650)
+[2025-12-25T20:49:37.225685] [b244822a-8290-424b-acdb-00bc937e00cf] 📨 Received 1280 bytes (seq: 9700)
+[2025-12-25T20:49:39.239948] [b244822a-8290-424b-acdb-00bc937e00cf] 📨 Received 1280 bytes (seq: 9750)
+[2025-12-25T20:49:40.038275] [20:49:40.038] 💓 Keepalive #78 sent
+[2025-12-25T20:49:41.219112] [b244822a-8290-424b-acdb-00bc937e00cf] 📨 Received 1280 bytes (seq: 9800)
+[2025-12-25T20:49:43.245664] [b244822a-8290-424b-acdb-00bc937e00cf] 📨 Received 1280 bytes (seq: 9850)
+[2025-12-25T20:49:45.047565] [20:49:45.047] 💓 Keepalive #79 sent
+[2025-12-25T20:49:45.241615] [b244822a-8290-424b-acdb-00bc937e00cf] 📨 Received 1280 bytes (seq: 9900)
+[2025-12-25T20:49:47.244088] [b244822a-8290-424b-acdb-00bc937e00cf] 📨 Received 1280 bytes (seq: 9950)
+[2025-12-25T20:49:47.867845] [20:49:47.867] 📝 Nineteen seventy five, February fifteenth.
+[2025-12-25T20:49:49.206200] [b244822a-8290-424b-acdb-00bc937e00cf] 📨 Received 1280 bytes (seq: 10000)
+[2025-12-25T20:49:50.054277] [20:49:50.054] 💓 Keepalive #80 sent
+[2025-12-25T20:49:51.237593] [b244822a-8290-424b-acdb-00bc937e00cf] 📨 Received 1280 bytes (seq: 10050)
+[2025-12-25T20:49:53.258813] [b244822a-8290-424b-acdb-00bc937e00cf] 📨 Received 1280 bytes (seq: 10100)
+[2025-12-25T20:49:55.064056] [20:49:55.063] 💓 Keepalive #81 sent
+[2025-12-25T20:49:55.209562] [b244822a-8290-424b-acdb-00bc937e00cf] 📨 Received 1280 bytes (seq: 10150)
+[2025-12-25T20:50:00.064954] [20:50:00.064] 💓 Keepalive #82 sent
+[2025-12-25T20:50:05.078114] [20:50:05.078] 💓 Keepalive #83 sent
+[2025-12-25T20:50:10.081261] [20:50:10.081] 💓 Keepalive #84 sent
+[2025-12-25T20:50:10.274024] [20:50:10.274] 🔌 Client connected [3a3816e0-767e-4d96-8f83-3fcaa826da80]
+[2025-12-25T20:50:11.155519] [3a3816e0-767e-4d96-8f83-3fcaa826da80] 👤 Authenticated as: valorousveera@gmail.com (83da6eb2-efd2-484b-94d2-9bea46959fde)
+[2025-12-25T20:50:11.721087] [3a3816e0-767e-4d96-8f83-3fcaa826da80] Using tier 'pro' with session cap: 72000s
+[2025-12-25T20:50:12.054764] [20:50:12.054] ✅ Connected to Deepgram
+[2025-12-25T20:50:12.055283] [3a3816e0-767e-4d96-8f83-3fcaa826da80] 📩 Received text message: {"type":"configure","recording_id":"a0739e91-e362-4d58-bd48-fcbc51e507c4"}
+[2025-12-25T20:50:12.055283] [3a3816e0-767e-4d96-8f83-3fcaa826da80] 🎥 Configured for recording: a0739e91-e362-4d58-bd48-fcbc51e507c4
+[2025-12-25T20:50:12.536739] [3a3816e0-767e-4d96-8f83-3fcaa826da80] 📨 Received 1280 bytes (seq: 50)
+[2025-12-25T20:50:14.516852] [3a3816e0-767e-4d96-8f83-3fcaa826da80] 📨 Received 1280 bytes (seq: 100)
+[2025-12-25T20:50:15.058028] [20:50:15.057] 📝 Looks like there is some issue.
+[2025-12-25T20:50:15.063713] [20:50:15.063] 💓 Keepalive #85 sent
+[2025-12-25T20:50:16.490960] [3a3816e0-767e-4d96-8f83-3fcaa826da80] 📨 Received 1280 bytes (seq: 150)
+[2025-12-25T20:50:17.073505] [20:50:17.072] 💓 Keepalive #1 sent
+[2025-12-25T20:50:17.393845] [20:50:17.393] 📝 Okay.
+[2025-12-25T20:50:18.497105] [3a3816e0-767e-4d96-8f83-3fcaa826da80] 📨 Received 1280 bytes (seq: 200)
+[2025-12-25T20:50:20.064002] [20:50:20.064] 💓 Keepalive #86 sent
+[2025-12-25T20:50:20.505291] [3a3816e0-767e-4d96-8f83-3fcaa826da80] 📨 Received 1280 bytes (seq: 250)
+[2025-12-25T20:50:21.287829] [20:50:21.287] 📝 There is no issue. It just took some time to create that
+[2025-12-25T20:50:22.078845] [20:50:22.078] 💓 Keepalive #2 sent
+[2025-12-25T20:50:22.484742] [3a3816e0-767e-4d96-8f83-3fcaa826da80] 📨 Received 1280 bytes (seq: 300)
+[2025-12-25T20:50:23.121623] [20:50:23.121] 📝 and now I clicked on the share link.
+[2025-12-25T20:50:24.484982] [3a3816e0-767e-4d96-8f83-3fcaa826da80] 📨 Received 1280 bytes (seq: 350)
+[2025-12-25T20:50:25.073872] [20:50:25.073] 💓 Keepalive #87 sent
+[2025-12-25T20:50:26.525589] [3a3816e0-767e-4d96-8f83-3fcaa826da80] 📨 Received 1280 bytes (seq: 400)
+[2025-12-25T20:50:26.777978] [20:50:26.776] 📝 So this link is now available. It's actually
+[2025-12-25T20:50:27.067798] [20:50:27.067] 💓 Keepalive #3 sent
+[2025-12-25T20:50:28.501491] [3a3816e0-767e-4d96-8f83-3fcaa826da80] 📨 Received 1280 bytes (seq: 450)
+[2025-12-25T20:50:30.079881] [20:50:30.079] 💓 Keepalive #88 sent
+[2025-12-25T20:50:30.492132] [3a3816e0-767e-4d96-8f83-3fcaa826da80] 📨 Received 1280 bytes (seq: 500)
+[2025-12-25T20:50:32.068006] [20:50:32.068] 💓 Keepalive #4 sent
+[2025-12-25T20:50:32.505534] [3a3816e0-767e-4d96-8f83-3fcaa826da80] 📨 Received 1280 bytes (seq: 550)
+[2025-12-25T20:50:34.483406] [3a3816e0-767e-4d96-8f83-3fcaa826da80] 📨 Received 1280 bytes (seq: 600)
+[2025-12-25T20:50:35.093823] [20:50:35.093] 💓 Keepalive #89 sent
+[2025-12-25T20:50:36.360870] [20:50:36.360] 📝 Now trying to see the text that I'm actually speaking.
+[2025-12-25T20:50:36.526728] [3a3816e0-767e-4d96-8f83-3fcaa826da80] 📨 Received 1280 bytes (seq: 650)
+[2025-12-25T20:50:37.080238] [20:50:37.080] 💓 Keepalive #5 sent
+[2025-12-25T20:50:38.487214] [3a3816e0-767e-4d96-8f83-3fcaa826da80] 📨 Received 1280 bytes (seq: 700)
+[2025-12-25T20:50:40.107192] [20:50:40.107] 💓 Keepalive #90 sent
+[2025-12-25T20:50:40.489535] [3a3816e0-767e-4d96-8f83-3fcaa826da80] 📨 Received 1280 bytes (seq: 750)
+[2025-12-25T20:50:40.967722] [20:50:40.967] 📝 So, basically, the text that I am speaking is not appearing.
+[2025-12-25T20:50:42.095298] [20:50:42.095] 💓 Keepalive #6 sent
+[2025-12-25T20:50:42.276734] [20:50:42.276] 📝 For some reason.
+[2025-12-25T20:50:42.488466] [3a3816e0-767e-4d96-8f83-3fcaa826da80] 📨 Received 1280 bytes (seq: 800)
+[2025-12-25T20:50:44.487406] [3a3816e0-767e-4d96-8f83-3fcaa826da80] 📨 Received 1280 bytes (seq: 850)
+[2025-12-25T20:50:45.102210] [20:50:45.101] 💓 Keepalive #91 sent
+[2025-12-25T20:50:45.878684] [20:50:45.878] 📝 Although this is running in the background.
+[2025-12-25T20:50:46.529715] [3a3816e0-767e-4d96-8f83-3fcaa826da80] 📨 Received 1280 bytes (seq: 900)
+[2025-12-25T20:50:47.101909] [20:50:47.101] 💓 Keepalive #7 sent
+[2025-12-25T20:50:48.507208] [3a3816e0-767e-4d96-8f83-3fcaa826da80] 📨 Received 1280 bytes (seq: 950)
+[2025-12-25T20:50:50.104557] [20:50:50.104] 💓 Keepalive #92 sent
+[2025-12-25T20:50:50.500657] [3a3816e0-767e-4d96-8f83-3fcaa826da80] 📨 Received 1280 bytes (seq: 1000)
+[2025-12-25T20:50:52.094769] [20:50:52.094] 💓 Keepalive #8 sent
+[2025-12-25T20:50:52.487059] [3a3816e0-767e-4d96-8f83-3fcaa826da80] 📨 Received 1280 bytes (seq: 1050)
+[2025-12-25T20:50:54.539515] [3a3816e0-767e-4d96-8f83-3fcaa826da80] 📨 Received 1280 bytes (seq: 1100)
+[2025-12-25T20:50:55.114142] [20:50:55.114] 💓 Keepalive #93 sent
+[2025-12-25T20:50:56.526559] [3a3816e0-767e-4d96-8f83-3fcaa826da80] 📨 Received 1280 bytes (seq: 1150)
+[2025-12-25T20:50:57.114129] [20:50:57.114] 💓 Keepalive #9 sent
+[2025-12-25T20:50:58.501957] [3a3816e0-767e-4d96-8f83-3fcaa826da80] 📨 Received 1280 bytes (seq: 1200)
+[2025-12-25T20:51:00.131995] [20:51:00.131] 💓 Keepalive #94 sent
+[2025-12-25T20:51:00.487218] [3a3816e0-767e-4d96-8f83-3fcaa826da80] 📨 Received 1280 bytes (seq: 1250)
+[2025-12-25T20:51:02.113726] [20:51:02.113] 💓 Keepalive #10 sent
+[2025-12-25T20:51:02.484872] [3a3816e0-767e-4d96-8f83-3fcaa826da80] 📨 Received 1280 bytes (seq: 1300)
+[2025-12-25T20:51:03.317632] [3a3816e0-767e-4d96-8f83-3fcaa826da80] 📩 Received text message: {"type":"stop_recording"}
+[2025-12-25T20:51:03.319194] [3a3816e0-767e-4d96-8f83-3fcaa826da80] Recording stop received; session timer reset
+[2025-12-25T20:51:03.381830] [20:51:03.381] ⚠️ Client loop error: Cannot call "receive" once a disconnect message has been received.
+[2025-12-25T20:51:03.383349] 
+[20:51:03.381] 🔌 Closing connection
+[2025-12-25T20:51:03.383349] [20:51:03.383] 📊 FINAL STATS:
+[2025-12-25T20:51:03.384497]   runtime_seconds: 51.7
+[2025-12-25T20:51:03.384497]   chunks_sent: 1317
+[2025-12-25T20:51:03.384497]   transcripts_received: 28
+[2025-12-25T20:51:03.384497]   total_bytes: 1685760
+[2025-12-25T20:51:03.384497]   chunks_per_sec: 25.06
+[2025-12-25T20:51:03.384497]   avg_latency_ms: 29.06
+[2025-12-25T20:51:03.386010]   min_latency_ms: 2.75
+[2025-12-25T20:51:03.386010]   max_latency_ms: 75.06
+[2025-12-25T20:51:04.061734] [3a3816e0-767e-4d96-8f83-3fcaa826da80] 📈 Updated usage: +51s (Total: 12020s)
+[2025-12-25T20:51:05.144010] [20:51:05.144] 💓 Keepalive #95 sent
+[2025-12-25T20:51:10.166178] [20:51:10.166] 💓 Keepalive #96 sent
+[2025-12-25T20:51:15.180560] [20:51:15.180] 💓 Keepalive #97 sent
+[2025-12-25T20:51:20.197220] [20:51:20.197] 💓 Keepalive #98 sent
+[2025-12-25T20:51:25.207057] [20:51:25.207] 💓 Keepalive #99 sent
+[2025-12-25T20:51:30.219705] [20:51:30.219] 💓 Keepalive #100 sent
+[2025-12-25T20:51:35.247763] [20:51:35.247] 💓 Keepalive #101 sent
+[2025-12-25T20:51:40.232633] [20:51:40.232] 💓 Keepalive #102 sent
+[2025-12-25T20:51:45.229096] [20:51:45.227] 💓 Keepalive #103 sent
+[2025-12-25T20:51:50.244781] [20:51:50.244] 💓 Keepalive #104 sent
+[2025-12-25T20:51:55.240280] [20:51:55.239] 💓 Keepalive #105 sent
+[2025-12-25T20:52:00.238674] [20:52:00.238] 💓 Keepalive #106 sent
+[2025-12-25T20:52:05.240139] [20:52:05.240] 💓 Keepalive #107 sent
+[2025-12-25T20:52:10.246096] [20:52:10.246] 💓 Keepalive #108 sent
+[2025-12-25T20:52:15.230036] [20:52:15.230] 💓 Keepalive #109 sent
+[2025-12-25T20:52:20.243857] [20:52:20.243] 💓 Keepalive #110 sent
+[2025-12-25T20:52:25.253143] [20:52:25.253] 💓 Keepalive #111 sent
+[2025-12-25T20:52:30.278647] [20:52:30.278] 💓 Keepalive #112 sent
+[2025-12-25T20:52:35.281050] [20:52:35.280] 💓 Keepalive #113 sent
+[2025-12-25T20:52:40.275281] [20:52:40.274] 💓 Keepalive #114 sent
+[2025-12-25T20:52:45.270477] [20:52:45.268] 💓 Keepalive #115 sent
+[2025-12-25T20:52:50.295370] [20:52:50.295] 💓 Keepalive #116 sent
+[2025-12-25T20:52:55.269146] [20:52:55.269] 💓 Keepalive #117 sent
+[2025-12-25T20:52:58.714555] [20:52:58.714] ⚠️ Client loop error: Cannot call "receive" once a disconnect message has been received.
+[2025-12-25T20:52:58.715573] 
+[20:52:58.714] 🔌 Closing connection
+[2025-12-25T20:52:58.715573] [20:52:58.715] 📊 FINAL STATS:
+[2025-12-25T20:52:58.715573]   runtime_seconds: 589.2
+[2025-12-25T20:52:58.715573]   chunks_sent: 10166
+[2025-12-25T20:52:58.716582]   transcripts_received: 65
+[2025-12-25T20:52:58.716582]   total_bytes: 13012480
+[2025-12-25T20:52:58.716582]   chunks_per_sec: 25.44
+[2025-12-25T20:52:58.716582]   avg_latency_ms: 28.36
+[2025-12-25T20:52:58.716582]   min_latency_ms: 1.33
+[2025-12-25T20:52:58.717645]   max_latency_ms: 120.79
+[2025-12-25T20:52:59.499284] [b244822a-8290-424b-acdb-00bc937e00cf] 📈 Updated usage: +588s (Total: 12608s)

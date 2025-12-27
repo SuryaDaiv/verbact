@@ -622,7 +622,6 @@ async def create_share(share_data: LiveShareCreate, token: str):
         async with await get_supabase_client(token) as supabase_client:
             share_record = {
                 "id": share_id,
-                "user_id": user_id,  # ADDED: Required for RLS
                 "recording_id": str(share_data.recording_id),
                 "share_token": share_token,
                 "is_active": True,

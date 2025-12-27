@@ -166,14 +166,21 @@ export default function Dashboard() {
 
     setIsSharing(true);
     try {
-      // 1. Ensure it exists in DB (Idempotent check would be ideal, but init is safe to call again or we trust auto-save)
-      // Actually, if auto-save worked, we just need the share link.
-      // But let's re-ensure just in case network failed during auto-save.
-      // We'll skip the "init" call here to avoid duplicates if backend doesn't handle upsert, 
-      // OR we can assume auto-save fired. Let's rely on auto-save for now, 
-      // or better: just call the share endpoint which usually expects the ID to exist.
-      // If the backend /shares endpoint requires the recording row, and auto-save failed, this might fail.
-      // Let's keep it robust: Try to Create Share Link directly.
+      // 1. Ensure recording exists in DB (init)
+      const initFormData = new FormData();
+      initFormData.append("id", recordingId);
+      initFormData.append("title", `Live Recording ${new Date().toLocaleTimeString()}`);
+      initFormData.append("token", session.access_token);
+
+      const initResponse = await fetch(`${API_BASE_URL}/api/recordings/init`, {
+        method: "POST",
+        body: initFormData
+      });
+
+      if (!initResponse.ok) {
+        console.warn("Init recording warning:", await initResponse.text());
+        // Continue anyway? If init failed, share might fail too, but let's try.
+      }
 
       // 2. Create Share Link
       const response = await fetch(`${API_BASE_URL}/api/shares?token=${session.access_token}`, {
