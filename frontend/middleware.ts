@@ -8,7 +8,7 @@ export async function middleware(request: NextRequest) {
     const response = await updateSession(request)
 
     // Check for protected routes
-    if (request.nextUrl.pathname.startsWith('/dashboard')) {
+    if (request.nextUrl.pathname.startsWith('/dashboard') || request.nextUrl.pathname.startsWith('/recordings')) {
         const supabase = createServerClient(
             SUPABASE_URL,
             SUPABASE_ANON_KEY,

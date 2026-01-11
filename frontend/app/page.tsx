@@ -32,7 +32,7 @@ export default function Home() {
 
           <div className="flex flex-col sm:flex-row gap-4 w-full sm:w-auto">
             <Link
-              href="/login"
+              href="/recordings/new"
               className="group relative inline-flex items-center justify-center px-8 py-4 text-base font-bold text-white transition-all duration-300 bg-gradient-brand rounded-full hover:scale-105 shadow-[0_0_20px_rgba(168,108,255,0.4)] hover:shadow-[0_0_40px_rgba(255,111,97,0.6)]"
             >
               Start Recording Free
