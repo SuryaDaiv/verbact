@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef } from 'react';
-import { View, Text, TouchableOpacity, StyleSheet, Share, Alert, ScrollView, ActivityIndicator, Platform } from 'react-native';
+import { View, Text, TouchableOpacity, StyleSheet, Share, Alert, ScrollView, ActivityIndicator, Platform, Modal } from 'react-native';
 import { useRouter } from 'expo-router';
-import { Mic, Square, Share2, Copy } from 'lucide-react-native';
+import { Mic, Square, Share2, Copy, CheckCircle, X, Clock } from 'lucide-react-native';
 import { Colors } from '../../constants/Colors';
 import { audioService } from '../../lib/AudioService';
 import { supabase } from '../../lib/supabase';
@@ -30,7 +30,31 @@ export default function Dashboard() {
   const [isInitialized, setIsInitialized] = useState(false);
   const [transcriptSegments, setTranscriptSegments] = useState<any[]>([]);
 
+  // Saving State & Usage
+  const [saveStatus, setSaveStatus] = useState<'idle' | 'saving' | 'success'>('idle');
+  const [usage, setUsage] = useState<{ used: number, limit: number, remaining: number, tier: string } | null>(null);
+
   const scrollViewRef = useRef<ScrollView>(null);
+
+  const fetchUsage = async () => {
+    try {
+      const { data: { session } } = await supabase.auth.getSession();
+      if (!session) return;
+
+      const response = await fetch(`${API_BASE_URL}/api/user/usage?token=${session.access_token}`);
+      if (response.ok) {
+        const data = await response.json();
+        setUsage({
+          used: data.used_seconds,
+          limit: data.limit_seconds,
+          remaining: data.remaining_seconds,
+          tier: data.tier
+        });
+      }
+    } catch (e) {
+      console.log("Failed to fetch usage:", e);
+    }
+  };
 
   useEffect(() => {
     // wait for init
@@ -44,6 +68,7 @@ export default function Dashboard() {
       }
     };
     initAudio();
+    fetchUsage();
 
 
 
@@ -68,9 +93,10 @@ export default function Dashboard() {
     const handleError = (msg: string) => {
       Alert.alert("Error", msg);
       setIsRecording(false);
+      setSaveStatus('idle'); // Reset if error occurs during recording
     };
     const handleStop = () => {
-      setIsRecording(false);
+      // setIsRecording(false); // Handled manually in toggle to control flow
     };
 
     audioService.on('transcript', handleTranscript);
@@ -116,13 +142,16 @@ export default function Dashboard() {
       if (!response.ok) {
         console.error("Save failed", await response.text());
         Alert.alert("Save Error", "Failed to save recording to cloud.");
+        setSaveStatus('idle');
       } else {
         console.log("Recording saved successfully!");
-        Alert.alert("Saved", "Recording uploaded successfully.");
+        setSaveStatus('success');
+        fetchUsage(); // Refresh usage after save
       }
     } catch (e) {
       console.error("Save Error", e);
       Alert.alert("Error", "Exception saving recording.");
+      setSaveStatus('idle');
     }
   };
 
@@ -130,13 +159,19 @@ export default function Dashboard() {
     if (!isInitialized) return;
 
     if (isRecording) {
+      // STOPPING
+      setSaveStatus('saving'); // Show saving UI immediately
       const filePath = await audioService.stopRecording();
       setIsRecording(false);
+
       // Auto-Save on Stop
       if (recordingId) {
         await saveRecording(recordingId, filePath);
+      } else {
+        setSaveStatus('idle');
       }
     } else {
+      // STARTING
       const { data: { session } } = await supabase.auth.getSession();
       if (!session) {
         Alert.alert("Error", "No active session");
@@ -149,6 +184,7 @@ export default function Dashboard() {
       setInterimTranscript('');
       setTranscriptSegments([]); // Reset segments
       setShareUrl(null);
+      setSaveStatus('idle'); // Ensure idle
 
       await audioService.startRecording(session.access_token, newId);
       setIsRecording(true);
@@ -210,8 +246,76 @@ export default function Dashboard() {
     }
   };
 
+  const closeSuccessModal = () => {
+    setSaveStatus('idle');
+  };
+
+  // Format seconds to compact string
+  const formatTime = (seconds: number) => {
+    if (seconds === -1) return "∞";
+    const mins = Math.floor(seconds / 60);
+    const hrs = Math.floor(mins / 60);
+    if (hrs > 0) return `${hrs}h ${mins % 60}m`;
+    return `${mins}m`;
+  };
+
   return (
     <View style={styles.container}>
+      {/* Saving / Success Modal */}
+      <Modal
+        animationType="fade"
+        transparent={true}
+        visible={saveStatus !== 'idle'}
+        onRequestClose={() => {
+          if (saveStatus === 'success') closeSuccessModal();
+        }}
+      >
+        <View style={styles.modalOverlay}>
+          <View style={styles.modalContent}>
+            {saveStatus === 'saving' ? (
+              <>
+                <ActivityIndicator size="large" color={Colors.primary} style={{ marginBottom: 16 }} />
+                <Text style={styles.modalTitle}>Saving Recording...</Text>
+                <Text style={styles.modalSubtitle}>Syncing to cloud</Text>
+              </>
+            ) : (
+              <>
+                <View style={styles.successIcon}>
+                  <CheckCircle size={48} color={Colors.primary} />
+                </View>
+                <Text style={styles.modalTitle}>Saved!</Text>
+                <Text style={styles.modalSubtitle}>Recording uploaded successfully.</Text>
+                <TouchableOpacity style={styles.modalButton} onPress={closeSuccessModal}>
+                  <Text style={styles.modalButtonText}>Done</Text>
+                </TouchableOpacity>
+              </>
+            )}
+          </View>
+        </View>
+      </Modal>
+
+      {/* Usage Indicator (Top bar) */}
+      <View style={{ paddingTop: 60, paddingHorizontal: 20, paddingBottom: 10 }}>
+        {usage ? (
+          <View style={{ flexDirection: 'row', alignItems: 'center', backgroundColor: 'rgba(255,255,255,0.05)', padding: 12, borderRadius: 12 }}>
+            <Clock size={16} color={Colors.primary} style={{ marginRight: 8 }} />
+            <Text style={{ color: Colors.text, fontSize: 13, flex: 1 }}>
+              <Text style={{ fontWeight: 'bold', color: Colors.primary }}>{usage.tier.toUpperCase()}</Text> Plan: {formatTime(usage.remaining)} remaining
+            </Text>
+            <View style={{ width: 60, height: 4, backgroundColor: 'rgba(255,255,255,0.1)', borderRadius: 2 }}>
+              <View style={{
+                width: usage.limit === -1 ? '100%' : `${Math.min(100, (usage.remaining / usage.limit) * 100)}%`,
+                height: '100%',
+                backgroundColor: usage.remaining < 300 && usage.limit !== -1 ? Colors.error : Colors.primary,
+                borderRadius: 2
+              }} />
+            </View>
+          </View>
+        ) : (
+          <View style={{ height: 44 }} /> // Placeholder
+        )}
+      </View>
+
       {/* Main Content Area */}
       <View style={styles.mainContent}>
         {/* Transcript */}
@@ -265,12 +369,12 @@ export default function Dashboard() {
             </TouchableOpacity>
 
             {/* Record Button */}
-            <TouchableOpacity onPress={handleToggleRecord} activeOpacity={0.8} disabled={!isInitialized}>
+            <TouchableOpacity onPress={handleToggleRecord} activeOpacity={0.8} disabled={!isInitialized || saveStatus === 'saving'}>
               <LinearGradient
                 colors={isRecording ? ([Colors.error, '#D32F2F'] as const) : (['#FF8C00', '#FF0080'] as const)}
                 style={[
                   styles.recordButton,
-                  { opacity: isInitialized ? 1 : 0.5 }
+                  { opacity: (isInitialized && saveStatus !== 'saving') ? 1 : 0.5 }
                 ]}
               >
                 {isRecording ? (
@@ -306,9 +410,62 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: Colors.background,
   },
+  modalOverlay: {
+    flex: 1,
+    backgroundColor: 'rgba(0,0,0,0.7)',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  modalContent: {
+    backgroundColor: '#1E1E24',
+    padding: 32,
+    borderRadius: 24,
+    alignItems: 'center',
+    width: '80%',
+    shadowColor: "#000",
+    shadowOffset: {
+      width: 0,
+      height: 10,
+    },
+    shadowOpacity: 0.3,
+    shadowRadius: 20,
+    elevation: 10,
+    borderWidth: 1,
+    borderColor: 'rgba(255,255,255,0.1)',
+  },
+  modalTitle: {
+    color: 'white',
+    fontSize: 20,
+    fontWeight: '700',
+    marginBottom: 8,
+    textAlign: 'center',
+  },
+  modalSubtitle: {
+    color: '#BFC2CF',
+    fontSize: 16,
+    textAlign: 'center',
+    marginBottom: 24,
+  },
+  modalButton: {
+    backgroundColor: Colors.primary,
+    paddingHorizontal: 32,
+    paddingVertical: 12,
+    borderRadius: 100,
+  },
+  modalButtonText: {
+    color: 'white',
+    fontSize: 16,
+    fontWeight: '600',
+  },
+  successIcon: {
+    marginBottom: 16,
+    backgroundColor: 'rgba(168, 108, 255, 0.1)',
+    padding: 16,
+    borderRadius: 50,
+  },
   mainContent: {
     flex: 1,
-    paddingTop: 100,
+    paddingTop: 10, // Reduced top padding to fit usage bar
   },
   statusContainer: {
     alignItems: 'center',

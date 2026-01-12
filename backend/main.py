@@ -416,6 +416,69 @@ async def create_recording(
         raise HTTPException(status_code=500, detail=str(e))
 
 
+@app.get("/api/user/usage")
+async def get_user_usage(token: str):
+    """Get user's recording usage and remaining limits"""
+    try:
+        # Verify user
+        async with httpx.AsyncClient() as client:
+            user_response = await client.get(
+                f"{SUPABASE_URL}/auth/v1/user",
+                headers={
+                    "Authorization": f"Bearer {token}",
+                    "apikey": SUPABASE_KEY
+                }
+            )
+            
+            if user_response.status_code != 200:
+                raise HTTPException(status_code=401, detail="Invalid token")
+            
+            user_data = user_response.json()
+            user_id = user_data["id"]
+
+        async with await get_supabase_client(token) as supabase_client:
+            # 1. Get Profile for Tier
+            profile_response = await supabase_client.get(
+                f"/rest/v1/profiles?id=eq.{user_id}&select=subscription_tier"
+            )
+            tier = "free"
+            if profile_response.status_code == 200 and profile_response.json():
+                tier = profile_response.json()[0].get("subscription_tier", "free").lower()
+            
+            # 2. Calculate Usage (Sum duration of all recordings)
+            # Efficient way: Select only duration_seconds
+            rec_response = await supabase_client.get(
+                f"/rest/v1/recordings?user_id=eq.{user_id}&select=duration_seconds"
+            )
+            
+            used_seconds = 0
+            if rec_response.status_code == 200:
+                recordings = rec_response.json()
+                used_seconds = sum(r.get("duration_seconds", 0) for r in recordings)
+            
+            # 3. Define Limits
+            # TODO: Move to config/DB
+            LIMITS = {
+                "free": 30 * 60,       # 30 mins
+                "pro": 300 * 60,       # 5 hours
+                "unlimited": -1        # Infinite
+            }
+            
+            limit = LIMITS.get(tier, LIMITS["free"])
+            remaining = -1 if limit == -1 else max(0, limit - used_seconds)
+            
+            return {
+                "tier": tier,
+                "used_seconds": used_seconds,
+                "limit_seconds": limit,
+                "remaining_seconds": remaining
+            }
+
+    except Exception as e:
+        print(f"Error fetching usage: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+
 @app.get("/api/recordings")
 async def get_recordings(token: str):
     """Get all recordings for the authenticated user"""
