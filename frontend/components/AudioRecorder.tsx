@@ -54,6 +54,7 @@ export default function AudioRecorder() {
   };
   const sessionLimitSeconds = tierLimits[subscriptionTier];
   const [authError, setAuthError] = useState<string | null>(null);
+  const [remainingQuota, setRemainingQuota] = useState<number | null>(null);
 
   // Wake Lock Ref
   const wakeLockRef = useRef<WakeLockSentinel | null>(null);
@@ -81,6 +82,18 @@ export default function AudioRecorder() {
     }
   };
 
+  const fetchUsage = async (token: string) => {
+    try {
+      const res = await fetch(`${API_BASE_URL}/api/user/usage?token=${token}`);
+      if (res.ok) {
+        const data = await res.json();
+        setRemainingQuota(data.remaining_seconds);
+      }
+    } catch (e) {
+      console.error("Error fetching usage:", e);
+    }
+  };
+
   // Ref to hold the latest status for the auth listener to check without creating a dependency
   const statusStateRef = useRef(status);
   useEffect(() => {
@@ -99,6 +112,7 @@ export default function AudioRecorder() {
       }
       // Only fetch profile if we don't have the tier yet or just to be safe
       fetchProfile(session.user.id);
+      fetchUsage(session.access_token);
     } else {
       setSessionToken(null);
       setStatus("Not Logged In");
@@ -121,6 +135,7 @@ export default function AudioRecorder() {
       console.log("Initial session found");
       setSessionToken(session.access_token);
       fetchProfile(session.user.id);
+      fetchUsage(session.access_token);
       setStatus("Ready");
     } else {
       setStatus("Not Logged In");
@@ -881,6 +896,11 @@ export default function AudioRecorder() {
         <div className={`text-5xl font-bold font-mono tracking-wider tabular-nums transition-all duration-300 ${isRecording ? 'text-gradient' : 'text-white/20'}`}>
           {formatTime(elapsedTime)}
         </div>
+        {remainingQuota !== null && (
+          <div className="text-xs text-[#BFC2CF]/60 mt-1 font-mono">
+            Available: {remainingQuota === -1 ? 'Unlimited' : formatTime(Math.max(0, remainingQuota - elapsedTime))}
+          </div>
+        )}
         <p className="text-xs text-[#666] mt-1">{status}</p>
       </div>
 
