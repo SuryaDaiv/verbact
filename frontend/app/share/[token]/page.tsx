@@ -34,7 +34,7 @@ export default function SharePage({ params }: { params: Promise<{ token: string 
 
     // Options
     const [isAutoScroll, setIsAutoScroll] = useState(true);
-    const [isMerge, setIsMerge] = useState(false);
+    const [isMerge, setIsMerge] = useState(true);
 
     const audioRef = useRef<HTMLAudioElement | null>(null);
     const transcriptRef = useRef<HTMLDivElement | null>(null);
@@ -271,15 +271,7 @@ export default function SharePage({ params }: { params: Promise<{ token: string 
                             <span className="text-xs font-medium hidden sm:inline">Auto-Scroll</span>
                         </button>
 
-                        <button
-                            onClick={() => setIsMerge(!isMerge)}
-                            className={`p-2 rounded-lg transition-all flex items-center space-x-2 ${isMerge ? "bg-white/10 text-white" : "bg-transparent text-[#666] hover:bg-white/5"
-                                }`}
-                            title="Merge Text"
-                        >
-                            <AlignLeft size={18} />
-                            <span className="text-xs font-medium hidden sm:inline">Merge</span>
-                        </button>
+                        {/* Merge button removed (always enabled) */}
                     </div>
                 </div>
 
