@@ -1,4 +1,4 @@
-import { View, Text, StyleSheet, ScrollView, ActivityIndicator, TouchableOpacity, Share, Platform } from 'react-native';
+import { View, Text, StyleSheet, ScrollView, ActivityIndicator, TouchableOpacity, Share, Platform, TextInput } from 'react-native';
 import { useLocalSearchParams, useRouter, Stack } from 'expo-router';
 import { useEffect, useState } from 'react';
 import { supabase } from '../../../lib/supabase';
@@ -15,6 +15,13 @@ export default function RecordingDetail() {
     const [transcripts, setTranscripts] = useState<any[]>([]);
     const [loading, setLoading] = useState(true);
     const insets = useSafeAreaInsets();
+
+    // Search State
+    const [searchQuery, setSearchQuery] = useState('');
+
+    const filteredTranscripts = transcripts.filter(t =>
+        (t.text || t.content || '').toLowerCase().includes(searchQuery.toLowerCase())
+    );
 
     // Audio State
     const [sound, setSound] = useState<Audio.Sound | null>(null);
@@ -210,22 +217,33 @@ export default function RecordingDetail() {
                     <View style={styles.progressBar}>
                         <View style={[styles.progressFill, { width: `${duration > 0 ? (position / duration) * 100 : 0}%` }]} />
                     </View>
-                    <Text style={styles.durationText}>{formatTime(position)} / {formatTime(duration)}</Text>
+
                 </View>
             )}
+
+            {/* Search Bar */}
+            <View style={styles.searchContainer}>
+                <TextInput
+                    style={styles.searchInput}
+                    placeholder="Search transcript..."
+                    placeholderTextColor={Colors.textSecondary}
+                    onChangeText={setSearchQuery}
+                    value={searchQuery}
+                />
+            </View>
 
             {/* Transcript */}
             <ScrollView style={styles.content} contentContainerStyle={{ paddingBottom: 40 }}>
                 <Text style={styles.sectionTitle}>Transcript</Text>
-                {transcripts.length > 0 ? (
-                    transcripts.map((t, index) => (
+                {filteredTranscripts.length > 0 ? (
+                    filteredTranscripts.map((t, index) => (
                         <View key={index} style={styles.segment}>
-                            <Text style={styles.timestamp}>{formatTimestamp(t.start_time)}</Text>
-                            <Text style={styles.segmentText}>{t.text}</Text>
+                            {/* Timestamp removed as requested */}
+                            <Text style={styles.segmentText}>{t.text || t.content}</Text>
                         </View>
                     ))
                 ) : (
-                    <Text style={styles.emptyText}>No transcript available.</Text>
+                    <Text style={styles.emptyText}>{transcripts.length ? "No matches found." : "No transcript available."}</Text>
                 )}
             </ScrollView>
         </View>
@@ -351,5 +369,18 @@ const styles = StyleSheet.create({
         fontStyle: 'italic',
         textAlign: 'center',
         marginTop: 40,
+    },
+    searchContainer: {
+        paddingHorizontal: 20,
+        marginBottom: 10,
+    },
+    searchInput: {
+        backgroundColor: 'rgba(255,255,255,0.05)',
+        borderRadius: 12,
+        padding: 12,
+        color: Colors.text,
+        fontSize: 14,
+        borderWidth: 1,
+        borderColor: 'rgba(255,255,255,0.1)',
     }
 });

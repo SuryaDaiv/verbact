@@ -50,34 +50,9 @@ export default function AppLayout() {
                 name="record"
                 options={{
                     title: 'Record',
-                    tabBarIcon: ({ focused }) => (
-                        <View style={{
-                            width: 56,
-                            height: 56,
-                            borderRadius: 28,
-                            backgroundColor: Colors.surface,
-                            alignItems: 'center',
-                            justifyContent: 'center',
-                            marginTop: -20, // Pop out effect (adjusted for inverted layout)
-                            borderWidth: 4,
-                            borderColor: Colors.background,
-                            shadowColor: "#000",
-                            shadowOffset: { width: 0, height: 4 },
-                            shadowOpacity: 0.3,
-                            shadowRadius: 4,
-                            elevation: 5,
-                        }}>
-                            <Image
-                                source={require('../../assets/images/logo.png')}
-                                style={{ width: 40, height: 40 }}
-                                resizeMode="contain"
-                            />
-                        </View>
-                    ),
+                    tabBarIcon: ({ color, size }) => <Mic size={size} color={color} />,
                     tabBarLabelStyle: {
-                        color: Colors.primary, // Always primary color for the main action
                         fontWeight: '700',
-                        marginBottom: 28 // Push label up to clear the popped-out button
                     }
                 }}
             />

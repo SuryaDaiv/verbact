@@ -50,13 +50,13 @@ class AudioService {
             sampleRate: 16000,
             channels: 1,
             bitsPerSample: 16,
-            audioSource: 6, // VOICE_RECOGNITION
+            audioSource: 1, // 1 = MIC (Better for Emulator), 6 = VOICE_RECOGNITION
             wavFile: 'test.wav'
         };
 
         try {
             AudioRecord.init(options);
-            console.log("AudioRecord initialized");
+            console.log("AudioRecord initialized with source: 1 (MIC)");
             this.isInitialized = true;
         } catch (e: any) {
             console.error("AudioRecord Init Error:", e);
@@ -76,6 +76,9 @@ class AudioService {
         // Setup event listener for audio data
         AudioRecord.on('data', data => {
             if (!this.isRecording || !this.socket || this.socket.readyState !== WebSocket.OPEN) return;
+
+            // Debug log to confirm data flow (throttle this in prod)
+            // console.log("Audio Data Packet:", data.length); 
 
             // data is base64 encoded PCM
             const buffer = base64ToArrayBuffer(data);
@@ -110,7 +113,7 @@ class AudioService {
                     if (grantedAudio !== PermissionsAndroid.RESULTS.GRANTED) {
                         console.warn('Microphone permission denied');
                         this.emit('error', 'Microphone permission denied');
-                        return;
+                        return; // EXIT if denied
                     }
 
                     // Request Notifications (Safe Check)
@@ -118,23 +121,19 @@ class AudioService {
                         // @ts-ignore
                         const POST_NOTIFICATIONS = PermissionsAndroid.PERMISSIONS.POST_NOTIFICATIONS;
                         if (POST_NOTIFICATIONS) {
-                            try {
-                                await PermissionsAndroid.request(POST_NOTIFICATIONS);
-                            } catch (e) {
-                                console.warn("Notif perm error", e);
-                            }
+                            await PermissionsAndroid.request(POST_NOTIFICATIONS);
                         }
                     }
                 } catch (permErr: any) {
                     console.error("Permission Request Error:", permErr);
+                    return; // EXIT on error
                 }
             }
 
             console.log('Starting recording...', recordingId);
             this.recordingId = recordingId;
 
-            // 1. Start Foreground Service Notification (TEMPORARILY DISABLED to isolate crash)
-            /*
+            // 1. Start Foreground Service Notification (REQUIRED for background recording)
             try {
                 if (Platform.OS === 'android') {
                     await notifee.displayNotification({
@@ -149,13 +148,14 @@ class AudioService {
                             pressAction: {
                                 id: 'default',
                             },
+                            // Add action needed for Android 14+ FGS if microphone type
+                            foregroundServiceTypes: [2048], // 2048 = FOREGROUND_SERVICE_TYPE_MICROPHONE (api 29+) or define in manifest
                         },
                     });
                 }
             } catch (err: any) {
-                console.error("Foreground Service Error:", err);
+                console.error("Foreground Service Error (Non-Fatal):", err);
             }
-            */
 
             // 2. Connect WebSocket
             const WS_URL = 'wss://api.verbact.com'; // Production URL

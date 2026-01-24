@@ -266,15 +266,6 @@ export default function RecordScreen() {
                 </View>
             </Modal>
 
-            {/* NEW: Top Header (Timer & Title) */}
-            <View style={styles.topHeader}>
-                <Text style={styles.headerTitle}>Record</Text>
-                <View style={styles.timerContainer}>
-                    <Text style={styles.timerText}>{formatDuration(recordingDuration)}</Text>
-                    <Text style={styles.statusText}>{isRecording ? "LIVE" : (isInitialized ? "Ready" : "Initializing...")}</Text>
-                </View>
-            </View>
-
             {/* Main Content Area */}
             <View style={styles.mainContent}>
                 {/* Transcript */}
@@ -307,31 +298,36 @@ export default function RecordScreen() {
                 />
 
                 <View style={styles.controls}>
-                    {/* Primary Actions */}
-                    <View style={styles.buttonsRow}>
-                        {/* Share */}
+                    <View style={styles.controlRow}>
+                        {/* Share (Left) */}
                         <TouchableOpacity onPress={handleCreateShare} style={styles.sideButton} disabled={!recordingId}>
                             {isSharing ? <ActivityIndicator size="small" color={Colors.textSecondary} /> : (
                                 <Share2 size={24} color={recordingId ? Colors.text : Colors.textSecondary} />
                             )}
                         </TouchableOpacity>
 
-                        {/* Record Button - Standard Mic/Stop */}
+                        {/* Record Button (Center) */}
                         <TouchableOpacity onPress={handleToggleRecord} activeOpacity={0.8} disabled={!isInitialized || saveStatus === 'saving'}>
-                            <View style={[
-                                styles.recordButtonContainer,
-                                isRecording ? styles.recordingActive : styles.recordingIdle
-                            ]}>
-                                {isRecording ? (
-                                    <Square size={32} color="white" fill="white" />
-                                ) : (
-                                    <Mic size={32} color="white" />
-                                )}
+                            <View style={[styles.recordButtonContainer]}>
+                                <Image
+                                    source={require('../../assets/images/logo.png')}
+                                    style={[
+                                        styles.recordLogo,
+                                        { tintColor: isRecording ? '#4CAF50' : '#FF4444' } // Green=Rec, Red=Stop
+                                    ]}
+                                    resizeMode="contain"
+                                />
                             </View>
                         </TouchableOpacity>
 
-                        {/* Right Side - Empty for balance (or could be removed if width adjusted) */}
-                        <View style={styles.sideButton} />
+                        {/* Timer & Status (Right) */}
+                        <View style={styles.timerContainer}>
+                            <Text style={styles.timerText}>{formatDuration(recordingDuration)}</Text>
+                            <Text style={styles.statusText}>{isRecording ? "LIVE" : "READY"}</Text>
+                            <Text style={{ fontSize: 10, color: isInitialized ? '#4CAF50' : '#666', marginTop: 4, fontWeight: '500' }}>
+                                {isInitialized ? "● Connected" : "○ Connecting..."}
+                            </Text>
+                        </View>
                     </View>
                 </View>
             </View>
@@ -343,47 +339,9 @@ const styles = StyleSheet.create({
     container: {
         flex: 1,
         backgroundColor: Colors.background,
+        paddingTop: 60,
     },
-    topHeader: {
-        paddingTop: 60, // Safe area
-        paddingHorizontal: 24,
-        paddingBottom: 20,
-        alignItems: 'center',
-        justifyContent: 'center',
-        zIndex: 10,
-    },
-    headerTitle: {
-        fontSize: 16,
-        fontWeight: '600',
-        color: Colors.textSecondary,
-        marginBottom: 8,
-        letterSpacing: 1,
-        textTransform: 'uppercase',
-    },
-    timerContainer: {
-        alignItems: 'center',
-        gap: 4,
-    },
-    timerText: {
-        fontFamily: Platform.OS === 'ios' ? 'Courier New' : 'monospace',
-        fontSize: 40, // Slightly larger
-        fontWeight: '700',
-        color: Colors.text,
-        letterSpacing: 2,
-    },
-    statusText: {
-        fontSize: 12,
-        fontWeight: '600',
-        color: Colors.primary,
-        letterSpacing: 1,
-        textTransform: 'uppercase',
-        opacity: 0.8,
-    },
-    statusDot: {
-        width: 8,
-        height: 8,
-        borderRadius: 4,
-    },
+    // Top Header Removed
 
     // ... modal styles unchanged ...
     modalOverlay: {
@@ -399,10 +357,7 @@ const styles = StyleSheet.create({
         alignItems: 'center',
         width: '80%',
         shadowColor: "#000",
-        shadowOffset: {
-            width: 0,
-            height: 10,
-        },
+        shadowOffset: { width: 0, height: 10 },
         shadowOpacity: 0.3,
         shadowRadius: 20,
         elevation: 10,
@@ -442,14 +397,13 @@ const styles = StyleSheet.create({
 
     mainContent: {
         flex: 1,
-        // paddingTop removed, handled by header
     },
     transcriptContainer: {
         flex: 1,
         paddingHorizontal: 24,
     },
     scrollContent: {
-        paddingBottom: 220, // Reduced from 280
+        paddingBottom: 150,
     },
     emptyState: {
         marginTop: 40,
@@ -483,21 +437,18 @@ const styles = StyleSheet.create({
     },
     controls: {
         backgroundColor: Colors.surface,
-        paddingTop: 16, // Reduced from 20
-        paddingBottom: 24, // Reduced from 40
+        paddingTop: 16,
+        paddingBottom: 30,
         borderTopLeftRadius: 28,
         borderTopRightRadius: 28,
         borderTopWidth: 1,
         borderColor: Colors.border,
-        alignItems: 'center',
     },
-    buttonsRow: {
+    controlRow: {
         flexDirection: 'row',
         alignItems: 'center',
-        justifyContent: 'center',
-        width: '100%',
-        paddingHorizontal: 20, // Reduced from 30
-        gap: 20, // Reduced from 30
+        justifyContent: 'space-between', // Spread items out
+        paddingHorizontal: 30,
     },
     sideButton: {
         alignItems: 'center',
@@ -505,26 +456,36 @@ const styles = StyleSheet.create({
         width: 44,
         height: 44,
         borderRadius: 22,
-        // backgroundColor: 'rgba(255,255,255,0.05)', // Removed background for cleaner look on empty
     },
     recordButtonContainer: {
         width: 72,
         height: 72,
-        borderRadius: 36,
         alignItems: 'center',
         justifyContent: 'center',
-        shadowColor: "#000",
-        shadowOffset: { width: 0, height: 4 },
-        shadowOpacity: 0.3,
-        shadowRadius: 5,
-        elevation: 5,
+        // No background, just image
     },
-    recordingIdle: {
-        backgroundColor: '#FF4444', // Red for Start
+    recordLogo: {
+        width: 64,
+        height: 64,
     },
-    recordingActive: {
-        backgroundColor: '#FF4444', // Keep Red (or change to darker/lighter)
-        borderWidth: 4,
-        borderColor: 'rgba(255, 68, 68, 0.3)', // Pulse effect ring
-    }
+    // Timer moved to bottom
+    timerContainer: {
+        alignItems: 'center', // Align text right or center in its block
+        width: 80, // Fixed width to prevent jumping? Or auto
+    },
+    timerText: {
+        fontFamily: Platform.OS === 'ios' ? 'Courier New' : 'monospace',
+        fontSize: 18, // Smaller than top
+        fontWeight: '700',
+        color: Colors.text,
+        marginBottom: 4,
+    },
+    statusText: {
+        fontSize: 10,
+        fontWeight: '600',
+        color: Colors.primary,
+        letterSpacing: 1,
+        textTransform: 'uppercase',
+        opacity: 0.8,
+    },
 });

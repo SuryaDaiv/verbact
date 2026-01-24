@@ -147,8 +147,7 @@ export default function Profile() {
                     <View style={[styles.infoRow, { borderBottomWidth: 0 }]}>
                         <Text style={styles.infoLabel}>Next Renewal</Text>
                         <Text style={styles.infoValue}>
-                            {/* Placeholder as API doesn't return this yet */}
-                            --
+                            {usage?.next_renewal ? new Date(usage.next_renewal).toDateString() : '--'}
                         </Text>
                     </View>
                 </View>
