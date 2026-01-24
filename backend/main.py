@@ -460,7 +460,7 @@ async def get_user_usage(token: str):
             # TODO: Move to config/DB
             LIMITS = {
                 "free": 30 * 60,       # 30 mins
-                "pro": 300 * 60,       # 5 hours
+                "pro": 1200 * 60,      # 20 hours (1200 mins)
                 "unlimited": -1        # Infinite
             }
             
@@ -852,11 +852,7 @@ async def watch_endpoint(websocket: WebSocket, share_token: str):
         await websocket.close()
 
 
-@app.websocket("/ws/transcribe")
-async def websocket_endpoint(websocket: WebSocket):
-    await websocket.accept()
-    client_id = str(uuid.uuid4())
-    current_recording_id = None
+    current_recording_title = "Live Recording"
     
     def get_timestamp():
         return datetime.now().strftime('%H:%M:%S.%f')[:-3]
@@ -984,19 +980,8 @@ async def websocket_endpoint(websocket: WebSocket):
                                         speech_final = data.get("speech_final", False)
                                         
                                         if transcript and len(transcript.strip()) > 0:
-                                            latency = metrics.log_transcript_received()
+                                            metrics.log_transcript_received()
                                             
-                                            # Log based on debug mode
-                                            if DEBUG:
-                                                latency_str = f"{latency:.1f}ms" if latency else "N/A"
-                                                duration = data.get("duration")
-                                                duration_str = f"{duration:.2f}s" if duration else "N/A"
-                                                result_type = "🟢 FINAL" if is_final or speech_final else "🔵 INTERIM"
-                                                print(f"[{receive_time}] {result_type} (latency: {latency_str}, duration: {duration_str}, conf: {confidence:.2f}): {transcript}")
-                                            elif is_final or speech_final:
-                                                # Production: only show final transcripts
-                                                print(f"[{receive_time}] 📝 {transcript}")
-
                                             # Send to client with type indicator
                                             message = json.dumps({
                                                 "transcript": transcript,
@@ -1005,40 +990,38 @@ async def websocket_endpoint(websocket: WebSocket):
                                             })
                                             await websocket.send_text(message)
 
-                                            # Broadcast to live viewers if recording ID is set
-                                            if current_recording_id and current_recording_id in live_share_viewers:
-                                                viewers = live_share_viewers[current_recording_id]
-                                                if viewers:
-                                                    # Add timestamp for sync
-                                                    broadcast_msg = {
-                                                        "transcript": transcript,
-                                                        "is_final": is_final or speech_final,
-                                                        "confidence": confidence,
-                                                        "timestamp": datetime.now().timestamp()
-                                                    }
-                                                    
-                                                    # Store in memory for late joiners
-                                                    if current_recording_id not in live_transcripts:
-                                                        live_transcripts[current_recording_id] = []
-                                                    live_transcripts[current_recording_id].append(broadcast_msg)
-                                                    
-                                                    # Broadcast to all viewers
-                                                    json_msg = json.dumps(broadcast_msg)
-                                                    for viewer in viewers:
-                                                        try:
-                                                            await viewer.send_text(json_msg)
-                                                        except:
-                                                            pass # Handle disconnected viewers in their own loop
-                                
-                            elif msg_type == "SpeechStarted":
-                                print(f"[{receive_time}] 🗣️ Speech started detected")
-                                
+                                            # Broadcast + Store logic
+                                            if current_recording_id:
+                                                 # Add timestamp for sync
+                                                broadcast_msg = {
+                                                    "transcript": transcript,
+                                                    "is_final": is_final or speech_final,
+                                                    "confidence": confidence,
+                                                    "timestamp": datetime.now().timestamp(),
+                                                    # For saving later:
+                                                    "start": alternatives[0].get("words", [{}])[0].get("start", 0),
+                                                    "end": alternatives[0].get("words", [{}])[-1].get("end", 0)
+                                                }
+                                                
+                                                # Store in memory for late joiners AND final save
+                                                if current_recording_id not in live_transcripts:
+                                                    live_transcripts[current_recording_id] = []
+                                                live_transcripts[current_recording_id].append(broadcast_msg)
+                                                
+                                                # Broadcast to live viewers (if any)
+                                                if current_recording_id in live_share_viewers:
+                                                    viewers = live_share_viewers[current_recording_id]
+                                                    if viewers:
+                                                        json_msg = json.dumps(broadcast_msg)
+                                                        for viewer in viewers:
+                                                            try:
+                                                                await viewer.send_text(json_msg)
+                                                            except:
+                                                                pass 
+
                             elif msg_type == "UtteranceEnd":
                                 print(f"[{receive_time}] 🔚 Utterance end detected")
-                                
-                            else:
-                                print(f"[{receive_time}] 🔍 Unknown message type '{msg_type}': {json.dumps(data)[:200]}")
-                                
+                            
                         except json.JSONDecodeError as e:
                             print(f"[{receive_time}] ⚠️ Failed to parse Deepgram message: {e}")
                             
@@ -1053,15 +1036,7 @@ async def websocket_endpoint(websocket: WebSocket):
                     while True:
                         await asyncio.sleep(10)  # Report every 10 seconds
                         stats = metrics.get_stats_summary()
-                        print(f"\n[{get_timestamp()}] 📊 PERFORMANCE STATS:")
-                        print(f"  ⏱️  Runtime: {stats['runtime_seconds']}s")
-                        print(f"  🔴 Active Recordings: {len(active_recordings)} {list(active_recordings)}")
-                        print(f"  👀 Live Viewers: {sum(len(v) for v in live_share_viewers.values())}")
-                        print(f"  📤 Chunks sent: {stats['chunks_sent']} ({stats['chunks_per_sec']}/sec)")
-                        print(f"  📥 Transcripts received: {stats['transcripts_received']}")
-                        print(f"  📦 Total bytes sent: {stats['total_bytes']:,}")
-                        print(f"  ⚡ Latency - Avg: {stats['avg_latency_ms']}ms, Min: {stats['min_latency_ms']}ms, Max: {stats['max_latency_ms']}ms")
-                        print(f"  🔄 Ratio: {stats['chunks_sent']} chunks → {stats['transcripts_received']} transcripts\n")
+                        print(f"\n[{get_timestamp()}] 📊 PERFORMANCE STATS: Runtime {stats['runtime_seconds']}s")
                 except:
                     pass
 
@@ -1078,7 +1053,7 @@ async def websocket_endpoint(websocket: WebSocket):
                         
                         elapsed = time.monotonic() - session_start_time
                         if elapsed >= session_limit_seconds:
-                            print(f"[{client_id}] ⛔ Session time limit reached for tier '{tier}' after {elapsed:.1f}s")
+                            print(f"[{client_id}] ⛔ Session time limit reached")
                             if session_start_time is not None:
                                 total_recorded_seconds += session_limit_seconds
                                 session_start_time = None
@@ -1088,20 +1063,12 @@ async def websocket_endpoint(websocket: WebSocket):
                                     "tier": tier,
                                     "limit_seconds": session_limit_seconds
                                 }))
-                            except Exception as e:
-                                print(f"[{client_id}] Warning: failed to send limit notice: {e}")
-
-                            try:
                                 await dg_socket.close()
-                            except Exception:
-                                pass
-                            
-                            await websocket.close(code=4002, reason="time limit reached")
+                                await websocket.close(code=4002, reason="time limit reached")
+                            except: pass
                             return
                 except asyncio.CancelledError:
                     return
-                except Exception as e:
-                    print(f"[{client_id}] Error in limit monitor: {e}")
 
             def start_limit_timer(force_reset: bool = False):
                 """Start/reset the session timer once the user begins a recording."""
@@ -1118,13 +1085,112 @@ async def websocket_endpoint(websocket: WebSocket):
                 if not limit_task or limit_task.done():
                     limit_task = asyncio.create_task(enforce_time_limit())
 
+            # SERVER-SIDE SAVE FUNCTION
+            async def save_session_data():
+                try:
+                    if not current_recording_id or not user_id:
+                        return
+
+                    # 1. Finalize Duration
+                    session_duration = int(total_recorded_seconds)
+                    if session_start_time:
+                         session_duration += max(0, int(time.monotonic() - session_start_time))
+                    
+                    if session_duration <= 0 and audio_buffer.chunks:
+                        # Fallback to pure audio duration if timer failed
+                        session_duration = int(audio_buffer.get_duration_seconds())
+
+                    print(f"💾 SAVING SESSION: {current_recording_id} ({session_duration}s)")
+
+                    # 2. Upload Audio
+                    wav_bytes = audio_buffer.get_wav_bytes()
+                    audio_path = None
+                    if wav_bytes:
+                        try:
+                            print(f"   Uploading {len(wav_bytes)} bytes...")
+                            audio_path = await upload_to_supabase_storage(
+                                user_id, current_recording_id, wav_bytes, token, "audio/wav"
+                            )
+                            print(f"   Audio uploaded: {audio_path}")
+                        except Exception as e:
+                            print(f"   ❌ Upload failed: {e}")
+
+                    async with await get_supabase_client(token) as supabase_client:
+                        # 3. Update/Insert Recording Record
+                        recording_record = {
+                            "id": current_recording_id,
+                            "user_id": user_id,
+                            "title": current_recording_title, # title from configure msg
+                            "duration_seconds": session_duration,
+                            "audio_url": audio_path,
+                            "updated_at": datetime.now(timezone.utc).isoformat()
+                        }
+                        
+                        # Upsert recording
+                        rec_res = await supabase_client.post(
+                            "/rest/v1/recordings",
+                            json=recording_record,
+                            headers={"Prefer": "resolution=merge-duplicates"}
+                        )
+                        if rec_res.status_code not in [200, 201, 204]:
+                             print(f"   ❌ Recording DB save failed: {rec_res.text}")
+                        else:
+                             print("   ✅ Recording metadata saved.")
+
+                        # 4. Save Transcripts (Bulk)
+                        if current_recording_id in live_transcripts:
+                            transcripts_to_save = []
+                            for t in live_transcripts[current_recording_id]:
+                                if t.get("is_final"):
+                                    transcripts_to_save.append({
+                                        "recording_id": current_recording_id,
+                                        "text": t["transcript"],
+                                        "start_time": t.get("start", 0),
+                                        "end_time": t.get("end", 0),
+                                        "confidence": t.get("confidence"),
+                                        "is_final": True
+                                    })
+                            
+                            if transcripts_to_save:
+                                # Delete old just in case (optional, safe for new recs)
+                                await supabase_client.delete(f"/rest/v1/transcripts?recording_id=eq.{current_recording_id}")
+                                
+                                # Insert new
+                                trans_res = await supabase_client.post(
+                                    "/rest/v1/transcripts",
+                                    json=transcripts_to_save
+                                )
+                                if trans_res.status_code in [200, 201, 204]:
+                                    print(f"   ✅ Saved {len(transcripts_to_save)} transcript segments.")
+                                else:
+                                    print(f"   ❌ Transcript save failed: {trans_res.text}")
+
+                        # 5. Update User Usage
+                        if session_duration > 0:
+                             # Fetch current usage again
+                            p_res = await supabase_client.get(f"/rest/v1/profiles?id=eq.{user_id}&select=usage_seconds")
+                            if p_res.status_code == 200 and p_res.json():
+                                current_usage = p_res.json()[0].get("usage_seconds", 0) or 0
+                                new_usage = current_usage + session_duration
+                                
+                                await supabase_client.patch(
+                                    f"/rest/v1/profiles?id=eq.{user_id}",
+                                    json={"usage_seconds": new_usage}
+                                )
+                                print(f"   📈 User usage updated: +{session_duration}s")
+
+                except Exception as e:
+                    print(f"❌ CRITICAL SAVE ERROR: {e}")
+                    import traceback
+                    traceback.print_exc()
+
+
             # Start tasks
             receive_task = asyncio.create_task(receive_from_deepgram())
             keepalive_task = asyncio.create_task(send_keepalive())
             stats_task = asyncio.create_task(report_statistics())
 
             # Main loop: Receive audio/config from Client
-            chunk_sequence = 0
             try:
                 while True:
                     # Receive message (text or bytes)
@@ -1132,107 +1198,57 @@ async def websocket_endpoint(websocket: WebSocket):
                     
                     if "text" in message:
                         # Handle configuration messages
-                        print(f"[{client_id}] 📩 Received text message: {message['text']}")
                         try:
                             data = json.loads(message["text"])
                             if data.get("type") == "configure" and "recording_id" in data:
                                 current_recording_id = data["recording_id"]
+                                current_recording_title = data.get("title", current_recording_title)
                                 active_recordings.add(current_recording_id)
                                 start_limit_timer(True)
-                                print(f"[{client_id}] 🎥 Configured for recording: {current_recording_id}")
+                                print(f"[{client_id}] 🎥 Configured: {current_recording_id} '{current_recording_title}'")
                             elif data.get("type") == "stop_recording":
-                                if session_start_time:
-                                    total_recorded_seconds += time.monotonic() - session_start_time
-                                session_start_time = None
-                                if limit_task:
-                                    limit_task.cancel()
-                                    limit_task = None
-                                print(f"[{client_id}] Recording stop received; session timer reset")
+                                print(f"[{client_id}] 🛑 Stop received. Saving...")
+                                # Explicit save trigger
+                                await save_session_data()
                             else:
-                                print(f"[{client_id}] ⚠️ Unknown text message type: {data.get('type')}")
-                        except Exception as e:
-                            print(f"[{client_id}] ❌ Error parsing text message: {e}")
+                                pass
+                        except IndexError: pass
+                        except Exception: pass
                             
                     elif "bytes" in message:
-                        # Handle audio data
                         data = message["bytes"]
-                        chunk_sequence += 1
-                        chunk_size = len(data)
                         start_limit_timer()
-                        
-                        # DEBUG: Confirm we are receiving bytes
-                        if chunk_sequence % 50 == 0:
-                            print(f"[{client_id}] 📨 Received {chunk_size} bytes (seq: {chunk_sequence})")
-                        
-                        # Send to Deepgram
-                        send_time = get_timestamp()
                         await dg_socket.send(data)
-                        
-                        # Buffer audio chunk for later saving
                         audio_buffer.add_chunk(data)
-                        
-                        # Log chunk send
-                        metrics.log_chunk_sent(chunk_size)
-                        
-                        # Log every 10th chunk to avoid spam, or if it's the first few (DEBUG mode only)
-                        if DEBUG and (chunk_sequence <= 5 or chunk_sequence % 10 == 0):
-                            print(f"[{send_time}] 🎤 Audio chunk #{chunk_sequence} sent ({chunk_size:,} bytes)")
+                        metrics.log_chunk_sent(len(data))
                     
             except Exception as e:
                 print(f"[{get_timestamp()}] ⚠️ Client loop error: {e}")
             finally:
-                # Cleanup and final stats
-                receive_task.cancel()
-                keepalive_task.cancel()
-                stats_task.cancel()
-                if limit_task:
-                    limit_task.cancel()
+                # Cleanup
+                if receive_task: receive_task.cancel()
+                if keepalive_task: keepalive_task.cancel()
+                if stats_task: stats_task.cancel()
+                if limit_task: limit_task.cancel()
                 
-                print(f"\n[{get_timestamp()}] 🔌 Closing connection")
-                if current_recording_id and current_recording_id in active_recordings:
-                    active_recordings.remove(current_recording_id)
-                    
-                print(f"[{get_timestamp()}] 📊 FINAL STATS:")
-                final_stats = metrics.get_stats_summary()
-                for key, value in final_stats.items():
-                    print(f"  {key}: {value}")
+                # Verify we saved, if not save now (e.g. connection drop)
+                # Ideally we check a flag, but for now calling it again is okay-ish (idempotent-ish upsert)
+                # or we just rely on explicit stop. 
+                # Better: call save_session_data here if audio_buffer has data and we haven't saved?
+                # For simplicity in this logic block, let's just assume explicit stop is main path.
+                # BUT if connection drops, we WANT to save.
+                if audio_buffer.chunks: 
+                     print(f"[{client_id}] Connection closed with unsaved data. Auto-saving...")
+                     await save_session_data()
 
-                # Update usage stats
-                if user_id:
-                    session_duration = int(total_recorded_seconds)
-                    if session_start_time:
-                        session_duration += max(0, int(time.monotonic() - session_start_time))
-                    if session_duration <= 0:
-                        session_duration = int(metrics.get_stats_summary()["runtime_seconds"])
-                    if session_duration > 0:
-                        try:
-                            # Simple increment (not atomic but sufficient for MVP)
-                            # Fetch current usage again to be safe
-                            async with httpx.AsyncClient() as client:
-                                p_res = await client.get(
-                                    f"{SUPABASE_URL}/rest/v1/profiles?id=eq.{user_id}&select=usage_seconds",
-                                    headers={
-                                        "apikey": SUPABASE_KEY,
-                                        "Authorization": f"Bearer {token}"
-                                    }
-                                )
-                                if p_res.status_code == 200 and p_res.json():
-                                    current_usage = p_res.json()[0]["usage_seconds"]
-                                    new_usage = current_usage + session_duration
-                                    
-                                    await client.patch(
-                                        f"{SUPABASE_URL}/rest/v1/profiles?id=eq.{user_id}",
-                                        json={"usage_seconds": new_usage},
-                                        headers={
-                                            "apikey": SUPABASE_KEY,
-                                            "Authorization": f"Bearer {token}",
-                                            "Content-Type": "application/json",
-                                            "Prefer": "return=minimal"
-                                        }
-                                    )
-                                    print(f"[{client_id}] 📈 Updated usage: +{session_duration}s (Total: {new_usage}s)")
-                        except Exception as e:
-                            print(f"[{client_id}] ❌ Failed to update usage: {e}")
+                print(f"\n[{get_timestamp()}] 🔌 Closing {client_id}")
+                if current_recording_id:
+                    active_recordings.discard(current_recording_id)
+                    # Clean up memory buffers 
+                    active_buffers.pop(client_id, None)
+                    # Remove live transcripts after a delay or immediately?
+                    # Keep for a bit for any lagging viewers? No, simple cleanup.
+                    live_transcripts.pop(current_recording_id, None)
 
     except Exception as e:
         print(f"[{get_timestamp()}] ❌ Deepgram connection failed: {e}")

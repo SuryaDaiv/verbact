@@ -45,7 +45,7 @@ export default function Login() {
                 if (access_token && refresh_token) {
                     const { error } = await supabase.auth.setSession({ access_token, refresh_token });
                     if (error) throw error;
-                    router.replace('/(app)/dashboard');
+                    router.replace('/(app)/record');
                 }
             }
         } catch (e: any) {
@@ -62,8 +62,7 @@ export default function Login() {
             Alert.alert('Sign In Failed', error.message);
             setLoading(false);
         } else {
-            setLoading(false);
-            router.replace('/(app)/dashboard');
+            router.replace('/(app)/record');
         }
     }
 

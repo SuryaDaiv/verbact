@@ -4,7 +4,7 @@ import { useAuth } from '../lib/AuthProvider';
 import { Colors } from '../constants/Colors';
 import { LinearGradient } from 'expo-linear-gradient';
 import { GradientText } from '../components/ui/GradientText';
-import { ArrowRight, Mic, FileText, Zap, ChevronRight } from 'lucide-react-native';
+import { ArrowRight, Mic, FileText, Zap, ChevronRight, Calendar } from 'lucide-react-native';
 import { StatusBar } from 'expo-status-bar';
 
 const { width } = Dimensions.get('window');
@@ -15,7 +15,7 @@ export default function LandingPage() {
 
     const handleStart = () => {
         if (session) {
-            router.push('/(app)/dashboard');
+            router.push('/(app)/record');
         } else {
             router.push('/login');
         }
@@ -28,7 +28,7 @@ export default function LandingPage() {
     return (
         <View style={styles.container}>
             <StatusBar style="light" />
-            <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={styles.scrollContent}>
+            <View style={styles.scrollContent}>
 
                 {/* Hero Section */}
                 <View style={styles.heroSection}>
@@ -43,7 +43,7 @@ export default function LandingPage() {
                     </Text>
 
                     <Text style={styles.subtitle}>
-                        Fast, accurate, distraction-free transcription for meetings, calls, and conversations. No clutter, just clarity.
+                        Fast, accurate, distraction-free transcription.
                     </Text>
 
                     <View style={styles.heroButtons}>
@@ -54,13 +54,9 @@ export default function LandingPage() {
                                 end={{ x: 1, y: 0 }}
                                 style={styles.primaryButton}
                             >
-                                <Text style={styles.primaryButtonText}>Start Recording Free</Text>
+                                <Text style={styles.primaryButtonText}>Start Recording</Text>
                                 <ArrowRight size={20} color="white" />
                             </LinearGradient>
-                        </TouchableOpacity>
-
-                        <TouchableOpacity onPress={handlePricing} style={styles.secondaryButton}>
-                            <Text style={styles.secondaryButtonText}>View Pricing</Text>
                         </TouchableOpacity>
                     </View>
                 </View>
@@ -76,18 +72,10 @@ export default function LandingPage() {
                         <Text style={styles.demoTime}>00:14</Text>
                     </View>
                     <View style={styles.demoContent}>
-                        <View style={styles.demoLine}>
-                            <Text style={styles.demoTimestamp}>0:02</Text>
-                            <Text style={styles.demoText}>Welcome to Verbact. This is how a clean transcript looks.</Text>
-                        </View>
                         <View style={styles.demoLineActive}>
                             <View style={styles.activeIndicator} />
                             <Text style={styles.demoTimestampActive}>0:08</Text>
-                            <Text style={styles.demoTextActive}>It highlights the active segment subtly, without distraction.</Text>
-                        </View>
-                        <View style={styles.demoLine}>
-                            <Text style={styles.demoTimestamp}>0:14</Text>
-                            <Text style={styles.demoText}>Everything is designed for readable speed.</Text>
+                            <Text style={styles.demoTextActive}>Verbact highlights the active segment subtly.</Text>
                         </View>
                     </View>
                 </LinearGradient>
@@ -97,42 +85,18 @@ export default function LandingPage() {
                     <FeatureCard
                         icon={<Mic size={24} color={Colors.coral} />}
                         title="Live Transcription"
-                        desc="Instant, low-latency speech-to-text powered by advanced AI models."
+                        desc="Instant, low-latency speech-to-text."
                         color="rgba(255, 111, 97, 0.1)"
                     />
                     <FeatureCard
-                        icon={<FileText size={24} color={Colors.orange} />}
-                        title="Clean Notes"
-                        desc="Auto-generated summaries and key moments, formatted for quick review."
-                        color="rgba(255, 181, 90, 0.1)"
-                    />
-                    <FeatureCard
-                        icon={<Zap size={24} color={Colors.primary} />}
-                        title="Lightning Fast"
-                        desc="Optimized for performance. No bloat, no lag, just instant results."
+                        icon={<Calendar size={24} color={Colors.primary} />}
+                        title="Meeting Integrations"
+                        desc="Connect Zoom, Meet, Teams (Soon)."
                         color="rgba(168, 108, 255, 0.1)"
                     />
                 </View>
 
-                {/* Footer CTA */}
-                <LinearGradient
-                    colors={['rgba(168, 108, 255, 0.1)', 'transparent']}
-                    style={styles.footer}
-                >
-                    <View style={[styles.iconCircle, { backgroundColor: 'rgba(168, 108, 255, 0.2)' }]}>
-                        <Zap size={24} color={Colors.primary} />
-                    </View>
-                    <Text style={styles.footerTitle}>AI Meeting Assistant Coming Soon</Text>
-                    <Text style={styles.footerDesc}>
-                        Verbact will soon join your meetings automatically to generate smart notes and action items.
-                    </Text>
-                    <TouchableOpacity onPress={handlePricing} style={styles.linkButton}>
-                        <Text style={styles.linkText}>LEARN MORE</Text>
-                        <ArrowRight size={16} color={Colors.primary} />
-                    </TouchableOpacity>
-                </LinearGradient>
-
-            </ScrollView>
+            </View>
         </View>
     );
 }
@@ -344,38 +308,5 @@ const styles = StyleSheet.create({
         color: Colors.textSecondary,
         fontSize: 13,
         lineHeight: 18,
-    },
-    footer: {
-        alignItems: 'center',
-        padding: 32,
-        borderRadius: 24,
-        borderWidth: 1,
-        borderColor: 'rgba(168, 108, 255, 0.2)',
-        marginBottom: 40,
-    },
-    footerTitle: {
-        color: 'white',
-        fontSize: 18,
-        fontWeight: '700',
-        marginBottom: 8,
-        textAlign: 'center',
-    },
-    footerDesc: {
-        color: Colors.textSecondary,
-        fontSize: 14,
-        textAlign: 'center',
-        marginBottom: 20,
-        lineHeight: 20,
-    },
-    linkButton: {
-        flexDirection: 'row',
-        alignItems: 'center',
-        gap: 8,
-    },
-    linkText: {
-        color: Colors.primary,
-        fontSize: 12,
-        fontWeight: '700',
-        letterSpacing: 1,
     }
 });

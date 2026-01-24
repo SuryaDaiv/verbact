@@ -11,17 +11,15 @@ export default function RootLayout() {
             <StatusBar style="light" />
             <Stack
                 screenOptions={{
-                    header: () => <AppHeader />,
-                    headerTransparent: true,
+                    headerShown: false,
                     contentStyle: {
                         backgroundColor: Colors.background,
-                        paddingTop: 60,
                     },
                 }}
             >
                 <Stack.Screen name="index" options={{ headerShown: false }} />
                 <Stack.Screen name="login" options={{ presentation: 'modal', headerShown: false }} />
-                <Stack.Screen name="(app)" options={{ headerShown: true }} />
+                <Stack.Screen name="(app)" options={{ headerShown: false }} />
             </Stack>
         </AuthProvider >
     );

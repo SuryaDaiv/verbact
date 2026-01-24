@@ -39,7 +39,7 @@ export function AppHeader() {
 
     const handleLogoPress = () => {
         if (session) {
-            router.push('/(app)/dashboard');
+            router.push('/(app)/record');
         } else {
             router.replace('/');
         }
@@ -51,28 +51,35 @@ export function AppHeader() {
                 <View style={styles.blurBackground} />
 
                 <View style={styles.content}>
-                    {/* Left: Logo/Brand */}
-                    <TouchableOpacity onPress={handleLogoPress} style={styles.left} activeOpacity={0.7}>
+                    {/* Left: Placeholder or Back button (empty for now) */}
+                    <View style={styles.sideContainer}>
+                        {/* Could put back button here if needed */}
+                    </View>
+
+                    {/* Center: Logo/Brand */}
+                    <TouchableOpacity onPress={handleLogoPress} style={styles.center} activeOpacity={0.7}>
                         <Image
                             source={require('../../assets/images/logo.png')}
-                            style={{ width: 32, height: 32 }}
+                            style={{ width: 28, height: 28, marginRight: 8 }}
                             resizeMode="contain"
                         />
                         <Text style={styles.brandText}>Verbact</Text>
                     </TouchableOpacity>
 
                     {/* Right: User Menu */}
-                    {session ? (
-                        <TouchableOpacity onPress={() => setMenuVisible(true)} style={styles.profileButton} activeOpacity={0.7}>
-                            <View style={styles.avatarCircle}>
-                                <User size={20} color={Colors.text} />
-                            </View>
-                        </TouchableOpacity>
-                    ) : (
-                        <TouchableOpacity onPress={() => router.push('/login')} style={styles.loginBtn}>
-                            <Text style={styles.loginText}>Login</Text>
-                        </TouchableOpacity>
-                    )}
+                    <View style={[styles.sideContainer, { alignItems: 'flex-end' }]}>
+                        {session ? (
+                            <TouchableOpacity onPress={() => setMenuVisible(true)} style={styles.profileButton} activeOpacity={0.7}>
+                                <View style={styles.avatarCircle}>
+                                    <User size={20} color={Colors.text} />
+                                </View>
+                            </TouchableOpacity>
+                        ) : (
+                            <TouchableOpacity onPress={() => router.push('/login')} style={styles.loginBtn}>
+                                <Text style={styles.loginText}>Login</Text>
+                            </TouchableOpacity>
+                        )}
+                    </View>
                 </View>
             </View>
 
@@ -135,10 +142,14 @@ const styles = StyleSheet.create({
         justifyContent: 'space-between',
         paddingHorizontal: 20,
     },
-    left: {
+    sideContainer: {
+        flex: 1, // Take up equal space on sides
+    },
+    center: {
         flexDirection: 'row',
         alignItems: 'center',
-        gap: 12,
+        justifyContent: 'center',
+        flex: 2, // Give more space to center if needed
     },
     logoBadge: {
         width: 32,
@@ -146,6 +157,7 @@ const styles = StyleSheet.create({
         borderRadius: 8,
         alignItems: 'center',
         justifyContent: 'center',
+        // backgroundColor: Colors.primary,
     },
     logoText: {
         color: 'white',

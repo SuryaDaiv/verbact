@@ -150,7 +150,7 @@ export default function RecordingDetail() {
 
     const handleShare = async () => {
         if (!transcripts.length) return;
-        const text = transcripts.map(t => t.content).join(' ');
+        const text = transcripts.map(t => t.text).join(' '); // Changed t.content to t.text
         try {
             await Share.share({
                 message: text,
@@ -221,7 +221,7 @@ export default function RecordingDetail() {
                     transcripts.map((t, index) => (
                         <View key={index} style={styles.segment}>
                             <Text style={styles.timestamp}>{formatTimestamp(t.start_time)}</Text>
-                            <Text style={styles.segmentText}>{t.content}</Text>
+                            <Text style={styles.segmentText}>{t.text}</Text>
                         </View>
                     ))
                 ) : (
@@ -343,8 +343,8 @@ const styles = StyleSheet.create({
     segmentText: {
         flex: 1,
         color: Colors.text,
-        fontSize: 16,
-        lineHeight: 24,
+        fontSize: 14, // REDUCED from 16
+        lineHeight: 22, // Reduced line height
     },
     emptyText: {
         color: Colors.textSecondary,
