@@ -4,6 +4,7 @@ import Link from 'next/link'
 import { Mic, ChevronRight } from 'lucide-react'
 
 import DashboardRecordingsList from './DashboardRecordingsList';
+import DashboardUsage from './DashboardUsage';
 
 // Force rebuild
 export default async function DashboardPage() {
@@ -53,6 +54,12 @@ export default async function DashboardPage() {
                         </Link>
                     </div>
 
+
+                    {/* Usage Stats (Synced from Mobile) */}
+                    <div className="animate-in fade-in slide-in-from-bottom-4 duration-700 delay-50">
+                        <DashboardUsage />
+                    </div>
+
                     {/* Recent Recordings */}
                     <div className="animate-in fade-in slide-in-from-bottom-8 duration-700 delay-100">
                         <div className="flex justify-between items-end mb-8 border-b border-white/5 pb-4">
@@ -67,8 +74,8 @@ export default async function DashboardPage() {
                         <DashboardRecordingsList token={user.id} />
                     </div>
                 </div>
-            </main>
-        </div>
+            </main >
+        </div >
     )
 }
 

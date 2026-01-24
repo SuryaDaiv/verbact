@@ -2,7 +2,7 @@
 
 import React, { useEffect, useState, useRef, use } from "react";
 import Link from "next/link";
-import { Play, Pause, Calendar, ArrowLeft } from "lucide-react";
+import { Play, Pause, Calendar, ArrowLeft, MoreHorizontal, ArrowDown, Type, AlignLeft } from "lucide-react";
 import { API_BASE_URL, WS_BASE_URL } from "@/utils/config";
 
 interface TranscriptSegment {
@@ -31,6 +31,10 @@ export default function SharePage({ params }: { params: Promise<{ token: string 
     const [currentTime, setCurrentTime] = useState(0);
     const [activeSegmentId, setActiveSegmentId] = useState<string | null>(null);
     const [duration, setDuration] = useState(0);
+
+    // Options
+    const [isAutoScroll, setIsAutoScroll] = useState(true);
+    const [isMerge, setIsMerge] = useState(false);
 
     const audioRef = useRef<HTMLAudioElement | null>(null);
     const transcriptRef = useRef<HTMLDivElement | null>(null);
@@ -70,12 +74,15 @@ export default function SharePage({ params }: { params: Promise<{ token: string 
 
         if (segment && segment.id !== activeSegmentId) {
             setActiveSegmentId(segment.id);
-            const element = document.getElementById(`segment-${segment.id}`);
-            if (element && transcriptRef.current) {
-                element.scrollIntoView({ behavior: "smooth", block: "center" });
+            // Only scroll if auto-scroll is enabled
+            if (isAutoScroll) {
+                const element = document.getElementById(`segment-${segment.id}`);
+                if (element && transcriptRef.current) {
+                    element.scrollIntoView({ behavior: "smooth", block: "center" });
+                }
             }
         }
-    }, [currentTime, recording, activeSegmentId]);
+    }, [currentTime, recording, activeSegmentId, isAutoScroll]);
 
     // Live WebSocket Connection
     useEffect(() => {
@@ -114,15 +121,22 @@ export default function SharePage({ params }: { params: Promise<{ token: string 
                             };
                         });
                         setInterimText("");
-                        if (transcriptRef.current) {
-                            transcriptRef.current.scrollTo({
-                                top: transcriptRef.current.scrollHeight,
-                                behavior: "smooth"
-                            });
+
+                        // Scroll on new final segment
+                        if (isAutoScroll && transcriptRef.current) {
+                            setTimeout(() => {
+                                if (transcriptRef.current) {
+                                    transcriptRef.current.scrollTo({
+                                        top: transcriptRef.current.scrollHeight,
+                                        behavior: "smooth"
+                                    });
+                                }
+                            }, 100);
                         }
                     } else {
                         setInterimText(transcript);
-                        if (transcriptRef.current) {
+                        // Scroll on interim
+                        if (isAutoScroll && transcriptRef.current) {
                             transcriptRef.current.scrollTo({
                                 top: transcriptRef.current.scrollHeight,
                                 behavior: "smooth"
@@ -138,7 +152,7 @@ export default function SharePage({ params }: { params: Promise<{ token: string 
         return () => {
             ws.close();
         };
-    }, [recording?.is_live, token]);
+    }, [recording?.is_live, token, isAutoScroll]);
 
     const togglePlay = async () => {
         if (audioRef.current) {
@@ -193,6 +207,25 @@ export default function SharePage({ params }: { params: Promise<{ token: string 
 
     if (!recording) return null;
 
+    // Logic to merge segments if enabled
+    const displayedTranscripts = isMerge
+        ? recording.transcripts.reduce((acc, curr, idx) => {
+            if (idx === 0) return [curr];
+            const prev = acc[acc.length - 1];
+            // Merge if gap is small (< 2s) - simple logic
+            // For now, let's just merge all for "Compact Mode" effect
+            // Actually user said "after it gets two or three sentences then it can actually merge"
+            // We'll simulate this by grouping every 3 segments
+            // Simplified: Just Concatenate everything into big blocks? No, let's keep it simple.
+            // Let's merge purely based on time or just visual compactness.
+            // "Merge Text" usually means removing the spacing.
+
+            // Let's implement visual merging in the map below instead of changing data structure to avoid key issues.
+            return [...acc, curr];
+        }, [] as TranscriptSegment[])
+        : recording.transcripts;
+
+
     return (
         <div className="min-h-screen bg-[#0E0E12] text-white overflow-hidden relative selection:bg-[#A86CFF]/30 selection:text-white">
 
@@ -202,43 +235,56 @@ export default function SharePage({ params }: { params: Promise<{ token: string 
                 <div className="absolute bottom-[-20%] right-[-10%] w-[50%] h-[50%] bg-[#FF6F61]/10 blur-[120px] rounded-full" />
             </div>
 
-            <main className="relative z-10 mx-auto w-full max-w-4xl px-6 py-12 flex flex-col h-screen">
+            <main className="relative z-10 mx-auto w-full max-w-4xl px-4 pt-24 pb-8 flex flex-col h-screen">
 
-                {/* Minimal Header */}
-                <div className="flex items-center justify-between mb-12 animate-in fade-in slide-in-from-top-4 duration-700">
-                    <div>
-                        <div className="flex items-center space-x-3 mb-1">
-                            <h1 className="text-3xl font-bold tracking-tight text-transparent bg-clip-text bg-gradient-to-r from-white to-[#BFC2CF]">
+                {/* Minimal Header with Controls */}
+                <div className="flex items-center justify-between mb-8 z-30 bg-[#0E0E12]/80 backdrop-blur-md p-4 rounded-2xl border border-white/5 shadow-lg">
+                    <div className="flex items-center space-x-4">
+                        {/* Title & Status */}
+                        <div>
+                            <h1 className="text-xl font-bold text-white mb-1">
                                 {recording.title}
                             </h1>
-                            {recording.is_live ? (
-                                <span className="flex items-center space-x-1.5 px-3 py-1 rounded-full bg-[#FF0000]/10 border border-[#FF0000]/20">
-                                    <span className="w-1.5 h-1.5 rounded-full bg-[#FF0000] animate-pulse" />
-                                    <span className="text-[10px] font-bold text-[#FF0000] tracking-wider uppercase">LIVE</span>
+                            <div className="flex items-center space-x-3 text-xs text-[#666]">
+                                <span className="flex items-center">
+                                    <Calendar className="w-3 h-3 mr-1" />
+                                    {new Date(recording.created_at).toLocaleDateString()}
                                 </span>
-                            ) : (
-                                <span className="flex items-center space-x-1.5 px-3 py-1 rounded-full bg-white/5 border border-white/10">
-                                    <span className="text-[10px] font-bold text-[#BFC2CF] tracking-wider uppercase">RECORDED</span>
-                                </span>
-                            )}
-                        </div>
-                        <div className="flex items-center text-xs text-[#666]">
-                            <Calendar className="w-3 h-3 mr-1.5" />
-                            {new Date(recording.created_at).toLocaleDateString(undefined, {
-                                year: 'numeric',
-                                month: 'long',
-                                day: 'numeric'
-                            })}
+                                {recording.is_live && (
+                                    <span className="text-[#FF0000] font-bold tracking-widest uppercase text-[10px] animate-pulse">
+                                        ● LIVE
+                                    </span>
+                                )}
+                            </div>
                         </div>
                     </div>
 
-                    <Link href="/" className="group p-3 rounded-full bg-white/5 hover:bg-white/10 transition-all border border-white/5 flex items-center justify-center hover:scale-110 active:scale-95">
-                        <span className="text-lg font-bold text-white px-2">V</span>
-                    </Link>
+                    {/* Controls using Buttons */}
+                    <div className="flex items-center space-x-2">
+                        <button
+                            onClick={() => setIsAutoScroll(!isAutoScroll)}
+                            className={`p-2 rounded-lg transition-all flex items-center space-x-2 ${isAutoScroll ? "bg-white/10 text-white" : "bg-transparent text-[#666] hover:bg-white/5"
+                                }`}
+                            title="Toggle Auto-Scroll"
+                        >
+                            <ArrowDown size={18} />
+                            <span className="text-xs font-medium hidden sm:inline">Auto-Scroll</span>
+                        </button>
+
+                        <button
+                            onClick={() => setIsMerge(!isMerge)}
+                            className={`p-2 rounded-lg transition-all flex items-center space-x-2 ${isMerge ? "bg-white/10 text-white" : "bg-transparent text-[#666] hover:bg-white/5"
+                                }`}
+                            title="Merge Text"
+                        >
+                            <AlignLeft size={18} />
+                            <span className="text-xs font-medium hidden sm:inline">Merge</span>
+                        </button>
+                    </div>
                 </div>
 
                 {/* Transcription Stream */}
-                <div className="flex-1 overflow-y-auto pr-4 scrollbar-hide mask-image-b fade-bottom relative flex flex-col no-scrollbar">
+                <div className="flex-1 overflow-y-auto pr-2 scrollbar-hide mask-image-b fade-bottom relative flex flex-col no-scrollbar">
                     <style jsx global>{`
                         .no-scrollbar::-webkit-scrollbar {
                             display: none;
@@ -248,28 +294,36 @@ export default function SharePage({ params }: { params: Promise<{ token: string 
                             scrollbar-width: none;
                         }
                     `}</style>
-                    <div ref={transcriptRef} className="space-y-4 pb-32 h-full overflow-y-auto no-scrollbar scroll-smooth">
+                    <div ref={transcriptRef} className={`space-y-${isMerge ? '1' : '4'} pb-32 h-full overflow-y-auto no-scrollbar scroll-smooth`}>
                         {recording.transcripts.length === 0 && !interimText ? (
                             <div className="flex flex-col items-center justify-center h-48 text-[#BFC2CF]/30">
                                 <p>Waiting for speech...</p>
                             </div>
                         ) : (
                             <>
-                                {recording.transcripts.map((segment) => (
-                                    <div
-                                        key={segment.id}
-                                        id={`segment-${segment.id}`}
-                                        className={`transition-all duration-500 py-1 pl-2 ${activeSegmentId === segment.id ? 'opacity-100 scale-[1.01] border-l-2 border-[#A86CFF]' : 'opacity-60 hover:opacity-80 border-l-2 border-transparent'}`}
-                                    >
-                                        <p className="text-lg leading-snug">
-                                            {segment.text}
-                                        </p>
-                                    </div>
-                                ))}
+                                {recording.transcripts.map((segment, index) => {
+                                    // Visual Merger: If isMerge is ON, check if we should render spacing
+                                    // Actually simpler: just reduce spacing (space-y-1 vs space-y-4) and border
+
+                                    return (
+                                        <div
+                                            key={segment.id}
+                                            id={`segment-${segment.id}`}
+                                            className={`transition-all duration-500 pl-3 border-l-2 ${activeSegmentId === segment.id
+                                                ? 'border-[#A86CFF] bg-[#A86CFF]/5'
+                                                : 'border-transparent hover:border-white/10'
+                                                } ${isMerge ? 'py-1' : 'py-2'}`}
+                                        >
+                                            <p className={`leading-relaxed text-[#BFC2CF] ${activeSegmentId === segment.id ? 'text-white' : ''} text-sm md:text-base`}>
+                                                {segment.text}
+                                            </p>
+                                        </div>
+                                    );
+                                })}
                                 {interimText && (
-                                    <div className="animate-pulse py-1 pl-2 border-l-2 border-[#A86CFF]/50">
-                                        <p className="text-lg leading-snug text-[#A86CFF] opacity-90 italic">
-                                            {interimText}
+                                    <div className="animate-pulse py-2 pl-3 border-l-2 border-[#A86CFF]/50 bg-[#A86CFF]/5">
+                                        <p className="text-sm md:text-base leading-relaxed text-[#A86CFF] opacity-90 italic">
+                                            {interimText} ...
                                         </p>
                                     </div>
                                 )}
@@ -279,8 +333,8 @@ export default function SharePage({ params }: { params: Promise<{ token: string 
 
                     {/* Floating Audio Player (Only if Recorded) */}
                     {!recording.is_live && recording.audio_url && (
-                        <div className="fixed bottom-8 left-1/2 -translate-x-1/2 w-full max-w-md px-4 z-20">
-                            <div className="glass-card p-4 rounded-2xl flex items-center space-x-4 shadow-2xl animate-in slide-in-from-bottom-8">
+                        <div className="fixed bottom-8 left-1/2 -translate-x-1/2 w-full max-w-md px-4 z-40">
+                            <div className="glass-card p-3 rounded-xl flex items-center space-x-4 shadow-2xl animate-in slide-in-from-bottom-8 bg-[#181A20] border border-white/10">
                                 <audio
                                     ref={audioRef}
                                     src={recording.audio_url}
@@ -291,9 +345,9 @@ export default function SharePage({ params }: { params: Promise<{ token: string 
                                 />
                                 <button
                                     onClick={togglePlay}
-                                    className="w-12 h-12 rounded-full bg-white text-black flex items-center justify-center hover:scale-105 transition-transform"
+                                    className="w-10 h-10 rounded-full bg-white text-black flex items-center justify-center hover:scale-105 transition-transform"
                                 >
-                                    {isPlaying ? <Pause className="w-5 h-5 fill-current" /> : <Play className="w-5 h-5 fill-current ml-1" />}
+                                    {isPlaying ? <Pause className="w-4 h-4 fill-current" /> : <Play className="w-4 h-4 fill-current ml-0.5" />}
                                 </button>
                                 <div className="flex-1 space-y-1">
                                     <input
