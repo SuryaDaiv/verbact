@@ -448,15 +448,19 @@ async def get_user_usage(token: str):
             user_id = user_data["id"]
 
         async with await get_supabase_client(token) as supabase_client:
-            # 1. Get Profile for Tier
+            # 1. Get Profile for Tier & Usage
+            # User screenshot confirms 'usage_seconds' exists and has data (16072).
+            # We omit billing_start_date as it might be missing.
             profile_response = await supabase_client.get(
-                f"/rest/v1/profiles?id=eq.{user_id}&select=subscription_tier,created_at"
+                f"/rest/v1/profiles?id=eq.{user_id}&select=subscription_tier,created_at,usage_seconds"
             )
             tier = "free"
+            db_usage = 0
             
             if profile_response.status_code == 200 and profile_response.json():
                 profile = profile_response.json()[0]
                 tier = profile.get("subscription_tier", "free").lower()
+                db_usage = profile.get("usage_seconds", 0) or 0
 
             # 2. Determine Billing Cycle (Calendar Month for stability)
             now = datetime.now(timezone.utc)
@@ -468,19 +472,8 @@ async def get_user_usage(token: str):
             else:
                  next_renewal = now.replace(month=now.month+1, day=1, hour=0, minute=0, second=0, microsecond=0)
 
-            # 3. Calculate Usage (Sum duration of recordings in current month)
-            cycle_start_iso = cycle_start.isoformat()
-            
-            rec_response = await supabase_client.get(
-                f"/rest/v1/recordings?user_id=eq.{user_id}&created_at=gte.{cycle_start_iso}&select=duration_seconds"
-            )
-            
-            used_seconds = 0
-            if rec_response.status_code == 200:
-                recordings = rec_response.json()
-                used_seconds = sum(r.get("duration_seconds", 0) for r in recordings)
-            else:
-                 print(f"Failed to fetch recordings for usage: {rec_response.text}")
+            # 3. Use DB Usage directly as requested
+            used_seconds = db_usage
             
             # 4. Define Limits
             # TODO: Move to config/DB
