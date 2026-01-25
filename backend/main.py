@@ -169,6 +169,17 @@ async def get_supabase_client(token: str):
         }
     )
 
+# Admin client for service role operations (Bypass RLS)
+from supabase import create_client, Client
+SUPABASE_SERVICE_ROLE_KEY = os.getenv("SUPABASE_SERVICE_ROLE_KEY")
+supabase_admin: Optional[Client] = None
+if SUPABASE_URL and SUPABASE_SERVICE_ROLE_KEY:
+    try:
+        supabase_admin = create_client(SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY)
+        print("✅ Supabase Admin initialized")
+    except Exception as e:
+        print(f"⚠️ Failed to init Supabase Admin: {e}")
+
 async def upload_to_supabase_storage(user_id: str, recording_id: str, audio_bytes: bytes, token: str, content_type: str = "audio/wav") -> str:
     """Upload audio file to Supabase Storage and return the storage path"""
     # Determine extension based on content_type
@@ -439,7 +450,7 @@ async def get_user_usage(token: str):
         async with await get_supabase_client(token) as supabase_client:
             # 1. Get Profile for Tier & Cycle Info
             profile_response = await supabase_client.get(
-                f"/rest/v1/profiles?id=eq.{user_id}&select=subscription_tier,created_at"
+                f"/rest/v1/profiles?id=eq.{user_id}&select=subscription_tier,created_at,billing_start_date,usage_seconds"
             )
             tier = "free"
             created_at_str = None
@@ -540,17 +551,16 @@ async def get_user_usage(token: str):
                     # e.g. Jan 31 -> Feb 28
                     next_renewal = cycle_start + timedelta(days=30)
                  
-            # 2. Calculate Usage (Sum duration of recordings SINCE cycle_start)
-            cycle_start_iso = cycle_start.isoformat()
+            # 2. Calculate Usage (From Profile Accumulator)
+            # This ensures we match what the Live WebSocket updates, and don't lose usage if files are deleted.
+            used_seconds = profile.get("usage_seconds", 0) or 0
             
-            rec_response = await supabase_client.get(
-                f"/rest/v1/recordings?user_id=eq.{user_id}&created_at=gte.{cycle_start_iso}&select=duration_seconds"
-            )
+            # Fallback: If usage_seconds is 0 but user has recordings (e.g. legacy data), 
+            # we might want to sum them, but let's stick to the profile truth for now to ensure consistency.
+            # If "data doesn't sync", it's likely because we were summing before but saving to profile.
             
-            used_seconds = 0
-            if rec_response.status_code == 200:
-                recordings = rec_response.json()
-                used_seconds = sum(r.get("duration_seconds", 0) for r in recordings)
+            # (Optional) We could double check against sum if we wanted, but let's trust profile column.
+            pass
             
             # 3. Define Limits
             # TODO: Move to config/DB

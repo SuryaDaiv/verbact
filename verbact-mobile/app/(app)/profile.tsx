@@ -1,5 +1,5 @@
 
-import { View, Text, StyleSheet, TouchableOpacity, ActivityIndicator, Alert } from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity, ActivityIndicator, Alert, Linking } from 'react-native';
 import { useCallback, useState } from 'react';
 import { useFocusEffect } from 'expo-router';
 import { supabase } from '../../lib/supabase';
@@ -87,8 +87,7 @@ export default function Profile() {
     };
 
     const handleUpgrade = () => {
-        // Since in-app purchase is hard, we can redirect to web for now
-        Alert.alert("Upgrade Plan", "Please visit our website to upgrade your plan.");
+        Linking.openURL('https://verbact.com/pricing');
     };
 
     if (loading) {

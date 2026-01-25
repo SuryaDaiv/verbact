@@ -309,12 +309,14 @@ export default function RecordScreen() {
                 <View style={styles.controls}>
                     <View style={styles.controlRow}>
                         {/* Timer & Status (Left) */}
-                        <View style={styles.timerContainer}>
-                            <Text style={styles.timerText}>{formatDuration(recordingDuration)}</Text>
-                            <Text style={styles.statusText}>{isRecording ? "LIVE" : "READY"}</Text>
-                            <Text style={{ fontSize: 10, color: isInitialized ? '#4CAF50' : '#666', marginTop: 4, fontWeight: '500' }}>
-                                {isInitialized ? "● Connected" : "○ Connecting..."}
-                            </Text>
+                        <View style={styles.leftControl}>
+                            <View style={styles.timerContainer}>
+                                <Text style={styles.timerText}>{formatDuration(recordingDuration)}</Text>
+                                <Text style={[styles.statusText, isRecording && { color: '#4CAF50' }]}>{isRecording ? "LIVE" : "READY"}</Text>
+                                <Text style={{ fontSize: 10, color: isInitialized ? '#4CAF50' : '#666', marginTop: 4, fontWeight: '500' }}>
+                                    {isInitialized ? "● Connected" : "○ Connecting..."}
+                                </Text>
+                            </View>
                         </View>
 
                         {/* Record Button (Center) */}
@@ -322,21 +324,17 @@ export default function RecordScreen() {
                             <View style={[styles.recordButtonContainer, {
                                 backgroundColor: 'transparent',
                                 borderRadius: 50,
-                                borderWidth: 3,
-                                borderColor: isRecording ? '#FF3333' : 'rgba(255, 255, 255, 0.2)', // Red neon when recording, dim when idle
-                                shadowColor: isRecording ? '#FF0000' : 'transparent',
-                                shadowOffset: { width: 0, height: 0 },
-                                shadowOpacity: isRecording ? 0.8 : 0,
-                                shadowRadius: isRecording ? 15 : 0,
-                                elevation: isRecording ? 10 : 0, // Android glow
+                                borderWidth: 4,
+                                borderColor: isRecording ? '#4CAF50' : 'rgba(255, 255, 255, 0.2)', // Green when recording
+                                // Removed shadows/elevation (Neon)
                             }]}>
                                 <Image
                                     source={require('../../assets/images/logo.png')}
                                     style={[
                                         styles.recordLogo,
                                         {
-                                            tintColor: isRecording ? '#FF3333' : '#FFFFFF',
-                                            opacity: isRecording ? 1 : 0.6
+                                            tintColor: isRecording ? '#4CAF50' : '#FFFFFF',
+                                            opacity: 1 // Always full opacity for visibility
                                         }
                                     ]}
                                     resizeMode="contain"
@@ -345,11 +343,13 @@ export default function RecordScreen() {
                         </TouchableOpacity>
 
                         {/* Share (Right) */}
-                        <TouchableOpacity onPress={handleCreateShare} style={styles.sideButton} disabled={!recordingId}>
-                            {isSharing ? <ActivityIndicator size="small" color={Colors.textSecondary} /> : (
-                                <Share2 size={24} color={recordingId ? Colors.text : Colors.textSecondary} />
-                            )}
-                        </TouchableOpacity>
+                        <View style={styles.rightControl}>
+                            <TouchableOpacity onPress={handleCreateShare} style={styles.sideButton} disabled={!recordingId}>
+                                {isSharing ? <ActivityIndicator size="small" color={Colors.textSecondary} /> : (
+                                    <Share2 size={24} color={recordingId ? Colors.text : Colors.textSecondary} />
+                                )}
+                            </TouchableOpacity>
+                        </View>
                     </View>
                 </View>
             </View>
@@ -469,8 +469,15 @@ const styles = StyleSheet.create({
     controlRow: {
         flexDirection: 'row',
         alignItems: 'center',
-        justifyContent: 'space-between', // Spread items out
-        paddingHorizontal: 30,
+        paddingHorizontal: 24,
+    },
+    leftControl: {
+        flex: 1,
+        alignItems: 'flex-start',
+    },
+    rightControl: {
+        flex: 1,
+        alignItems: 'flex-end',
     },
     sideButton: {
         alignItems: 'center',

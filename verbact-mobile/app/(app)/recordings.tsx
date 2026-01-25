@@ -98,7 +98,7 @@ export default function Recordings() {
             />
 
             <View style={styles.header}>
-                <Text style={styles.headerTitle}>My Recordings</Text>
+                <Text style={styles.headerTitle}>Your Verbact Recordings</Text>
             </View>
 
             {loading ? (
