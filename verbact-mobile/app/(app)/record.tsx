@@ -320,21 +320,24 @@ export default function RecordScreen() {
                         {/* Record Button (Center) */}
                         <TouchableOpacity onPress={handleToggleRecord} activeOpacity={0.8} disabled={!isInitialized || saveStatus === 'saving'}>
                             <View style={[styles.recordButtonContainer, {
-                                backgroundColor: isRecording ? 'rgba(76, 175, 80, 0.1)' : 'rgba(255, 68, 68, 0.1)',
+                                backgroundColor: 'transparent',
                                 borderRadius: 50,
-                                borderWidth: 4,
-                                borderColor: Colors.surface, // Uses surface color for border to look like "cutout" from bar? 
-                                // Actually, if the bar is Surface, providing a border of Background color makes it look detached?
-                                // Let's try: No border, just circular background that breaks the bar visually?
-                                // User said "circle cutout around the logo".
-                                // Maybe a dark circle background behind the logo.
-                                backgroundColor: '#000', // Deep black hole
+                                borderWidth: 3,
+                                borderColor: isRecording ? '#FF3333' : 'rgba(255, 255, 255, 0.2)', // Red neon when recording, dim when idle
+                                shadowColor: isRecording ? '#FF0000' : 'transparent',
+                                shadowOffset: { width: 0, height: 0 },
+                                shadowOpacity: isRecording ? 0.8 : 0,
+                                shadowRadius: isRecording ? 15 : 0,
+                                elevation: isRecording ? 10 : 0, // Android glow
                             }]}>
                                 <Image
                                     source={require('../../assets/images/logo.png')}
                                     style={[
                                         styles.recordLogo,
-                                        { tintColor: isRecording ? '#4CAF50' : '#FF4444' } // Green=Rec, Red=Stop
+                                        {
+                                            tintColor: isRecording ? '#FF3333' : '#FFFFFF',
+                                            opacity: isRecording ? 1 : 0.6
+                                        }
                                     ]}
                                     resizeMode="contain"
                                 />

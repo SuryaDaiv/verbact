@@ -11,6 +11,7 @@ interface UsageData {
     limit_seconds: number;
     used_seconds: number;
     tier: string;
+    next_renewal?: string;
 }
 
 export default function DashboardUsage() {
@@ -80,7 +81,7 @@ export default function DashboardUsage() {
                 )}
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
                 {/* Remaining Time */}
                 <div className="bg-[#181A20] border border-white/5 p-5 rounded-xl flex items-center space-x-4">
                     <div className="p-3 bg-[#A86CFF]/10 rounded-full">
@@ -111,6 +112,19 @@ export default function DashboardUsage() {
                     <div>
                         <p className="text-[#BFC2CF] text-xs uppercase tracking-wider font-bold">Minutes Used</p>
                         <p className="text-2xl font-bold text-white">{usage ? formatTime(usage.used_seconds) : '--'}</p>
+                    </div>
+                </div>
+
+                {/* Next Renewal */}
+                <div className="bg-[#181A20] border border-white/5 p-5 rounded-xl flex items-center space-x-4">
+                    <div className="p-3 bg-white/5 rounded-full">
+                        <Clock className="w-6 h-6 text-white/50" />
+                    </div>
+                    <div>
+                        <p className="text-[#BFC2CF] text-xs uppercase tracking-wider font-bold">Next Renewal</p>
+                        <p className="text-xl font-bold text-white">
+                            {usage?.next_renewal ? new Date(usage.next_renewal).toLocaleDateString() : '--'}
+                        </p>
                     </div>
                 </div>
             </div>

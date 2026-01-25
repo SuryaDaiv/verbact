@@ -1268,19 +1268,17 @@ async def transcribe_endpoint(websocket: WebSocket):
                                 else:
                                     print(f"   ❌ Transcript save failed: {trans_res.text}")
 
-                        # 5. Update User Usage
+                        # 5. Update User Usage (Bypassing RLS via Service Role)
                         if session_duration > 0:
-                             # Fetch current usage again
-                            p_res = await supabase_client.get(f"/rest/v1/profiles?id=eq.{user_id}&select=usage_seconds")
-                            if p_res.status_code == 200 and p_res.json():
-                                current_usage = p_res.json()[0].get("usage_seconds", 0) or 0
+                            # Use Service Role Client (defined globally as supabase_admin if key exists)
+                            # Fetch current usage using Admin to be safe (though user read is allowed)
+                            p_res = supabase_admin.table("profiles").select("usage_seconds").eq("id", user_id).execute()
+                            if p_res.data:
+                                current_usage = p_res.data[0].get("usage_seconds", 0) or 0
                                 new_usage = current_usage + session_duration
                                 
-                                await supabase_client.patch(
-                                    f"/rest/v1/profiles?id=eq.{user_id}",
-                                    json={"usage_seconds": new_usage}
-                                )
-                                print(f"   📈 User usage updated: +{session_duration}s")
+                                supabase_admin.table("profiles").update({"usage_seconds": new_usage}).eq("id", user_id).execute()
+                                print(f"   📈 User usage updated (Admin): +{session_duration}s")
 
                 except Exception as e:
                     print(f"❌ CRITICAL SAVE ERROR: {e}")
