@@ -472,6 +472,9 @@ async def get_user_usage(token: str):
             else:
                  next_renewal = now.replace(month=now.month+1, day=1, hour=0, minute=0, second=0, microsecond=0)
 
+            # Define iso string for return
+            cycle_start_iso = cycle_start.isoformat()
+
             # 3. Use DB Usage directly as requested
             used_seconds = db_usage
             
