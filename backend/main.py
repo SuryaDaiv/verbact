@@ -547,31 +547,47 @@ async def get_user_usage(token: str):
                 else:
                     # We haven't reached this month's billing day yet, go back to prev month
                     if c_month == 1:
-                        p_month = 12
-                        p_year = c_year - 1
-                    else:
-                        p_month = c_month - 1
-                        p_year = c_year
-                    
-                    try:
-                        cycle_start = now.replace(year=p_year, month=p_month, day=target_day, hour=signup_date.hour, minute=signup_date.minute)
-                    except ValueError:
-                         import calendar
-                         last_day_prev = calendar.monthrange(p_year, p_month)[1]
-                         cycle_start = now.replace(year=p_year, month=p_month, day=last_day_prev, hour=signup_date.hour, minute=signup_date.minute)
+            # 1. Determine Billing Cycle Start
+            # Priority: billing_start_date (manual override) > created_at (default)
+            anchor_date_str = profile.get("billing_start_date") or profile.get("created_at")
+            anchor_date = datetime.fromisoformat(anchor_date_str.replace('Z', '+00:00'))
+            now = datetime.now(timezone.utc)
             
+            # Find the start of the CURRENT monthly cycle relative to the anchor date
+            # Logic: Cycle starts on the anchor_day of the current month (or previous month if today < anchor_day)
+            
+            try:
+                # Try setting this month's anchor day
+                cycle_start = now.replace(
+                    year=now.year, month=now.month, day=anchor_date.day,
+                    hour=anchor_date.hour, minute=anchor_date.minute,
+                    second=anchor_date.second, microsecond=anchor_date.microsecond
+                )
+                
+                # If this date is in the future, then the cycle started last month
+                if cycle_start > now:
+                     # Go back one month
+                    if now.month == 1:
+                        cycle_start = cycle_start.replace(year=now.year - 1, month=12)
+                    else:
+                        cycle_start = cycle_start.replace(month=now.month - 1)
+                        
+            except ValueError:
+                # Handle short months (e.g. Anchor is 31st, now it's Feb)
+                # Fallback: Start of this month (or keep it simple for now)
+                cycle_start = now.replace(day=1, hour=0, minute=0, second=0)
+
             # Next renewal is approx 1 month from cycle start
-            # Simple addition for display (handling month rollover perfectly is hard without dateutil, assume +30d for display or logic)
-            # Actually we can do logic:
+            # We can approximate next month by adding 32 days and snapping to day 1? No.
+            # Simple addition for display:
             if cycle_start.month == 12:
-                 next_renewal = cycle_start.replace(year=cycle_start.year+1, month=1)
+                next_renewal = cycle_start.replace(year=cycle_start.year+1, month=1)
             else:
-                 # Handle Jan 31 -> Feb 28 issue
-                 # simple approach: +30 days is safe enough for "Next Renewal" display
-                 next_renewal = cycle_start + timedelta(days=32)
-                 next_renewal = next_renewal.replace(day=cycle_start.day) # Try to reset day?
-                 # Let's just use +30 days for safety/simplicity in this iteration
-                 next_renewal = cycle_start + timedelta(days=30)
+                try:
+                    next_renewal = cycle_start.replace(month=cycle_start.month+1)
+                except ValueError:
+                    # e.g. Jan 31 -> Feb 28
+                    next_renewal = cycle_start + timedelta(days=30)
                  
             # 2. Calculate Usage (Sum duration of recordings SINCE cycle_start)
             cycle_start_iso = cycle_start.isoformat()
