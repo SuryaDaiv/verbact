@@ -497,56 +497,7 @@ async def get_user_usage(token: str):
                      diff_years = now.year - signup_date.year
                      diff_months = (diff_years * 12) + now.month - signup_date.month
                      
-                     # Candidate start: Signup date + diff_months
-                     # Make sure to handle year rollover manually adding months
-                     
-                     # Actually, the simplest reliable way without dateutil:
-                     # Check if we passed the anniversary this month
-                     pass_anniversary = False
-                     try:
-                         this_month_anniv = now.replace(day=signup_date.day, hour=signup_date.hour, minute=signup_date.minute)
-                         if now >= this_month_anniv:
-                             cycle_start = this_month_anniv
-                         else:
-                             # Use last month
-                             # ... complex ...
-                             pass_anniversary = False
-                     except ValueError:
-                         # e.g. Feb 30th impossible
-                         pass_anniversary = True # Effectively "passed" it if it doesn't exist? No.
-                         pass
 
-                # --- SIMPLIFIED ROBUST LOGIC ---
-                # 1. Start at signup date
-                # 2. Add 30-day increments? No, user wants MONTHLY.
-                # 3. Use 30 days rolling for MVP? User said "which month" so implies calendar billing.
-                
-                # Let's trust "last 30 days" as a fallback or do the proper one?
-                # "charge should happen every month" implies specific date.
-                
-                # Let's try this:
-                # If created_at is day D.
-                # Current period start is Month M, Day D.
-                # If Today < Month M, Day D, then it's Month M-1, Day D.
-                
-                target_day = signup_date.day
-                c_year = now.year
-                c_month = now.month
-                
-                # Try to create date for current month
-                try:
-                    candidate = now.replace(year=c_year, month=c_month, day=target_day, hour=signup_date.hour, minute=signup_date.minute)
-                except ValueError:
-                    # Day out of range (e.g. 30th in Feb), clamp to last day
-                    import calendar
-                    last_day_curr = calendar.monthrange(c_year, c_month)[1]
-                    candidate = now.replace(year=c_year, month=c_month, day=last_day_curr, hour=signup_date.hour, minute=signup_date.minute)
-                
-                if candidate <= now:
-                    cycle_start = candidate
-                else:
-                    # We haven't reached this month's billing day yet, go back to prev month
-                    if c_month == 1:
             # 1. Determine Billing Cycle Start
             # Priority: billing_start_date (manual override) > created_at (default)
             anchor_date_str = profile.get("billing_start_date") or profile.get("created_at")

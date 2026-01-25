@@ -12,6 +12,7 @@
   "dependencies": {
     "@notifee/react-native": "^9.1.8",
     "@react-native-async-storage/async-storage": "2.2.0",
+    "@react-native-community/slider": "^5.1.2",
     "@react-native-masked-view/masked-view": "^0.3.2",
     "@supabase/supabase-js": "^2.89.0",
     "expo": "~54.0.30",

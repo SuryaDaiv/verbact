@@ -147,11 +147,19 @@ export default function RecordScreen() {
                 }
             } else {
                 // STARTING
-                const { data: { session } } = await supabase.auth.getSession();
-                if (!session) {
-                    Alert.alert("Error", "No active session");
+
+                // 1. Refresh Session to ensure valid token (Prevent 403)
+                const { data: { session }, error: sessionError } = await supabase.auth.getSession();
+
+                if (sessionError || !session) {
+                    console.error("Session Error:", sessionError);
+                    Alert.alert("Auth Error", "Please sign in again.");
+                    // Optional: router.replace('/login');
                     return;
                 }
+
+                // Double check expiry?
+                // if (session.expires_at ...) -> Supabase handles auto-refresh usually.
 
                 const newId = generateUUID();
                 const title = `Mobile Recording ${new Date().toLocaleTimeString()}`;
@@ -163,6 +171,7 @@ export default function RecordScreen() {
                 setSaveStatus('idle'); // Ensure idle
                 setRecordingDuration(0); // Reset timer
 
+                // Pass the fresh token
                 await audioService.startRecording(session.access_token, newId, title);
                 setIsRecording(true);
             }
@@ -299,16 +308,28 @@ export default function RecordScreen() {
 
                 <View style={styles.controls}>
                     <View style={styles.controlRow}>
-                        {/* Share (Left) */}
-                        <TouchableOpacity onPress={handleCreateShare} style={styles.sideButton} disabled={!recordingId}>
-                            {isSharing ? <ActivityIndicator size="small" color={Colors.textSecondary} /> : (
-                                <Share2 size={24} color={recordingId ? Colors.text : Colors.textSecondary} />
-                            )}
-                        </TouchableOpacity>
+                        {/* Timer & Status (Left) */}
+                        <View style={styles.timerContainer}>
+                            <Text style={styles.timerText}>{formatDuration(recordingDuration)}</Text>
+                            <Text style={styles.statusText}>{isRecording ? "LIVE" : "READY"}</Text>
+                            <Text style={{ fontSize: 10, color: isInitialized ? '#4CAF50' : '#666', marginTop: 4, fontWeight: '500' }}>
+                                {isInitialized ? "● Connected" : "○ Connecting..."}
+                            </Text>
+                        </View>
 
                         {/* Record Button (Center) */}
                         <TouchableOpacity onPress={handleToggleRecord} activeOpacity={0.8} disabled={!isInitialized || saveStatus === 'saving'}>
-                            <View style={[styles.recordButtonContainer]}>
+                            <View style={[styles.recordButtonContainer, {
+                                backgroundColor: isRecording ? 'rgba(76, 175, 80, 0.1)' : 'rgba(255, 68, 68, 0.1)',
+                                borderRadius: 50,
+                                borderWidth: 4,
+                                borderColor: Colors.surface, // Uses surface color for border to look like "cutout" from bar? 
+                                // Actually, if the bar is Surface, providing a border of Background color makes it look detached?
+                                // Let's try: No border, just circular background that breaks the bar visually?
+                                // User said "circle cutout around the logo".
+                                // Maybe a dark circle background behind the logo.
+                                backgroundColor: '#000', // Deep black hole
+                            }]}>
                                 <Image
                                     source={require('../../assets/images/logo.png')}
                                     style={[
@@ -320,14 +341,12 @@ export default function RecordScreen() {
                             </View>
                         </TouchableOpacity>
 
-                        {/* Timer & Status (Right) */}
-                        <View style={styles.timerContainer}>
-                            <Text style={styles.timerText}>{formatDuration(recordingDuration)}</Text>
-                            <Text style={styles.statusText}>{isRecording ? "LIVE" : "READY"}</Text>
-                            <Text style={{ fontSize: 10, color: isInitialized ? '#4CAF50' : '#666', marginTop: 4, fontWeight: '500' }}>
-                                {isInitialized ? "● Connected" : "○ Connecting..."}
-                            </Text>
-                        </View>
+                        {/* Share (Right) */}
+                        <TouchableOpacity onPress={handleCreateShare} style={styles.sideButton} disabled={!recordingId}>
+                            {isSharing ? <ActivityIndicator size="small" color={Colors.textSecondary} /> : (
+                                <Share2 size={24} color={recordingId ? Colors.text : Colors.textSecondary} />
+                            )}
+                        </TouchableOpacity>
                     </View>
                 </View>
             </View>

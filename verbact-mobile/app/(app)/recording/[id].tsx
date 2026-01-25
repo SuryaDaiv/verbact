@@ -1,4 +1,5 @@
 import { View, Text, StyleSheet, ScrollView, ActivityIndicator, TouchableOpacity, Share, Platform, TextInput } from 'react-native';
+import Slider from '@react-native-community/slider';
 import { useLocalSearchParams, useRouter, Stack } from 'expo-router';
 import { useEffect, useState } from 'react';
 import { supabase } from '../../../lib/supabase';
@@ -28,6 +29,7 @@ export default function RecordingDetail() {
     const [isPlaying, setIsPlaying] = useState(false);
     const [duration, setDuration] = useState(0);
     const [position, setPosition] = useState(0);
+    const [isSeeking, setIsSeeking] = useState(false);
 
     // Unload sound on unmount
     useEffect(() => {
@@ -72,8 +74,6 @@ export default function RecordingDetail() {
             setRecording(recData);
 
             // Fetch Transcripts
-            // Note: Adjust table name/query based on actual backend schema. 
-            // Assuming 'transcripts' table link via recording_id
             const { data: transData, error: transError } = await supabase
                 .from('transcripts')
                 .select('*')
@@ -128,7 +128,9 @@ export default function RecordingDetail() {
     const onPlaybackStatusUpdate = (status: AVPlaybackStatus) => {
         if (status.isLoaded) {
             setDuration(status.durationMillis || 0);
-            setPosition(status.positionMillis);
+            if (!isSeeking) {
+                setPosition(status.positionMillis);
+            }
             setIsPlaying(status.isPlaying);
             if (status.didJustFinish) {
                 setIsPlaying(false);
@@ -147,6 +149,7 @@ export default function RecordingDetail() {
         }
     };
 
+    // Helper for formatting time
     const formatTime = (millis: number) => {
         if (!millis) return '00:00';
         const totalSeconds = Math.floor(millis / 1000);
@@ -157,7 +160,7 @@ export default function RecordingDetail() {
 
     const handleShare = async () => {
         if (!transcripts.length) return;
-        const text = transcripts.map(t => t.text).join(' '); // Changed t.content to t.text
+        const text = transcripts.map(t => t.text).join(' ');
         try {
             await Share.share({
                 message: text,
@@ -214,10 +217,32 @@ export default function RecordingDetail() {
                             <Play size={20} color="white" fill="white" />
                         )}
                     </TouchableOpacity>
-                    <View style={styles.progressBar}>
-                        <View style={[styles.progressFill, { width: `${duration > 0 ? (position / duration) * 100 : 0}%` }]} />
-                    </View>
 
+                    <View style={{ flex: 1, justifyContent: 'center' }}>
+                        <Slider
+                            style={{ width: '100%', height: 40 }}
+                            minimumValue={0}
+                            maximumValue={duration}
+                            value={position}
+                            minimumTrackTintColor={Colors.primary}
+                            maximumTrackTintColor="rgba(255,255,255,0.3)"
+                            thumbTintColor={Colors.primary}
+                            onSlidingStart={() => setIsSeeking(true)}
+                            onSlidingComplete={async (value) => {
+                                if (sound) {
+                                    await sound.setPositionAsync(value);
+                                }
+                                setIsSeeking(false);
+                            }}
+                            onValueChange={(value) => {
+                                setPosition(value);
+                            }}
+                        />
+                        <View style={{ flexDirection: 'row', justifyContent: 'space-between', marginTop: -8 }}>
+                            <Text style={styles.durationText}>{formatTime(position)}</Text>
+                            <Text style={styles.durationText}>{formatTime(duration)}</Text>
+                        </View>
+                    </View>
                 </View>
             )}
 
@@ -248,13 +273,6 @@ export default function RecordingDetail() {
             </ScrollView>
         </View>
     );
-}
-
-function formatTimestamp(seconds: number) {
-    if (!seconds) return "00:00";
-    const m = Math.floor(seconds / 60);
-    const s = Math.floor(seconds % 60);
-    return `${m.toString().padStart(2, '0')}:${s.toString().padStart(2, '0')}`;
 }
 
 const styles = StyleSheet.create({
@@ -316,19 +334,6 @@ const styles = StyleSheet.create({
         justifyContent: 'center',
         marginRight: 12,
     },
-    progressBar: {
-        flex: 1,
-        height: 4,
-        backgroundColor: 'rgba(255,255,255,0.1)',
-        borderRadius: 2,
-        marginRight: 12,
-        overflow: 'hidden',
-    },
-    progressFill: {
-        width: '0%', // Dynamic later
-        height: '100%',
-        backgroundColor: Colors.primary,
-    },
     durationText: {
         color: Colors.textSecondary,
         fontSize: 10,
@@ -350,19 +355,11 @@ const styles = StyleSheet.create({
         flexDirection: 'row',
         marginBottom: 16,
     },
-    timestamp: {
-        width: 50,
-        color: Colors.textSecondary,
-        fontSize: 12,
-        paddingTop: 4,
-        opacity: 0.6,
-        fontFamily: Platform.OS === 'ios' ? 'Courier New' : 'monospace',
-    },
     segmentText: {
         flex: 1,
         color: Colors.text,
-        fontSize: 14, // REDUCED from 16
-        lineHeight: 22, // Reduced line height
+        fontSize: 14,
+        lineHeight: 22,
     },
     emptyText: {
         color: Colors.textSecondary,
