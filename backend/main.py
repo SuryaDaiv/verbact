@@ -448,121 +448,41 @@ async def get_user_usage(token: str):
             user_id = user_data["id"]
 
         async with await get_supabase_client(token) as supabase_client:
-            # 1. Get Profile for Tier & Cycle Info
+            # 1. Get Profile for Tier
             profile_response = await supabase_client.get(
-                f"/rest/v1/profiles?id=eq.{user_id}&select=subscription_tier,created_at,billing_start_date,usage_seconds"
+                f"/rest/v1/profiles?id=eq.{user_id}&select=subscription_tier,created_at"
             )
             tier = "free"
-            created_at_str = None
             
             if profile_response.status_code == 200 and profile_response.json():
                 profile = profile_response.json()[0]
                 tier = profile.get("subscription_tier", "free").lower()
-                created_at_str = profile.get("created_at")
 
-            # Calculate Billing Cycle
+            # 2. Determine Billing Cycle (Calendar Month for stability)
             now = datetime.now(timezone.utc)
-            cycle_start = now # Default to now (0 usage) if logic fails
-            next_renewal = now + timedelta(days=30)
-
-            if created_at_str:
-                # Parse created_at (User Join Date)
-                # Example: 2023-01-15T10:00:00+00:00
-                signup_date = datetime.fromisoformat(created_at_str.replace('Z', '+00:00'))
-                
-                # Logic: Find the most recent "monthly anniversary"
-                # If signup is Jan 15, and today is Jan 24 -> Start is Jan 15
-                # If signup is Jan 15, and today is Feb 20 -> Start is Feb 15
-                
-                try:
-                    # Start with this year/month and signup day
-                    cycle_start = now.replace(day=signup_date.day, hour=signup_date.hour, minute=signup_date.minute, second=signup_date.second, microsecond=signup_date.microsecond)
-                    
-                    # If this date is in the future (e.g. today is Jan 10, signup day is 15th), subtract a month
-                    if cycle_start > now:
-                       # Go back to previous month
-                       # Handle Jan -> Dec wrap carefully or use simple approximate
-                       # Easier: just subtract days until we are <= now? No, slightly inaccurate.
-                       # Better: relative delta logic or try/except for days (e.g. 31st)
-                       pass
-                       
-                       first_of_month = now.replace(day=1)
-                       last_month = first_of_month - timedelta(days=1)
-                       
-                       # Handle short months (e.g. signup on 31st, now is Feb)
-                       try:
-                           cycle_start = last_month.replace(day=signup_date.day, hour=signup_date.hour, minute=signup_date.minute)
-                       except ValueError:
-                           # Fallback to last day of that month
-                           cycle_start = last_month.replace(hour=signup_date.hour, minute=signup_date.minute)
-
-                except ValueError:
-                     # Handle "Day is out of range for month" (e.g. today is Feb 20, signup was Jan 31)
-                     # If trying to set Feb 31st, it fails.
-                     # Simplified approach:
-                     pass
-                     # Robust calculation: get current month start, if day > max_days, use max_days
-                     
-                     # RE-ATTEMPT SIMPLE LOGIC: 
-                     # Calculate months diff
-                     diff_years = now.year - signup_date.year
-                     diff_months = (diff_years * 12) + now.month - signup_date.month
-                     
-
-            # 1. Determine Billing Cycle Start
-            # Priority: billing_start_date (manual override) > created_at (default)
-            anchor_date_str = profile.get("billing_start_date") or profile.get("created_at")
-            anchor_date = datetime.fromisoformat(anchor_date_str.replace('Z', '+00:00'))
-            now = datetime.now(timezone.utc)
+            cycle_start = now.replace(day=1, hour=0, minute=0, second=0, microsecond=0)
             
-            # Find the start of the CURRENT monthly cycle relative to the anchor date
-            # Logic: Cycle starts on the anchor_day of the current month (or previous month if today < anchor_day)
-            
-            try:
-                # Try setting this month's anchor day
-                cycle_start = now.replace(
-                    year=now.year, month=now.month, day=anchor_date.day,
-                    hour=anchor_date.hour, minute=anchor_date.minute,
-                    second=anchor_date.second, microsecond=anchor_date.microsecond
-                )
-                
-                # If this date is in the future, then the cycle started last month
-                if cycle_start > now:
-                     # Go back one month
-                    if now.month == 1:
-                        cycle_start = cycle_start.replace(year=now.year - 1, month=12)
-                    else:
-                        cycle_start = cycle_start.replace(month=now.month - 1)
-                        
-            except ValueError:
-                # Handle short months (e.g. Anchor is 31st, now it's Feb)
-                # Fallback: Start of this month (or keep it simple for now)
-                cycle_start = now.replace(day=1, hour=0, minute=0, second=0)
-
-            # Next renewal is approx 1 month from cycle start
-            # We can approximate next month by adding 32 days and snapping to day 1? No.
-            # Simple addition for display:
-            if cycle_start.month == 12:
-                next_renewal = cycle_start.replace(year=cycle_start.year+1, month=1)
+            # Next renewal is start of next month
+            if now.month == 12:
+                next_renewal = now.replace(year=now.year+1, month=1, day=1, hour=0, minute=0, second=0, microsecond=0)
             else:
-                try:
-                    next_renewal = cycle_start.replace(month=cycle_start.month+1)
-                except ValueError:
-                    # e.g. Jan 31 -> Feb 28
-                    next_renewal = cycle_start + timedelta(days=30)
-                 
-            # 2. Calculate Usage (From Profile Accumulator)
-            # This ensures we match what the Live WebSocket updates, and don't lose usage if files are deleted.
-            used_seconds = profile.get("usage_seconds", 0) or 0
+                 next_renewal = now.replace(month=now.month+1, day=1, hour=0, minute=0, second=0, microsecond=0)
+
+            # 3. Calculate Usage (Sum duration of recordings in current month)
+            cycle_start_iso = cycle_start.isoformat()
             
-            # Fallback: If usage_seconds is 0 but user has recordings (e.g. legacy data), 
-            # we might want to sum them, but let's stick to the profile truth for now to ensure consistency.
-            # If "data doesn't sync", it's likely because we were summing before but saving to profile.
+            rec_response = await supabase_client.get(
+                f"/rest/v1/recordings?user_id=eq.{user_id}&created_at=gte.{cycle_start_iso}&select=duration_seconds"
+            )
             
-            # (Optional) We could double check against sum if we wanted, but let's trust profile column.
-            pass
+            used_seconds = 0
+            if rec_response.status_code == 200:
+                recordings = rec_response.json()
+                used_seconds = sum(r.get("duration_seconds", 0) for r in recordings)
+            else:
+                 print(f"Failed to fetch recordings for usage: {rec_response.text}")
             
-            # 3. Define Limits
+            # 4. Define Limits
             # TODO: Move to config/DB
             LIMITS = {
                 "free": 30 * 60,       # 30 mins
