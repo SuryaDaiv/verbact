@@ -983,6 +983,11 @@ async def watch_endpoint(websocket: WebSocket, share_token: str):
         await websocket.close()
 
 
+@app.websocket("/ws/transcribe")
+async def transcribe_endpoint(websocket: WebSocket):
+    await websocket.accept()
+    client_id = str(uuid.uuid4())
+
     current_recording_title = "Live Recording"
     
     def get_timestamp():
