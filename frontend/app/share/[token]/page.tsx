@@ -238,7 +238,7 @@ export default function SharePage({ params }: { params: Promise<{ token: string 
             <main className="relative z-10 mx-auto w-full max-w-4xl px-4 pt-24 pb-8 flex flex-col h-screen">
 
                 {/* Transcription Stream */}
-                <div className="flex-1 overflow-y-auto pr-2 scrollbar-hide mask-image-b fade-bottom relative flex flex-col no-scrollbar pb-32">
+                <div className="flex-1 overflow-y-auto pr-2 scrollbar-hide mask-image-b fade-bottom relative flex flex-col no-scrollbar pb-[50vh]">
                     <style jsx global>{`
                         .no-scrollbar::-webkit-scrollbar {
                             display: none;
@@ -248,29 +248,75 @@ export default function SharePage({ params }: { params: Promise<{ token: string 
                             scrollbar-width: none;
                         }
                     `}</style>
-                    <div ref={transcriptRef} className={`space-y-${isMerge ? '1' : '4'} h-full overflow-y-auto no-scrollbar scroll-smooth`}>
+                    <div ref={transcriptRef} className={`pb-32 h-full overflow-y-auto no-scrollbar scroll-smooth`}>
                         {recording.transcripts.length === 0 && !interimText ? (
                             <div className="flex flex-col items-center justify-center h-48 text-[#BFC2CF]/30">
                                 <p>Waiting for speech...</p>
                             </div>
                         ) : (
                             <>
-                                {recording.transcripts.map((segment, index) => {
-                                    return (
-                                        <div
-                                            key={segment.id}
-                                            id={`segment-${segment.id}`}
-                                            className={`transition-all duration-500 pl-3 border-l-2 ${activeSegmentId === segment.id
-                                                ? 'border-[#A86CFF] bg-[#A86CFF]/5'
-                                                : 'border-transparent hover:border-white/10'
-                                                } ${isMerge ? 'py-1' : 'py-2'}`}
-                                        >
-                                            <p className={`leading-relaxed text-[#BFC2CF] ${activeSegmentId === segment.id ? 'text-white' : ''} text-sm md:text-base`}>
-                                                {segment.text}
-                                            </p>
-                                        </div>
-                                    );
-                                })}
+                                {(() => {
+                                    // Merging Logic (Paragraphs)
+                                    // If isMerge is TRUE, we group segments into paragraphs based on time gaps (> 1.5s).
+                                    // If isMerge is FALSE, we render the original list (Compact Mode off).
+
+                                    if (!isMerge) {
+                                        // Standard List View
+                                        return recording.transcripts.map((segment) => (
+                                            <div
+                                                key={segment.id}
+                                                id={`segment-${segment.id}`}
+                                                className={`transition-all duration-500 pl-3 border-l-2 py-2 ${activeSegmentId === segment.id
+                                                    ? 'border-[#A86CFF] bg-[#A86CFF]/5'
+                                                    : 'border-transparent hover:border-white/10'
+                                                    }`}
+                                            >
+                                                <p className={`leading-relaxed text-[#BFC2CF] ${activeSegmentId === segment.id ? 'text-white' : ''} text-sm md:text-base`}>
+                                                    {segment.text}
+                                                </p>
+                                            </div>
+                                        ));
+                                    } else {
+                                        // Merged Paragraph View
+                                        const paragraphs: TranscriptSegment[][] = [];
+                                        let currentPara: TranscriptSegment[] = [];
+
+                                        recording.transcripts.forEach((segment, idx) => {
+                                            if (idx === 0) {
+                                                currentPara.push(segment);
+                                                return;
+                                            }
+                                            const prev = recording.transcripts[idx - 1];
+                                            const gap = segment.start_time - prev.end_time;
+
+                                            // Pause Detection (> 1.5s = New Paragraph)
+                                            if (gap > 1.5) {
+                                                paragraphs.push(currentPara);
+                                                currentPara = [segment];
+                                            } else {
+                                                currentPara.push(segment);
+                                            }
+                                        });
+                                        if (currentPara.length > 0) paragraphs.push(currentPara);
+
+                                        return paragraphs.map((para, pIdx) => (
+                                            <div key={pIdx} className="mb-6 pl-3 border-l-2 border-transparent">
+                                                <p className="leading-relaxed text-[#BFC2CF] text-sm md:text-base">
+                                                    {para.map((segment) => (
+                                                        <span
+                                                            key={segment.id}
+                                                            id={`segment-${segment.id}`}
+                                                            className={`transition-colors duration-300 mr-1 ${activeSegmentId === segment.id ? 'text-white bg-[#A86CFF]/20 rounded px-1' : ''}`}
+                                                        >
+                                                            {segment.text}
+                                                        </span>
+                                                    ))}
+                                                </p>
+                                            </div>
+                                        ));
+                                    }
+                                })()}
+
                                 {interimText && (
                                     <div className="animate-pulse py-2 pl-3 border-l-2 border-[#A86CFF]/50 bg-[#A86CFF]/5">
                                         <p className="text-sm md:text-base leading-relaxed text-[#A86CFF] opacity-90 italic">
@@ -348,6 +394,16 @@ export default function SharePage({ params }: { params: Promise<{ token: string 
 
                         {/* Controls using Buttons */}
                         <div className="flex items-center space-x-2">
+                            <button
+                                onClick={() => setIsMerge(!isMerge)}
+                                className={`p-2 rounded-lg transition-all flex items-center space-x-2 ${isMerge ? "bg-white/10 text-white" : "bg-transparent text-[#666] hover:bg-white/5"
+                                    }`}
+                                title="Toggle Merge Mode"
+                            >
+                                <AlignLeft size={18} />
+                                <span className="text-xs font-medium hidden sm:inline">Text</span>
+                            </button>
+                            <div className="h-4 w-px bg-white/10 mx-2" />
                             <button
                                 onClick={() => setIsAutoScroll(!isAutoScroll)}
                                 className={`p-2 rounded-lg transition-all flex items-center space-x-2 ${isAutoScroll ? "bg-white/10 text-white" : "bg-transparent text-[#666] hover:bg-white/5"
