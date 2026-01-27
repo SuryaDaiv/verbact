@@ -237,46 +237,8 @@ export default function SharePage({ params }: { params: Promise<{ token: string 
 
             <main className="relative z-10 mx-auto w-full max-w-4xl px-4 pt-24 pb-8 flex flex-col h-screen">
 
-                {/* Minimal Header with Controls */}
-                <div className="flex items-center justify-between mb-8 z-30 bg-[#0E0E12]/80 backdrop-blur-md p-4 rounded-2xl border border-white/5 shadow-lg">
-                    <div className="flex items-center space-x-4">
-                        {/* Title & Status */}
-                        <div>
-                            <h1 className="text-xl font-bold text-white mb-1">
-                                {recording.title}
-                            </h1>
-                            <div className="flex items-center space-x-3 text-xs text-[#666]">
-                                <span className="flex items-center">
-                                    <Calendar className="w-3 h-3 mr-1" />
-                                    {new Date(recording.created_at).toLocaleDateString()}
-                                </span>
-                                {recording.is_live && (
-                                    <span className="text-[#FF0000] font-bold tracking-widest uppercase text-[10px] animate-pulse">
-                                        ● LIVE
-                                    </span>
-                                )}
-                            </div>
-                        </div>
-                    </div>
-
-                    {/* Controls using Buttons */}
-                    <div className="flex items-center space-x-2">
-                        <button
-                            onClick={() => setIsAutoScroll(!isAutoScroll)}
-                            className={`p-2 rounded-lg transition-all flex items-center space-x-2 ${isAutoScroll ? "bg-white/10 text-white" : "bg-transparent text-[#666] hover:bg-white/5"
-                                }`}
-                            title="Toggle Auto-Scroll"
-                        >
-                            <ArrowDown size={18} />
-                            <span className="text-xs font-medium hidden sm:inline">Auto-Scroll</span>
-                        </button>
-
-                        {/* Merge button removed (always enabled) */}
-                    </div>
-                </div>
-
                 {/* Transcription Stream */}
-                <div className="flex-1 overflow-y-auto pr-2 scrollbar-hide mask-image-b fade-bottom relative flex flex-col no-scrollbar">
+                <div className="flex-1 overflow-y-auto pr-2 scrollbar-hide mask-image-b fade-bottom relative flex flex-col no-scrollbar pb-32">
                     <style jsx global>{`
                         .no-scrollbar::-webkit-scrollbar {
                             display: none;
@@ -286,7 +248,7 @@ export default function SharePage({ params }: { params: Promise<{ token: string 
                             scrollbar-width: none;
                         }
                     `}</style>
-                    <div ref={transcriptRef} className={`space-y-${isMerge ? '1' : '4'} pb-32 h-full overflow-y-auto no-scrollbar scroll-smooth`}>
+                    <div ref={transcriptRef} className={`space-y-${isMerge ? '1' : '4'} h-full overflow-y-auto no-scrollbar scroll-smooth`}>
                         {recording.transcripts.length === 0 && !interimText ? (
                             <div className="flex flex-col items-center justify-center h-48 text-[#BFC2CF]/30">
                                 <p>Waiting for speech...</p>
@@ -294,9 +256,6 @@ export default function SharePage({ params }: { params: Promise<{ token: string 
                         ) : (
                             <>
                                 {recording.transcripts.map((segment, index) => {
-                                    // Visual Merger: If isMerge is ON, check if we should render spacing
-                                    // Actually simpler: just reduce spacing (space-y-1 vs space-y-4) and border
-
                                     return (
                                         <div
                                             key={segment.id}
@@ -325,7 +284,7 @@ export default function SharePage({ params }: { params: Promise<{ token: string 
 
                     {/* Floating Audio Player (Only if Recorded) */}
                     {!recording.is_live && recording.audio_url && (
-                        <div className="fixed bottom-8 left-1/2 -translate-x-1/2 w-full max-w-md px-4 z-40">
+                        <div className="fixed bottom-32 left-1/2 -translate-x-1/2 w-full max-w-md px-4 z-40">
                             <div className="glass-card p-3 rounded-xl flex items-center space-x-4 shadow-2xl animate-in slide-in-from-bottom-8 bg-[#181A20] border border-white/10">
                                 <audio
                                     ref={audioRef}
@@ -362,6 +321,44 @@ export default function SharePage({ params }: { params: Promise<{ token: string 
                             </div>
                         </div>
                     )}
+                </div>
+
+                {/* Minimal Header with Controls (Moved to Bottom) */}
+                <div className="fixed bottom-0 left-0 right-0 z-50 bg-[#0E0E12]/90 backdrop-blur-md p-4 border-t border-white/5 shadow-[0_-10px_40px_rgba(0,0,0,0.5)]">
+                    <div className="mx-auto w-full max-w-4xl flex items-center justify-between">
+                        <div className="flex items-center space-x-4">
+                            {/* Title & Status */}
+                            <div>
+                                <h1 className="text-xl font-bold text-white mb-1">
+                                    {recording.title}
+                                </h1>
+                                <div className="flex items-center space-x-3 text-xs text-[#666]">
+                                    <span className="flex items-center">
+                                        <Calendar className="w-3 h-3 mr-1" />
+                                        {new Date(recording.created_at).toLocaleDateString()}
+                                    </span>
+                                    {recording.is_live && (
+                                        <span className="text-[#FF0000] font-bold tracking-widest uppercase text-[10px] animate-pulse">
+                                            ● LIVE
+                                        </span>
+                                    )}
+                                </div>
+                            </div>
+                        </div>
+
+                        {/* Controls using Buttons */}
+                        <div className="flex items-center space-x-2">
+                            <button
+                                onClick={() => setIsAutoScroll(!isAutoScroll)}
+                                className={`p-2 rounded-lg transition-all flex items-center space-x-2 ${isAutoScroll ? "bg-white/10 text-white" : "bg-transparent text-[#666] hover:bg-white/5"
+                                    }`}
+                                title="Toggle Auto-Scroll"
+                            >
+                                <ArrowDown size={18} />
+                                <span className="text-xs font-medium hidden sm:inline">Auto-Scroll</span>
+                            </button>
+                        </div>
+                    </div>
                 </div>
 
             </main>

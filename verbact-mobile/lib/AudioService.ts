@@ -1,6 +1,6 @@
 import AudioRecord from 'react-native-audio-record';
 import notifee, { AndroidImportance, AndroidCategory } from '@notifee/react-native';
-import { Platform, PermissionsAndroid } from 'react-native';
+import { Platform, PermissionsAndroid, Alert, Linking } from 'react-native';
 import { supabase } from './supabase';
 
 // Helper to convert base64 to 16-bit signed integer buffer (PCM)
@@ -22,6 +22,7 @@ class AudioService {
     notificationId: string | null = null;
 
     isInitialized = false;
+    private _isStarting = false; // Lock to prevent double-start
 
     // Event Listeners
     private listeners: { [key: string]: Function[] } = {};
@@ -30,7 +31,6 @@ class AudioService {
         if (!this.listeners[event]) this.listeners[event] = [];
         this.listeners[event].push(callback);
     }
-
     off(event: 'transcript' | 'error' | 'stop', callback: Function) {
         if (!this.listeners[event]) return;
         this.listeners[event] = this.listeners[event].filter(cb => cb !== callback);
@@ -45,24 +45,24 @@ class AudioService {
     async init() {
         if (this.isInitialized) return;
 
-        // AudioRecord.init will be called here to ensure single initialization
+        // ... (options remain same)
         const options = {
             sampleRate: 16000,
             channels: 1,
             bitsPerSample: 16,
-            audioSource: 1, // 1 = MIC (Better for Emulator), 6 = VOICE_RECOGNITION
+            audioSource: 6, // 6 = VOICE_RECOGNITION
             wavFile: 'test.wav'
         };
 
         try {
             AudioRecord.init(options);
-            console.log("AudioRecord initialized with source: 1 (MIC)");
+            console.log("AudioRecord initialized with source: 6 (VOICE_RECOGNITION)");
             this.isInitialized = true;
         } catch (e: any) {
             console.error("AudioRecord Init Error:", e);
         }
 
-        // Create notification channel
+        // Create notification channel (Android Only)
         if (Platform.OS === 'android') {
             await notifee.createChannel({
                 id: 'recording-channel',
@@ -73,27 +73,26 @@ class AudioService {
             });
         }
 
-        // Setup event listener for audio data
+        // Setup listener
         AudioRecord.on('data', data => {
+            // Fast exit if not recording or socket not ready
             if (!this.isRecording || !this.socket || this.socket.readyState !== WebSocket.OPEN) return;
-
-            // Debug log to confirm data flow (throttle this in prod)
-            // console.log("Audio Data Packet:", data.length); 
-
-            // data is base64 encoded PCM
             const buffer = base64ToArrayBuffer(data);
             this.socket.send(buffer);
         });
     }
 
     async startRecording(sessionToken: string, recordingId: string, title: string = "New Recording") {
-        try {
-            if (this.isRecording) return;
+        if (this.isRecording || this._isStarting) {
+            console.warn("Already recording or starting");
+            return;
+        }
 
+        this._isStarting = true; // LOCK
+
+        try {
             // Ensure initialized
-            if (!this.isInitialized) {
-                await this.init();
-            }
+            await this.init();
 
             // 0. Request Permissions (Audio AND Notifications)
             if (Platform.OS === 'android') {
@@ -121,7 +120,19 @@ class AudioService {
                         // @ts-ignore
                         const POST_NOTIFICATIONS = PermissionsAndroid.PERMISSIONS.POST_NOTIFICATIONS;
                         if (POST_NOTIFICATIONS) {
-                            await PermissionsAndroid.request(POST_NOTIFICATIONS);
+                            const grantedNotif = await PermissionsAndroid.request(POST_NOTIFICATIONS);
+                            if (grantedNotif !== PermissionsAndroid.RESULTS.GRANTED) {
+                                console.warn('Notification permission denied - Background recording may fail');
+                                Alert.alert(
+                                    "Permission Required",
+                                    "Notifications are required to keep the recording active in the background. Please enable them in Settings.",
+                                    [
+                                        { text: "Open Settings", onPress: () => Linking.openSettings() },
+                                        { text: "Cancel", style: "cancel" }
+                                    ]
+                                );
+                                return; // Stop to prevent background death
+                            }
                         }
                     }
                 } catch (permErr: any) {
@@ -149,7 +160,7 @@ class AudioService {
                                 id: 'default',
                             },
                             // Add action needed for Android 14+ FGS if microphone type
-                            foregroundServiceTypes: [2048], // 2048 = FOREGROUND_SERVICE_TYPE_MICROPHONE (api 29+) or define in manifest
+                            foregroundServiceTypes: [128], // 128 = FOREGROUND_SERVICE_TYPE_MICROPHONE
                         },
                     });
                 }
@@ -231,6 +242,8 @@ class AudioService {
             try {
                 this.stopRecording();
             } catch (e) { }
+        } finally {
+            this._isStarting = false; // UNLOCK
         }
     }
 
