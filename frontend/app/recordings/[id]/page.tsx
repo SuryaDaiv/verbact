@@ -182,7 +182,7 @@ export default function RecordingPage({ params }: { params: Promise<{ id: string
 
     return (
         <div className="min-h-screen bg-[#0E0E12] text-white">
-            <main className="mx-auto w-full max-w-5xl px-4 py-6 sm:px-6">
+            <main className="mx-auto w-full max-w-5xl px-4 pt-24 pb-6 sm:px-6">
                 <div className="mb-6 flex items-center text-sm">
                     <Link href="/dashboard" className="inline-flex items-center text-[#BFC2CF] hover:text-white transition-colors">
                         <ArrowLeft className="mr-2 h-4 w-4" /> Back to Dashboard
@@ -206,7 +206,7 @@ export default function RecordingPage({ params }: { params: Promise<{ id: string
                                 </span>
                                 <span className="inline-flex items-center">
                                     <Clock className="mr-1.5 h-4 w-4 opacity-70" />
-                                    {formatTimecode(recording.duration_seconds)}
+                                    {formatTimecode(duration || recording.duration_seconds)}
                                 </span>
                             </div>
                         </div>

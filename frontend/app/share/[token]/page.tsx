@@ -207,25 +207,6 @@ export default function SharePage({ params }: { params: Promise<{ token: string 
 
     if (!recording) return null;
 
-    // Logic to merge segments if enabled
-    const displayedTranscripts = isMerge
-        ? recording.transcripts.reduce((acc, curr, idx) => {
-            if (idx === 0) return [curr];
-            const prev = acc[acc.length - 1];
-            // Merge if gap is small (< 2s) - simple logic
-            // For now, let's just merge all for "Compact Mode" effect
-            // Actually user said "after it gets two or three sentences then it can actually merge"
-            // We'll simulate this by grouping every 3 segments
-            // Simplified: Just Concatenate everything into big blocks? No, let's keep it simple.
-            // Let's merge purely based on time or just visual compactness.
-            // "Merge Text" usually means removing the spacing.
-
-            // Let's implement visual merging in the map below instead of changing data structure to avoid key issues.
-            return [...acc, curr];
-        }, [] as TranscriptSegment[])
-        : recording.transcripts;
-
-
     return (
         <div className="min-h-screen bg-[#0E0E12] text-white overflow-hidden relative selection:bg-[#A86CFF]/30 selection:text-white">
 
@@ -238,7 +219,7 @@ export default function SharePage({ params }: { params: Promise<{ token: string 
             <main className="relative z-10 mx-auto w-full max-w-4xl px-4 pt-24 pb-8 flex flex-col h-screen">
 
                 {/* Transcription Stream */}
-                <div className="flex-1 overflow-y-auto pr-2 scrollbar-hide mask-image-b fade-bottom relative flex flex-col no-scrollbar pb-[50vh]">
+                <div className="flex-1 overflow-y-auto pr-2 scrollbar-hide relative flex flex-col no-scrollbar pb-32">
                     <style jsx global>{`
                         .no-scrollbar::-webkit-scrollbar {
                             display: none;
@@ -256,40 +237,53 @@ export default function SharePage({ params }: { params: Promise<{ token: string 
                         ) : (
                             <>
                                 {(() => {
-                                    // Merging Logic (Paragraphs)
-                                    // If isMerge is TRUE, we group segments into paragraphs based on time gaps (> 1.5s).
-                                    // If isMerge is FALSE, we render the original list (Compact Mode off).
+                                    // Combine existing transcripts with interim text for seamless rendering
+                                    const allSegments: (TranscriptSegment & { isInterim?: boolean })[] = [...recording.transcripts];
+                                    if (interimText) {
+                                        const last = allSegments[allSegments.length - 1];
+                                        const startTime = last ? last.end_time : 0;
+                                        allSegments.push({
+                                            id: 'interim-segment',
+                                            text: interimText,
+                                            start_time: startTime,
+                                            end_time: startTime + 1,
+                                            confidence: 0,
+                                            isInterim: true
+                                        });
+                                    }
 
+                                    // Merging Logic (Paragraphs)
                                     if (!isMerge) {
                                         // Standard List View
-                                        return recording.transcripts.map((segment) => (
+                                        return allSegments.map((segment) => (
                                             <div
                                                 key={segment.id}
                                                 id={`segment-${segment.id}`}
-                                                className={`transition-all duration-500 pl-3 border-l-2 py-2 ${activeSegmentId === segment.id
+                                                className={`transition-all duration-500 pl-3 border-l-2 py-2 ${activeSegmentId === segment.id && !segment.isInterim
                                                     ? 'border-[#A86CFF] bg-[#A86CFF]/5'
-                                                    : 'border-transparent hover:border-white/10'
+                                                    : segment.isInterim
+                                                        ? 'border-[#A86CFF]/50 bg-[#A86CFF]/5'
+                                                        : 'border-transparent hover:border-white/10'
                                                     }`}
                                             >
-                                                <p className={`leading-relaxed text-[#BFC2CF] ${activeSegmentId === segment.id ? 'text-white' : ''} text-sm md:text-base`}>
-                                                    {segment.text}
+                                                <p className={`leading-relaxed text-[#BFC2CF] ${activeSegmentId === segment.id ? 'text-white' : ''} ${segment.isInterim ? 'text-[#A86CFF] italic opacity-90' : ''} text-sm md:text-base`}>
+                                                    {segment.text} {segment.isInterim ? '...' : ''}
                                                 </p>
                                             </div>
                                         ));
                                     } else {
                                         // Merged Paragraph View
-                                        const paragraphs: TranscriptSegment[][] = [];
-                                        let currentPara: TranscriptSegment[] = [];
+                                        const paragraphs: (TranscriptSegment & { isInterim?: boolean })[][] = [];
+                                        let currentPara: (TranscriptSegment & { isInterim?: boolean })[] = [];
 
-                                        recording.transcripts.forEach((segment, idx) => {
+                                        allSegments.forEach((segment, idx) => {
                                             if (idx === 0) {
                                                 currentPara.push(segment);
                                                 return;
                                             }
-                                            const prev = recording.transcripts[idx - 1];
+                                            const prev = allSegments[idx - 1];
                                             const gap = segment.start_time - prev.end_time;
 
-                                            // Pause Detection (> 1.5s = New Paragraph)
                                             if (gap > 1.5) {
                                                 paragraphs.push(currentPara);
                                                 currentPara = [segment];
@@ -300,30 +294,28 @@ export default function SharePage({ params }: { params: Promise<{ token: string 
                                         if (currentPara.length > 0) paragraphs.push(currentPara);
 
                                         return paragraphs.map((para, pIdx) => (
-                                            <div key={pIdx} className="mb-6 pl-3 border-l-2 border-transparent">
+                                            <div key={pIdx} className="mb-6 pl-3 border-l-2 border-transparent hover:border-white/5 transition-colors">
                                                 <p className="leading-relaxed text-[#BFC2CF] text-sm md:text-base">
                                                     {para.map((segment) => (
                                                         <span
                                                             key={segment.id}
                                                             id={`segment-${segment.id}`}
-                                                            className={`transition-colors duration-300 mr-1 ${activeSegmentId === segment.id ? 'text-white bg-[#A86CFF]/20 rounded px-1' : ''}`}
+                                                            className={`transition-colors duration-300 mr-1 ${segment.isInterim
+                                                                    ? 'text-[#A86CFF] italic'
+                                                                    : activeSegmentId === segment.id
+                                                                        ? 'text-white bg-[#A86CFF]/20 rounded px-1'
+                                                                        : ''
+                                                                }`}
                                                         >
                                                             {segment.text}
                                                         </span>
                                                     ))}
+                                                    {para.some(s => s.isInterim) && <span className="text-[#A86CFF] animate-pulse">...</span>}
                                                 </p>
                                             </div>
                                         ));
                                     }
                                 })()}
-
-                                {interimText && (
-                                    <div className="animate-pulse py-2 pl-3 border-l-2 border-[#A86CFF]/50 bg-[#A86CFF]/5">
-                                        <p className="text-sm md:text-base leading-relaxed text-[#A86CFF] opacity-90 italic">
-                                            {interimText} ...
-                                        </p>
-                                    </div>
-                                )}
                             </>
                         )}
                     </div>

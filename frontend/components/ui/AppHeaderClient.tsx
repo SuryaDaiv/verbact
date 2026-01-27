@@ -87,12 +87,12 @@ export default function AppHeaderClient({
 
         {/* Left: Brand Monogram */}
         <Link href="/" className="group relative flex items-center justify-center p-1 rounded-xl hover:bg-white/5 transition-colors">
-          <div className="relative h-12 w-12 overflow-hidden">
+          <div className="relative h-14 w-14 overflow-hidden">
             <Image
               src="/logo.png"
               alt="Verbact Logo"
               fill
-              className="object-contain"
+              className="object-contain scale-110"
             />
           </div>
           {/* Optional glow effect behind logo */}
